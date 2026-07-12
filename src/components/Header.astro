@@ -80,17 +80,17 @@ const nav = [
     return 'dark';
   }
 
-  function applyTheme(theme: string) {
+  function applyTheme(theme: string, persist = false) {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('tracepod-theme', theme);
+    if (persist) localStorage.setItem('tracepod-theme', theme);
   }
 
-  // Apply on load (before paint)
+  // Apply on load without persisting — only an explicit toggle saves a preference
   applyTheme(getInitialTheme());
 
   document.getElementById('theme-toggle')?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme');
-    applyTheme(current === 'light' ? 'dark' : 'light');
+    applyTheme(current === 'light' ? 'dark' : 'light', true);
   });
 
   // Mobile menu
