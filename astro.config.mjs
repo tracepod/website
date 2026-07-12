@@ -47,6 +47,14 @@ export default defineConfig({
         },
       ],
       customCss: ['./src/styles/starlight-custom.css'],
+      head: [
+        {
+          // Default the docs to dark on first visit; the theme picker still works.
+          tag: 'script',
+          content:
+            "if (!localStorage.getItem('starlight-theme')) localStorage.setItem('starlight-theme', 'dark');",
+        },
+      ],
     }),
   ],
 });
