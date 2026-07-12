@@ -1,0 +1,33 @@
+---
+title: Tracepod Documentation
+description: eBPF-based container hardening — documentation home.
+template: splash
+hero:
+  tagline: Profile running containers via eBPF. Produce minimised images, seccomp allowlists, AppArmor profiles, and signed SBOMs.
+  actions:
+    - text: Quickstart guide
+      link: /docs/quickstart/guide/
+      icon: right-arrow
+      variant: primary
+    - text: How it works
+      link: /docs/concepts/how-it-works/
+      icon: external
+---
+
+## What is Tracepod?
+
+Tracepod is an eBPF-based container hardening tool. It attaches a CO-RE sensor to your running workloads, captures every file they open at runtime, and uses that observation to produce:
+
+- **Minimised OCI images** — only files actually observed at runtime, plus recursively resolved ELF dependencies
+- **Seccomp allowlists** — syscall profiles derived from observed behaviour, not guesswork
+- **AppArmor profiles** — precise MAC policy generated from runtime data
+- **CycloneDX + SPDX SBOMs** — signed with cosign and pushed alongside the image
+
+## Browse the docs
+
+| Section | What's inside |
+|---------|---------------|
+| [Installation](/docs/installation/overview/) | Helm, binary download, prerequisites |
+| [Quickstart](/docs/quickstart/guide/) | Profile and harden your first workload |
+| [Concepts](/docs/concepts/how-it-works/) | Architecture, confidence scoring, observation sources |
+| [Kubernetes](/docs/kubernetes/helm/) | Helm values, RBAC, DaemonSet configuration |

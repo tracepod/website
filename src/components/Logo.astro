@@ -1,0 +1,63 @@
+---
+interface Props {
+  size?: 'sm' | 'md' | 'lg';
+}
+const { size = 'md' } = Astro.props;
+const heights = { sm: 28, md: 32, lg: 40 };
+const h = heights[size];
+---
+<a href="/" class="logo" aria-label="Tracepod home">
+  <svg
+    width={Math.round(h * 1.1)}
+    height={h}
+    viewBox="0 0 44 40"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    class="logo-mark"
+  >
+    <!-- Hexagon pod outline -->
+    <path
+      d="M22 2L38 11.5V29.5L22 39L6 29.5V11.5L22 2Z"
+      stroke="currentColor"
+      stroke-width="1.5"
+      fill="none"
+      class="hex"
+    />
+    <!-- Trace / pulse line through the center -->
+    <polyline
+      points="8,20 15,20 18,13 22,27 26,13 30,20 36,20"
+      stroke="var(--accent)"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+  </svg>
+  <span class="logo-wordmark">tracepod</span>
+</a>
+
+<style>
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+.logo:hover { opacity: 0.9; }
+.logo-mark {
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+.hex {
+  color: var(--text-secondary);
+}
+.logo-wordmark {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+</style>

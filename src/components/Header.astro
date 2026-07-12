@@ -1,0 +1,243 @@
+---
+import Logo from './Logo.astro';
+const currentPath = Astro.url.pathname;
+
+const nav = [
+  { label: 'Open Source', href: '/open-source' },
+  { label: 'Platform', href: '/platform' },
+  { label: 'Docs', href: '/docs' },
+];
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <Logo />
+
+    <nav class="nav" aria-label="Main navigation">
+      {nav.map(item => (
+        <a
+          href={item.href}
+          class:list={['nav-link', { active: currentPath.startsWith(item.href) }]}
+        >
+          {item.label}
+        </a>
+      ))}
+      <a
+        href="https://github.com/tracepod/tracepod"
+        class="nav-link nav-icon"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode">
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <a href="/contact" class="btn btn-primary">Contact us</a>
+    </div>
+
+    <button class="menu-toggle" id="menu-toggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Mobile nav -->
+  <div class="mobile-nav" id="mobile-nav" hidden>
+    <div class="mobile-nav-inner">
+      {nav.map(item => (
+        <a href={item.href} class="mobile-nav-link">{item.label}</a>
+      ))}
+      <a href="https://github.com/tracepod/tracepod" class="mobile-nav-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="/contact" class="btn btn-primary mobile-cta">Contact us</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Theme toggle
+  function getInitialTheme() {
+    const stored = localStorage.getItem('tracepod-theme');
+    if (stored === 'light' || stored === 'dark') return stored;
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme: string) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('tracepod-theme', theme);
+  }
+
+  // Apply on load (before paint)
+  applyTheme(getInitialTheme());
+
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  // Mobile menu
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileNav = document.getElementById('mobile-nav');
+  menuToggle?.addEventListener('click', () => {
+    const isOpen = mobileNav && !mobileNav.hidden;
+    if (mobileNav) mobileNav.hidden = !!isOpen;
+    menuToggle.setAttribute('aria-expanded', String(!isOpen));
+  });
+</script>
+
+<style>
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  height: 60px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.nav-link {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 450;
+  color: var(--text-secondary);
+  transition: color var(--transition), background var(--transition);
+  text-decoration: none;
+}
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  opacity: 1;
+}
+.nav-icon {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+.theme-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+}
+
+/* Show correct icon based on theme */
+[data-theme="dark"] .icon-sun,
+[data-theme="light"] .icon-moon { display: none; }
+[data-theme="dark"] .icon-moon,
+[data-theme="light"] .icon-sun { display: block; }
+
+/* Default (before JS): show moon */
+.icon-sun { display: none; }
+.icon-moon { display: block; }
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: 0 8px;
+}
+.menu-toggle span {
+  display: block;
+  height: 1.5px;
+  background: var(--text-secondary);
+  border-radius: 2px;
+  transition: background var(--transition);
+}
+
+.mobile-nav {
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+.mobile-nav-inner {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4);
+  gap: var(--space-2);
+}
+.mobile-nav-link {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.mobile-nav-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  opacity: 1;
+}
+.mobile-cta {
+  margin-top: var(--space-2);
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .nav, .header-actions .btn-primary { display: none; }
+  .menu-toggle { display: flex; }
+}
+@media (max-width: 480px) {
+  .header-actions { gap: var(--space-2); }
+}
+</style>

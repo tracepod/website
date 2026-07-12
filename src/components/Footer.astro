@@ -1,0 +1,152 @@
+---
+import Logo from './Logo.astro';
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <Logo size="sm" />
+      <p class="footer-tagline">eBPF-based container hardening you can measure.</p>
+      <p class="footer-license">
+        Core tooling licensed under
+        <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener noreferrer">AGPL-3.0</a>.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4 class="footer-col-title">Product</h4>
+        <a href="/open-source">Open Source</a>
+        <a href="/platform">Platform</a>
+        <a href="/docs">Docs</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Resources</h4>
+        <a href="https://github.com/tracepod/tracepod" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="/docs/quickstart/guide">Quickstart</a>
+        <a href="/docs/concepts/how-it-works">How it works</a>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-col-title">Company</h4>
+        <a href="/contact">Contact</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container footer-bottom-inner">
+      <span>&copy; 2026 Tracepod. All rights reserved.</span>
+      <span class="footer-bottom-right">
+        Built with
+        <a href="https://astro.build" target="_blank" rel="noopener noreferrer">Astro</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style>
+.site-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-16);
+  padding: var(--space-16) var(--space-6);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.footer-tagline {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.footer-license {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.footer-col-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.footer-col a {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.footer-col a:hover {
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.footer-bottom {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.footer-bottom-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-6);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer-bottom-inner a {
+  color: var(--text-muted);
+}
+.footer-bottom-inner a:hover {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-4);
+  }
+  .footer-links {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+  .footer-bottom-inner {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+    padding: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-links { grid-template-columns: 1fr 1fr; }
+}
+</style>
