@@ -14,27 +14,35 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: 'Installation',
+          label: 'Getting started',
           items: [
-            { label: 'Overview', slug: 'docs/installation/overview' },
-          ],
-        },
-        {
-          label: 'Quickstart',
-          items: [
-            { label: 'Quickstart guide', slug: 'docs/quickstart/guide' },
+            { label: 'Introduction', slug: 'docs/getting-started/introduction' },
+            { label: 'Installation', slug: 'docs/getting-started/installation' },
+            { label: 'Quickstart', slug: 'docs/getting-started/quickstart' },
           ],
         },
         {
           label: 'Concepts',
           items: [
-            { label: 'How it works', slug: 'docs/concepts/how-it-works' },
+            { label: 'How profiling works', slug: 'docs/concepts/how-profiling-works' },
+            { label: 'Observation sources & confidence', slug: 'docs/concepts/observation-sources' },
+            { label: 'Outputs', slug: 'docs/concepts/outputs' },
+            { label: 'Known limitations', slug: 'docs/concepts/known-limitations' },
           ],
         },
         {
-          label: 'Kubernetes',
+          label: 'Guides',
           items: [
-            { label: 'Helm chart', slug: 'docs/kubernetes/helm' },
+            { label: 'Kubernetes deployment', slug: 'docs/guides/kubernetes' },
+            { label: 'GitHub Action', slug: 'docs/guides/github-action' },
+            { label: 'CVE reporting', slug: 'docs/guides/cve-reporting' },
+          ],
+        },
+        {
+          label: 'Reference',
+          items: [
+            { label: 'CLI reference', slug: 'docs/reference/cli' },
+            { label: 'Runtime presets', slug: 'docs/reference/presets' },
           ],
         },
       ],

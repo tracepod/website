@@ -3,31 +3,31 @@ title: Tracepod Documentation
 description: eBPF-based container hardening — documentation home.
 template: splash
 hero:
-  tagline: Profile running containers via eBPF. Produce minimised images, seccomp allowlists, AppArmor profiles, and signed SBOMs.
+  tagline: Profile running containers via eBPF. Build minimized OCI images containing only what your workload actually uses — with SBOMs, confidence scoring, and CVE reachability.
   actions:
-    - text: Quickstart guide
-      link: /docs/quickstart/guide/
+    - text: Quickstart
+      link: /docs/getting-started/quickstart/
       icon: right-arrow
       variant: primary
-    - text: How it works
-      link: /docs/concepts/how-it-works/
+    - text: How profiling works
+      link: /docs/concepts/how-profiling-works/
       icon: external
 ---
 
 ## What is Tracepod?
 
-Tracepod is an eBPF-based container hardening tool. It attaches a CO-RE sensor to your running workloads, captures every file they open at runtime, and uses that observation to produce:
+Tracepod is an eBPF-based container hardening tool for Kubernetes. It attaches kprobes to your running workloads, records every file they open, exec, and map at runtime, and uses that observation to produce:
 
-- **Minimised OCI images** — only files actually observed at runtime, plus recursively resolved ELF dependencies
-- **Seccomp allowlists** — syscall profiles derived from observed behaviour, not guesswork
-- **AppArmor profiles** — precise MAC policy generated from runtime data
-- **CycloneDX + SPDX SBOMs** — signed with cosign and pushed alongside the image
+- **Minimized OCI images** — a single deterministic layer with only the files actually observed at runtime, plus recursively resolved ELF dependencies. Fewer files, fewer packages, fewer CVEs.
+- **A confidence score** — quantifying how representative your profiling window was, with an exact breakdown of every remaining gap.
+- **CycloneDX + SPDX SBOMs** — generated from the hardened image, optionally signed with cosign, plus a removal manifest listing every package that no longer ships.
+- **CVE reachability reports** — per CVE, whether the affected package was actually loaded during profiling.
 
 ## Browse the docs
 
 | Section | What's inside |
 |---------|---------------|
-| [Installation](/docs/installation/overview/) | Helm, binary download, prerequisites |
-| [Quickstart](/docs/quickstart/guide/) | Profile and harden your first workload |
-| [Concepts](/docs/concepts/how-it-works/) | Architecture, confidence scoring, observation sources |
-| [Kubernetes](/docs/kubernetes/helm/) | Helm values, RBAC, DaemonSet configuration |
+| [Getting started](/docs/getting-started/introduction/) | What Tracepod is, installation, first hardened image |
+| [Concepts](/docs/concepts/how-profiling-works/) | The eBPF sensor, observation sources & confidence, outputs, known limitations |
+| [Guides](/docs/guides/kubernetes/) | Kubernetes deployment, GitHub Action, CVE reporting |
+| [Reference](/docs/reference/cli/) | CLI flags, runtime presets |
