@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Tracepod — Container hardening based on what your workloads actually do"
-  description="Tracepod profiles running container workloads via eBPF and produces minimised OCI images, seccomp allowlists, AppArmor profiles, and signed SBOMs — all grounded in observed runtime behaviour."
+  description="Tracepod profiles running container workloads via eBPF and produces minimised OCI images, seccomp allowlists, AppArmor profiles, and signed SBOMs from the recorded runtime behaviour."
 >
 
   <!-- ============================================================
@@ -19,9 +19,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <span class="headline-accent"> at runtime.</span>
         </h1>
         <p class="body-lg hero-sub">
-          Tracepod attaches an eBPF sensor to your running workloads, captures every file they touch,
-          and produces a minimised OCI image, seccomp allowlist, AppArmor profile, and signed SBOM &mdash;
-          automatically. Attack surface you can measure, not guess.
+          Tracepod watches your workloads through an eBPF sensor and records every file they touch.
+          From that record it builds a minimised OCI image, a seccomp allowlist, an AppArmor profile,
+          and a signed SBOM. Nothing goes into the image that your workload didn&rsquo;t use.
         </p>
         <div class="hero-actions">
           <a href="/docs/getting-started/quickstart/" class="btn btn-primary btn-lg">
@@ -50,22 +50,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <span class="terminal-title">bash</span>
           </div>
           <div class="terminal-body">
-            <p><span class="comment"># Install via Helm</span></p>
-            <p><span class="prompt">$</span> helm repo add tracepod https://charts.tracepod.co.uk</p>
-            <p><span class="prompt">$</span> helm install tracepod tracepod/tracepod \</p>
+            <p><span class="comment"># Install the sensor and controller</span></p>
+            <p><span class="prompt">$</span> git clone https://github.com/tracepod/tracepod</p>
+            <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--namespace tracepod --create-namespace</p>
             <p>&nbsp;</p>
-            <p><span class="comment"># Profile a workload for 60 s, then harden</span></p>
-            <p><span class="prompt">$</span> <span class="cmd">tracepod</span> profile --workload nginx/my-app --duration 60s</p>
-            <p><span class="output">&nbsp;&nbsp;&#8627; Profiling my-app (nginx:1.25.3)&hellip;</span></p>
-            <p><span class="output">&nbsp;&nbsp;&#8627; Observed 847 unique file paths</span></p>
+            <p><span class="comment"># Fetch the profile once your workload has run</span></p>
+            <p><span class="prompt">$</span> <span class="cmd">tracepod</span> profile get --namespace acme \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--deployment web --output manifest.json</p>
             <p>&nbsp;</p>
-            <p><span class="prompt">$</span> <span class="cmd">tracepod</span> harden --workload nginx/my-app \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;--push registry.example.com/my-app:hardened</p>
-            <p><span class="success">&nbsp;&nbsp;&#10003; Image size:&nbsp; 248 MB &rarr; 31 MB (87% smaller)</span></p>
-            <p><span class="success">&nbsp;&nbsp;&#10003; CVEs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;142 &rarr; 9 (grype, CRITICAL/HIGH)</span></p>
-            <p><span class="success">&nbsp;&nbsp;&#10003; Syscalls:&nbsp;&nbsp; 386 &rarr; 58 (seccomp allowlist)</span></p>
-            <p><span class="success">&nbsp;&nbsp;&#10003; SBOM signed and pushed alongside image</span></p>
+            <p><span class="comment"># Build and push the hardened image</span></p>
+            <p><span class="prompt">$</span> <span class="cmd">harden</span> build --manifest manifest.json \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--source acme/web:1.4.2 \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--push registry.local/web:hardened</p>
+            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (315 direct, 217 inferred-runtime, &hellip;)</span></p>
+            <p><span class="output">Confidence:&nbsp;&nbsp;Medium (79/100)</span></p>
+            <p><span class="success">Layer:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17.2 MiB (down from 46.2 MiB)</span></p>
+            <p><span class="success">Pushed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registry.local/web:hardened</span></p>
           </div>
         </div>
       </div>
@@ -81,7 +82,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="eyebrow">How it works</div>
         <h2 class="heading-lg">Four outputs from one profiling run</h2>
         <p class="body-md section-sub">
-          A single eBPF sensor session produces a complete hardening bundle &mdash; no guesswork, no allow-all defaults.
+          Profile a workload once. The same recording drives the image, both security profiles, and the SBOM.
         </p>
       </div>
 
@@ -95,7 +96,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="loop-step-num label">01</div>
           <h3 class="loop-step-title">Profile</h3>
-          <p class="loop-step-body">eBPF sensor attaches to running containers via kprobes, capturing every <code>openat()</code> syscall &mdash; filtered by cgroup/namespace, zero kernel module required.</p>
+          <p class="loop-step-body">The eBPF sensor attaches kprobes to running containers and records every <code>openat()</code> call, scoped to the container&rsquo;s cgroup. No kernel module to install.</p>
         </div>
 
         <div class="loop-arrow" aria-hidden="true">
@@ -111,7 +112,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="loop-step-num label">02</div>
           <h3 class="loop-step-title">Minimise</h3>
-          <p class="loop-step-body">Only observed files &mdash; plus recursively resolved ELF shared libraries and language-runtime companions &mdash; go into the new OCI image layer. Every file tagged by source.</p>
+          <p class="loop-step-body">The new image layer contains the recorded files, their ELF shared-library dependencies, and language-runtime companions. Every file is tagged with the reason it was included.</p>
         </div>
 
         <div class="loop-arrow" aria-hidden="true">
@@ -126,7 +127,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="loop-step-num label">03</div>
           <h3 class="loop-step-title">Harden</h3>
-          <p class="loop-step-body">Generate a seccomp syscall allowlist and AppArmor profile directly from observed runtime behaviour &mdash; precise, not over-permissive.</p>
+          <p class="loop-step-body">The seccomp allowlist and AppArmor profile are generated from the syscalls and paths the workload actually used during profiling.</p>
         </div>
 
         <div class="loop-arrow" aria-hidden="true">
@@ -143,7 +144,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="loop-step-num label">04</div>
           <h3 class="loop-step-title">Sign &amp; attest</h3>
-          <p class="loop-step-body">CycloneDX and SPDX SBOMs generated by syft, signed with cosign, pushed alongside the image. Auditable, portable, supply-chain ready.</p>
+          <p class="loop-step-body">syft generates CycloneDX and SPDX SBOMs for the minimised image; cosign signs them and they ship alongside it in the registry.</p>
         </div>
       </div>
     </div>
@@ -156,15 +157,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container confidence-inner">
       <div class="confidence-text">
         <div class="eyebrow">Confidence scoring</div>
-        <h2 class="heading-lg">Every file carries its source &mdash; so you can trust the result.</h2>
+        <h2 class="heading-lg">Every file in the image can tell you why it&rsquo;s there.</h2>
         <p class="body-md">
-          Most container-slimming tools give you a plain file list. Tracepod tags every path with the observation source:
-          direct eBPF observation, inferred ELF dependency, inferred runtime companion, or manually added.
-          That distinction is the foundation of confidence scoring &mdash; you see exactly what you&rsquo;re shipping and why.
+          Most container-slimming tools hand you a flat file list and a smaller number. Tracepod keeps the
+          evidence. Each path in the manifest records whether the sensor saw it opened, an ELF dependency
+          pulled it in, a language-runtime rule added it, or a person put it there. The confidence score is
+          computed from that record, and it drops when profiling coverage has gaps.
         </p>
         <p class="body-md" style="margin-top: 1rem;">
-          A minimised image that crashes in production is worse than not hardening at all.
-          Tracepod is designed to eliminate that outcome.
+          A minimised image that crashes in production is worse than not hardening at all. The score exists
+          so you find out before you deploy, not after.
         </p>
         <a href="/docs/concepts/how-profiling-works/" class="btn btn-secondary" style="margin-top: 1.5rem;">
           Read the concept docs
@@ -180,24 +182,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="terminal-body manifest-body">
             <pre set:html={`<span class="output">&#123;</span>
-  <span class="output">"files": [</span>
-    <span class="output">&#123;</span>
-      <span class="output">  "path": "/usr/bin/python3.11",</span>
+  <span class="output">"files": &#123;</span>
+    <span class="output">"/usr/local/bin/python3.12": &#123;</span>
       <span class="success">  "source": "direct",</span>
-      <span class="output">  "count": 312,</span>
-      <span class="output">  "confidence": 0.99</span>
+      <span class="output">  "access_modes": ["r", "x"],</span>
+      <span class="output">  "count": 312</span>
     <span class="output">&#125;,</span>
-    <span class="output">&#123;</span>
-      <span class="output">  "path": "/lib/x86_64-linux-gnu/libc.so.6",</span>
+    <span class="output">"/lib/x86_64-linux-gnu/libc.so.6": &#123;</span>
       <span class="cmd">  "source": "inferred-elf",</span>
-      <span class="output">  "confidence": 0.95</span>
+      <span class="output">  "access_modes": ["r", "m"]</span>
     <span class="output">&#125;,</span>
-    <span class="output">&#123;</span>
-      <span class="output">  "path": "/usr/lib/python3.11/encodings/",</span>
-      <span class="output">  "source": "inferred-runtime",</span>
-      <span class="output">  "confidence": 0.90</span>
+    <span class="output">"/usr/local/lib/python3.12/encodings/": &#123;</span>
+      <span class="output">  "source": "directory-inclusion"</span>
     <span class="output">&#125;</span>
-  <span class="output">]</span>
+  <span class="output">&#125;</span>
 <span class="output">&#125;</span>`}></pre>
           </div>
         </div>
@@ -247,8 +245,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li class="feature-item">
               <span class="feature-check">&#10003;</span>
               <div>
-                <strong>CLI (<code>tracepod</code>)</strong>
-                <span class="feature-desc">Profile, harden, push &mdash; single binary, CGO-free</span>
+                <strong>CLI (<code>tracepod</code> + <code>harden</code>)</strong>
+                <span class="feature-desc">Fetch profiles from the cluster, build and push hardened images. Static binaries.</span>
               </div>
             </li>
             <li class="feature-item">
@@ -262,7 +260,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="feature-check">&#10003;</span>
               <div>
                 <strong>GitHub Action</strong>
-                <span class="feature-desc">Drop-in CI hardening step, matrix kernel support</span>
+                <span class="feature-desc">Harden, smoke-test, and SBOM images in your release pipeline</span>
               </div>
             </li>
             <li class="feature-item">
@@ -309,14 +307,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>Auto-fix loop</strong>
-                <span class="feature-desc">Validate &rarr; rebuild with missing paths &rarr; revalidate, up to 3 rounds, unattended</span>
+                <span class="feature-desc">Failed validations trigger a rebuild that includes the missing paths, then a re-run. Up to three rounds, unattended.</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>CVE delta reports</strong>
-                <span class="feature-desc">grype scan of source vs hardened image &mdash; exact vulnerability reduction counts</span>
+                <span class="feature-desc">grype scans the source and hardened images and reports exactly which findings the hardening removed</span>
               </div>
             </li>
             <li class="feature-item">
@@ -380,22 +378,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <path d="M9 9h6M9 12h6M9 15h4"/>
           </svg>
           <h4>CycloneDX + SPDX SBOMs</h4>
-          <p>Both formats, signed with cosign. Works with whatever your enterprise security toolchain already expects.</p>
+          <p>Both formats, signed with cosign, so the output fits whichever scanner your security team already runs.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 8v4l3 3"/>
           </svg>
-          <h4>CO-RE &mdash; no kernel module</h4>
-          <p>Pure eBPF with Compile Once, Run Everywhere. Supports kernel 6.8+ without rebuilding on each node.</p>
+          <h4>CO-RE, no kernel module</h4>
+          <p>Pure eBPF with Compile Once, Run Everywhere. Runs on kernel 6.8+ without rebuilding anything per node.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
           </svg>
           <h4>Kubernetes-native</h4>
-          <p>DaemonSet deployment, TokenReview RBAC, existing registry secrets &mdash; no side-car injection, no admission webhook required.</p>
+          <p>Deploys as a DaemonSet, authenticates with TokenReview, and reuses your existing registry secrets. No side-car injection, no admission webhook.</p>
         </div>
       </div>
     </div>
@@ -407,9 +405,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="cta-band section">
     <div class="container cta-band-inner">
       <div>
-        <h2 class="heading-lg">Ready to measure your attack surface?</h2>
+        <h2 class="heading-lg">Try it on one workload.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          Start with the open-source CLI in minutes. Talk to us about the platform.
+          Install the open-source tools and harden a single deployment this afternoon.
+          If the numbers convince you, talk to us about running it across the fleet.
         </p>
       </div>
       <div class="cta-band-actions">

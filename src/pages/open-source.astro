@@ -46,7 +46,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p>
             CO-RE kprobe sensor written in pure Go using <code>cilium/ebpf</code>.
             Attaches to <code>openat()</code>, filters by cgroup/namespace, ships events over a ring buffer.
-            Runs as a DaemonSet pod &mdash; no kernel module, no DKMS, no side-cars.
+            Runs as a DaemonSet pod. No kernel module, no DKMS, no side-cars.
           </p>
           <div class="tool-tags">
             <span class="tag">Go 1.26</span>
@@ -83,11 +83,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <line x1="12" y1="19" x2="20" y2="19"/>
             </svg>
           </div>
-          <h3>CLI (<code>tracepod</code>)</h3>
+          <h3>CLI (<code>tracepod</code> + <code>harden</code>)</h3>
           <p>
-            Single static binary. Subcommands: <code>profile</code>, <code>harden</code>, <code>push</code>, <code>sbom</code>.
-            CGO-disabled, cross-compiles to linux/amd64 and linux/arm64.
-            Suitable for CI pipelines and developer laptops alike.
+            Two static binaries. <code>tracepod</code> talks to the in-cluster controller:
+            <code>profile list</code>, <code>profile get</code>, <code>profile stop</code>, <code>cve-report</code>.
+            <code>harden</code> builds and pushes the minimised image from a profile. Both CGO-free,
+            built for linux and darwin on amd64 and arm64.
           </p>
           <div class="tool-tags">
             <span class="tag">Static binary</span>
@@ -108,7 +109,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p>
             Official Helm chart for Kubernetes deployment: DaemonSet for the sensor,
             aggregation controller deployment, RBAC (ClusterRole + ServiceAccount),
-            ConfigMap-based role definitions. Tested on kind and AKS.
+            ConfigMap-based role definitions. Exercised end-to-end on kind in CI.
           </p>
           <div class="tool-tags">
             <span class="tag">Helm 3</span>
@@ -126,14 +127,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <h3>GitHub Action</h3>
           <p>
-            Drop the <code>tracepod/action</code> step into any workflow. Profiles your workload
-            in CI, hardens the image, pushes the hardened version alongside the original.
-            Supports matrix builds across kernel versions.
+            Add a <code>uses: tracepod/tracepod@v0</code> step to your release workflow.
+            Give it a recorded profile and a source image; it builds, smoke-tests, and
+            SBOMs the hardened image, and can push it alongside the original.
           </p>
           <div class="tool-tags">
             <span class="tag">GitHub Actions</span>
-            <span class="tag">Kernel matrix</span>
-            <span class="tag">OIDC push</span>
+            <span class="tag">SBOM output</span>
           </div>
         </div>
 
@@ -171,9 +171,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="eyebrow">Installation</div>
           <h2 class="heading-lg">Up and running in under five minutes.</h2>
           <p class="body-md" style="margin-top: 1rem;">
-            Install via Helm, or download the static binary for the CLI.
-            The sensor requires a kernel 6.8+ node with eBPF enabled (standard on any
-            modern managed Kubernetes offering).
+            Install the sensor with the Helm chart from the repo, and grab the CLI
+            binaries from GitHub releases. The sensor needs nodes running kernel 6.8
+            or newer with containerd NRI enabled.
           </p>
           <a href="/docs/getting-started/installation/" class="btn btn-secondary" style="margin-top: 1.5rem;">
             Full installation guide &rarr;
@@ -187,19 +187,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <span class="terminal-title">Install Tracepod</span>
           </div>
           <div class="terminal-body">
-            <p><span class="comment"># Helm (recommended for Kubernetes)</span></p>
-            <p><span class="prompt">$</span> helm repo add tracepod https://charts.tracepod.co.uk</p>
-            <p><span class="prompt">$</span> helm repo update</p>
-            <p><span class="prompt">$</span> helm install tracepod tracepod/tracepod \</p>
+            <p><span class="comment"># Kubernetes: sensor + controller via the Helm chart</span></p>
+            <p><span class="prompt">$</span> git clone https://github.com/tracepod/tracepod</p>
+            <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--namespace tracepod --create-namespace</p>
             <p>&nbsp;</p>
-            <p><span class="comment"># Or: download the CLI binary directly</span></p>
-            <p><span class="prompt">$</span> curl -fsSL https://github.com/tracepod/tracepod/releases/latest/download/tracepod_linux_amd64.tar.gz \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;| tar xz -C /usr/local/bin tracepod</p>
+            <p><span class="comment"># CLI binaries from GitHub releases</span></p>
+            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/\</p>
+            <p>v0.1.2/tracepod_tracepod_0.1.2_linux_amd64.tar.gz</p>
+            <p><span class="prompt">$</span> tar xzf tracepod_tracepod_0.1.2_linux_amd64.tar.gz -C /usr/local/bin</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Verify</span></p>
             <p><span class="prompt">$</span> tracepod version</p>
-            <p><span class="success">&nbsp;&nbsp;tracepod v0.1.8 linux/amd64</span></p>
+            <p><span class="success">tracepod v0.1.2 (2f8a41c)</span></p>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container">
       <div class="eyebrow">Pro platform</div>
       <h1 class="heading-xl platform-headline">
-        Container hardening at fleet scale &mdash;<br>with the confidence to ship.
+        Container hardening at fleet scale,<br>with the proof that it still runs.
       </h1>
       <p class="body-lg platform-sub">
         The Tracepod platform puts a dashboard, automated validation, and compliance tooling
@@ -51,7 +51,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Web dashboard</div>
-          <h2 class="heading-md">Every workload. Every build. One view.</h2>
+          <h2 class="heading-md">The whole fleet on one screen.</h2>
           <p class="body-md">
             The dashboard gives you a fleet-wide picture: which workloads have been profiled,
             hardened, validated, and applied. See CVE counts, image size savings, and coverage
@@ -61,7 +61,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <ul class="feature-bullets">
             <li>Fleet summary with attention items (drift, failed validations, missing coverage)</li>
             <li>Per-workload build history and lineage</li>
-            <li>SSE-driven live updates &mdash; no polling</li>
+            <li>Live updates over server-sent events</li>
             <li>Full audit log, exportable</li>
           </ul>
         </div>
@@ -128,16 +128,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Auto-fix loop</div>
-          <h2 class="heading-md">Validate. Rebuild. Revalidate. Automatically.</h2>
+          <h2 class="heading-md">Failed validations fix themselves.</h2>
           <p class="body-md">
-            When sandbox validation finds missing files, the auto-fix loop adds them back
-            and retries &mdash; up to three rounds, unattended. It extracts missing paths from
-            both the sensor diff and quoted-path <code>ENOENT</code> log lines.
-            The postgres ICU proof-of-concept passes in two rounds. Provenance (round number,
-            source build) is stored on every auto-fixed build.
+            When sandbox validation finds missing files, the auto-fix loop rebuilds the image
+            with those paths included and validates again, up to three rounds without anyone
+            watching. Missing paths come from the sensor diff and from <code>ENOENT</code> lines
+            in the container logs. In our postgres test, a build that crashed on missing ICU
+            locale data came back green after two rounds.
           </p>
           <ul class="feature-bullets">
-            <li>Up to 3 rounds of validate &rarr; rebuild &rarr; revalidate</li>
+            <li>Up to three rebuild rounds, unattended</li>
             <li>Missing files sourced from sensor diff and ENOENT log extraction</li>
             <li>Full provenance chain: <code>autofix_of</code> + <code>round</code> fields</li>
             <li>Triggers webhook notification on completion</li>
@@ -176,7 +176,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p class="body-md">
             After each build, Tracepod runs grype against both the source and hardened images
             and computes the delta. CVE counts by severity are stored on the build record and
-            surfaced in the dashboard &mdash; so you can justify hardening to security teams with hard numbers.
+            surfaced in the dashboard. These are the numbers your security team will ask for.
           </p>
           <ul class="feature-bullets">
             <li>grype scan of source vs hardened image</li>
@@ -209,8 +209,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             Define policies per namespace (glob-matched): minimum manifest coverage,
             hardened image required, sandbox validation required.
             The <code>/compliance</code> endpoint evaluates every workload against applicable
-            policies and returns a pass/fail matrix &mdash; ready to gate deployments or feed
-            your GRC tooling.
+            policies and returns a pass/fail matrix you can gate deployments on or feed into
+            GRC tooling.
           </p>
           <ul class="feature-bullets">
             <li>Namespace-glob scoped policies</li>
