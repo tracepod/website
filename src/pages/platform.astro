@@ -346,12 +346,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 
 .screenshot-hero-section { padding-bottom: var(--space-8); }
-.screenshot-hero-section .screenshot-slot { max-height: 480px; overflow: hidden; }
 .screenshot-slot {
   background: var(--bg-elevated);
-  border: 1px dashed var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  aspect-ratio: 16/9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -363,8 +361,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 }
 .screenshot-slot img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   border-radius: var(--radius-lg);
   display: block;
 }

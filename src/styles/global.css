@@ -232,11 +232,6 @@ code, pre, kbd {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
-  transition: border-color var(--transition);
-}
-
-.card:hover {
-  border-color: var(--accent);
 }
 
 /* ---- Terminal block ---- */
