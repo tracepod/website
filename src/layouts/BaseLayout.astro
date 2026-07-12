@@ -45,7 +45,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <script is:inline>
       (function() {
         var stored = localStorage.getItem('tracepod-theme');
-        var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var theme = stored || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
