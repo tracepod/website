@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Privacy — Tracepod"
+  description="What data the Tracepod website collects, why, and what happens to it."
+>
+
+  <section class="privacy-section section">
+    <div class="container privacy-inner">
+      <div class="eyebrow">Privacy</div>
+      <h1 class="heading-lg">Short, because there isn&rsquo;t much to tell.</h1>
+      <p class="body-md privacy-updated">Last updated: 13 July 2026</p>
+
+      <div class="privacy-body">
+        <h2>Who runs this site</h2>
+        <p>
+          Tracepod is an independent software project, not a registered company. This
+          website is operated by the project&rsquo;s maintainer. If you have any question
+          about this policy, use the <a href="/contact">contact form</a>.
+        </p>
+
+        <h2>What we collect</h2>
+        <p>
+          The only personal data this site collects is what you type into the contact
+          form: your name, email address, an optional company name, and your message.
+          We use it for exactly one thing &mdash; replying to you. We don&rsquo;t add you to a
+          mailing list, and we don&rsquo;t send marketing.
+        </p>
+
+        <h2>How the contact form works</h2>
+        <p>
+          Form submissions are delivered by
+          <a href="https://web3forms.com/" target="_blank" rel="noopener noreferrer">Web3Forms</a>,
+          which forwards your message to our inbox and states that it does not store
+          submission contents after delivery. From then on your message lives in our
+          email, retained only as long as the correspondence is useful. Want it deleted?
+          Ask, and it&rsquo;s gone.
+        </p>
+
+        <h2>Cookies and analytics</h2>
+        <p>
+          There are no analytics, no ad trackers, and no cookies. The site stores a
+          single value in your browser&rsquo;s local storage &mdash; your light/dark theme
+          preference &mdash; and it never leaves your machine.
+        </p>
+
+        <h2>Hosting</h2>
+        <p>
+          The site is served by GitHub Pages. Like any web host, GitHub may log visitor
+          IP addresses for security purposes; see the
+          <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a>.
+          We have no access to, and keep no copy of, those logs.
+        </p>
+
+        <h2>The software is a different story &mdash; deliberately</h2>
+        <p>
+          The Tracepod sensor and CLI run entirely inside your infrastructure and phone
+          home to nobody. Profiles, images, and SBOMs stay in your cluster and your
+          registry. There is no telemetry in the open-source tooling.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+.privacy-section { padding-top: var(--space-16); }
+.privacy-inner { max-width: 720px; }
+.privacy-updated { margin-top: var(--space-3); color: var(--text-muted); font-size: 0.875rem; }
+
+.privacy-body { margin-top: var(--space-8); }
+.privacy-body h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-2);
+}
+.privacy-body p {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+.privacy-body a { color: var(--accent); }
+</style>
