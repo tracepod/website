@@ -16,12 +16,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </h1>
       <p class="body-lg platform-sub">
         The Tracepod platform puts a dashboard, automated validation, and compliance tooling
-        on top of the open-source hardening engine. You see exactly what every workload has
-        been hardened to, and whether it passed a live sandbox test.
+        on top of the open-source hardening engine. It deploys into your cluster via Helm;
+        no data leaves your infrastructure. You see exactly what every workload has been
+        hardened to, and whether it passed a live sandbox test.
       </p>
-      <div style="display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
+      <div style="display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; align-items: center;">
         <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
-        <a href="/open-source" class="btn btn-secondary btn-lg">Start with open source</a>
+        <a href="/open-source" class="hero-text-link">or start with open source &rarr;</a>
       </div>
     </div>
   </section>
@@ -51,7 +52,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Web dashboard</div>
-          <h2 class="heading-md">The whole fleet on one screen.</h2>
+          <h2 class="heading-md">CVE counts, size savings, and coverage for every workload in the cluster.</h2>
           <p class="body-md">
             The dashboard gives you a fleet-wide picture: which workloads have been profiled,
             hardened, validated, and applied. See CVE counts, image size savings, and coverage
@@ -61,7 +62,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <ul class="feature-bullets">
             <li>Fleet summary with attention items (drift, failed validations, missing coverage)</li>
             <li>Per-workload build history and lineage</li>
-            <li>Live updates over server-sent events</li>
+            <li>Live updates as builds and validations run</li>
             <li>Full audit log, exportable</li>
           </ul>
         </div>
@@ -135,13 +136,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             watching. Missing paths come from the sensor diff and from <code>ENOENT</code> lines
             in the container logs. In our postgres test, a build that crashed on missing ICU
             locale data came back green after two rounds.
+            Every auto-fixed build keeps its provenance: which build it repaired, and on
+            which round. Webhooks fire when the loop finishes, either way.
           </p>
-          <ul class="feature-bullets">
-            <li>Up to three rebuild rounds, unattended</li>
-            <li>Missing files sourced from sensor diff and ENOENT log extraction</li>
-            <li>Full provenance chain: <code>autofix_of</code> + <code>round</code> fields</li>
-            <li>Triggers webhook notification on completion</li>
-          </ul>
         </div>
         <div class="feature-block-visual">
           <div class="autofix-flow">
@@ -180,7 +177,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </p>
           <ul class="feature-bullets">
             <li>grype scan of source vs hardened image</li>
-            <li>Counts by severity: CRITICAL, HIGH, MEDIUM, LOW</li>
+            <li>Counts broken down by severity</li>
             <li>Stored on the build record, queryable via API</li>
             <li>OpenVEX export with reachability for false-positive suppression</li>
           </ul>
@@ -204,7 +201,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Fleet policy &amp; compliance</div>
-          <h2 class="heading-md">Set the bar. Know when you miss it.</h2>
+          <h2 class="heading-md">Define what &ldquo;hardened&rdquo; means per namespace, then see which workloads miss it.</h2>
           <p class="body-md">
             Define policies per namespace (glob-matched): minimum manifest coverage,
             hardened image required, sandbox validation required.
@@ -250,8 +247,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
             </div>
-            <h3>One-click apply &amp; drift detection</h3>
-            <p>Patch the live workload&rsquo;s image to the hardened ref in one API call. The dashboard&rsquo;s attention panel alerts when the live image drifts from the hardened version.</p>
+            <h3>Apply &amp; drift detection</h3>
+            <p>Roll the hardened image out to the live workload from the dashboard (Admin role, with confirmation). The attention panel alerts when the live image drifts from the hardened version.</p>
           </div>
 
           <div class="remaining-item card">
@@ -291,8 +288,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <polyline points="10 9 9 9 8 9"/>
               </svg>
             </div>
-            <h3>Immutable audit log</h3>
-            <p>Every action (build, push, validate, apply, policy change) is written to an append-only audit log with user, timestamp, and structured metadata. Exportable as CSV or JSON.</p>
+            <h3>Append-only audit log</h3>
+            <p>Every action (build, push, validate, apply, policy change) is recorded with user, timestamp, and structured metadata. Exportable as CSV or JSON.</p>
           </div>
 
           <div class="remaining-item card">
@@ -328,9 +325,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="cta-band section">
     <div class="container cta-band-inner">
       <div>
-        <h2 class="heading-lg">Ready to see the platform?</h2>
+        <h2 class="heading-lg">Book a demo. Bring one workload.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          Get in touch and we&rsquo;ll walk you through it.
+          We&rsquo;ll show you the hardened image, the CVE delta, and the sandbox pass, live,
+          on a workload like yours.
         </p>
       </div>
       <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
@@ -341,6 +339,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <style>
 .platform-hero { padding-top: var(--space-16); }
+.hero-text-link {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color var(--transition);
+}
+.hero-text-link:hover { color: var(--accent); }
 .platform-headline { max-width: 800px; margin-top: var(--space-4); }
 .platform-sub { max-width: 640px; margin-top: var(--space-6); }
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }

@@ -198,7 +198,6 @@ code, pre, kbd {
 .btn-primary:hover {
   background: var(--accent-dark);
   border-color: var(--accent-dark);
-  box-shadow: var(--accent-glow);
   opacity: 1;
 }
 

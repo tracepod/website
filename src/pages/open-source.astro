@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Open Source — Tracepod"
-  description="Tracepod's eBPF sensor, hardener, CLI, Helm chart, and GitHub Action are fully open source under AGPL-3.0. Install in minutes."
+  description="Tracepod's eBPF sensor, hardener, CLI, Helm chart, and GitHub Action are fully open source under AGPL-3.0."
 >
 
   <!-- Hero -->
@@ -15,8 +15,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h1 class="heading-xl">The full hardening toolchain, free and open.</h1>
         <p class="body-lg" style="margin-top: 1.5rem; max-width: 600px;">
           The eBPF sensor, image builder, CLI, Helm chart, and GitHub Action are all
-          open source. Everything you need to start hardening containers today, with
-          no lock-in and no telemetry.
+          open source. Profiles are plain JSON, hardened images are standard OCI, and
+          nothing phones home.
         </p>
         <div style="display:flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
           <a href="https://github.com/tracepod/tracepod" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
@@ -83,12 +83,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <line x1="12" y1="19" x2="20" y2="19"/>
             </svg>
           </div>
-          <h3>CLI (<code>tracepod</code> + <code>harden</code>)</h3>
+          <h3><code>harden</code> CLI</h3>
           <p>
-            Two static binaries. <code>tracepod</code> talks to the in-cluster controller:
-            <code>profile list</code>, <code>profile get</code>, <code>profile stop</code>, <code>cve-report</code>.
-            <code>harden</code> builds and pushes the minimised image from a profile. Both CGO-free,
-            built for linux and darwin on amd64 and arm64.
+            Static binary that builds and pushes the minimised image from a sensor profile:
+            ELF resolution, confidence scoring, SBOM generation, registry push. Needs nothing
+            besides the profile JSON. Built for linux and darwin on amd64 and arm64.
+            (The <code>tracepod</code> CLI is also in the repo; its commands talk to the
+            platform controller.)
           </p>
           <div class="tool-tags">
             <span class="tag">Static binary</span>
@@ -107,9 +108,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <h3>Helm Chart</h3>
           <p>
-            Official Helm chart for Kubernetes deployment: DaemonSet for the sensor,
-            aggregation controller deployment, RBAC (ClusterRole + ServiceAccount),
-            ConfigMap-based role definitions. Exercised end-to-end on kind in CI.
+            Official Helm chart for Kubernetes deployment: DaemonSet for the sensor with
+            the RBAC (ClusterRole + ServiceAccount) it needs, values for kernel and
+            runtime tuning. Exercised end-to-end on kind in CI.
           </p>
           <div class="tool-tags">
             <span class="tag">Helm 3</span>
@@ -144,15 +145,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <polyline points="9 12 11 14 15 10"/>
             </svg>
           </div>
-          <h3>Seccomp + AppArmor + SBOMs</h3>
+          <h3>SBOMs + removal manifest</h3>
           <p>
-            Syscall allowlist (seccomp JSON) and AppArmor profile generated from the observed
-            syscall set. CycloneDX and SPDX SBOMs produced by syft and signed with cosign.
-            Both attestation formats pushed alongside the image.
+            CycloneDX and SPDX SBOMs produced by syft, with optional cosign signing.
+            Every build also records a removal manifest: the exact set of packages the
+            hardening dropped. Seccomp and AppArmor profile generation is on the roadmap.
           </p>
           <div class="tool-tags">
-            <span class="tag">seccomp</span>
-            <span class="tag">AppArmor</span>
             <span class="tag">CycloneDX</span>
             <span class="tag">SPDX</span>
             <span class="tag">cosign</span>
@@ -169,11 +168,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="install-inner">
         <div class="install-text">
           <div class="eyebrow">Installation</div>
-          <h2 class="heading-lg">Up and running in under five minutes.</h2>
+          <h2 class="heading-lg">Install with Helm from the repo.</h2>
           <p class="body-md" style="margin-top: 1rem;">
-            Install the sensor with the Helm chart from the repo, and grab the CLI
-            binaries from GitHub releases. The sensor needs nodes running kernel 6.8
-            or newer with containerd NRI enabled.
+            The chart ships in the repository; a hosted chart repo is on the roadmap.
+            You need Kubernetes 1.25+, nodes on kernel 6.8 or newer, and containerd
+            NRI enabled &ndash; a one-line config change if it isn&rsquo;t already, and the
+            <a href="/docs/getting-started/installation/">installation guide</a> covers it.
           </p>
           <a href="/docs/getting-started/installation/" class="btn btn-secondary" style="margin-top: 1.5rem;">
             Full installation guide &rarr;
@@ -195,12 +195,49 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p><span class="comment"># CLI binaries from GitHub releases</span></p>
             <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/\</p>
             <p>v0.1.2/tracepod_tracepod_0.1.2_linux_amd64.tar.gz</p>
-            <p><span class="prompt">$</span> tar xzf tracepod_tracepod_0.1.2_linux_amd64.tar.gz -C /usr/local/bin</p>
+            <p><span class="prompt">$</span> sudo tar xzf tracepod_tracepod_0.1.2_linux_amd64.tar.gz -C /usr/local/bin</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Verify</span></p>
             <p><span class="prompt">$</span> tracepod version</p>
             <p><span class="success">tracepod v0.1.2 (2f8a41c)</span></p>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Straight answers -->
+  <section class="faq-section section">
+    <div class="container">
+      <div class="eyebrow" style="margin-bottom: 2.5rem;">Straight answers</div>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Is it safe to run eBPF on production nodes?</h3>
+          <p>
+            The sensor only observes: it reads <code>openat()</code> events from kprobes and never
+            modifies workload behaviour. eBPF programs are bounds-checked by the kernel verifier
+            before they load, so a sensor bug cannot panic a node. Under event pressure the ring
+            buffer drops events rather than blocking your workloads, and the profile records the
+            loss counters so you know it happened.
+          </p>
+        </div>
+        <div class="faq-item">
+          <h3>What if profiling missed a code path?</h3>
+          <p>
+            Then the confidence score is lower and the manifest shows the gap; you profile longer
+            or add the paths by hand. This is the honest limit of runtime profiling, and it is why
+            the platform exists: sandbox validation runs the hardened image before it ships, and
+            the auto-fix loop rebuilds with anything that turns out to be missing.
+          </p>
+        </div>
+        <div class="faq-item">
+          <h3>Does AGPL affect my images?</h3>
+          <p>
+            No. You run Tracepod as a tool; you do not link against it. The images it produces are
+            yours, with no license obligations attached. AGPL obligations apply only if you modify
+            Tracepod itself and offer it to others as a service. Commercial licenses are available
+            if your legal team prefers one.
+          </p>
         </div>
       </div>
     </div>
@@ -226,6 +263,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <style>
 .oss-hero { padding-top: var(--space-16); }
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+.faq-item h3 { font-size: 1rem; font-weight: 600; margin-bottom: var(--space-3); }
+.faq-item p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+.faq-item code { font-family: var(--font-mono); color: var(--accent); font-size: 0.85em; }
+@media (max-width: 960px) {
+  .faq-grid { grid-template-columns: 1fr; }
+}
 .oss-hero-inner { max-width: 800px; }
 
 .tools-grid {

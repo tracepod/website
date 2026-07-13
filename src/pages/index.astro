@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Tracepod — Container hardening based on what your workloads actually do"
-  description="Tracepod profiles running container workloads via eBPF and produces minimised OCI images, seccomp allowlists, AppArmor profiles, and signed SBOMs from the recorded runtime behaviour."
+  description="Tracepod profiles running container workloads via eBPF and builds minimised OCI images, SBOMs, and removal manifests from the recorded runtime behaviour."
 >
 
   <!-- ============================================================
@@ -20,12 +20,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </h1>
         <p class="body-lg hero-sub">
           Tracepod watches your workloads through an eBPF sensor and records every file they touch.
-          From that record it builds a minimised OCI image, a seccomp allowlist, an AppArmor profile,
-          and a signed SBOM. Nothing goes into the image that your workload didn&rsquo;t use.
+          From that record it builds a minimised OCI image, SBOMs you can sign with cosign, and a
+          manifest of everything it removed. Nothing goes into the image that your workload didn&rsquo;t use.
         </p>
         <div class="hero-actions">
           <a href="/docs/getting-started/quickstart/" class="btn btn-primary btn-lg">
-            Get started free
+            Read the quickstart
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
           <a href="/platform" class="btn btn-secondary btn-lg">See the platform</a>
@@ -41,14 +41,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <span class="terminal-title">bash</span>
           </div>
           <div class="terminal-body">
-            <p><span class="comment"># Install the sensor and controller</span></p>
+            <p><span class="comment"># Install the eBPF sensor</span></p>
             <p><span class="prompt">$</span> git clone https://github.com/tracepod/tracepod</p>
             <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--namespace tracepod --create-namespace</p>
             <p>&nbsp;</p>
-            <p><span class="comment"># Fetch the profile once your workload has run</span></p>
-            <p><span class="prompt">$</span> <span class="cmd">tracepod</span> profile get --namespace acme \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;--deployment web --output manifest.json</p>
+            <p><span class="comment"># Grab the recorded profile once your workload has run</span></p>
+            <p><span class="prompt">$</span> kubectl exec -n tracepod ds/tracepod-sensor -- \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;cat /profiles/$CONTAINER_ID/files.json &gt; manifest.json</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Build and push the hardened image</span></p>
             <p><span class="prompt">$</span> <span class="cmd">harden</span> build --manifest manifest.json \</p>
@@ -71,9 +71,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container">
       <div class="section-header">
         <div class="eyebrow">How it works</div>
-        <h2 class="heading-lg">Four outputs from one profiling run</h2>
+        <h2 class="heading-lg">From recording to registry</h2>
         <p class="body-md section-sub">
-          Profile a workload once. The same recording drives the image, both security profiles, and the SBOM.
+          Profile a workload once. The same recording drives the minimised image, the confidence score, and the SBOMs.
         </p>
       </div>
 
@@ -117,8 +117,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             </svg>
           </div>
           <div class="loop-step-num label">03</div>
-          <h3 class="loop-step-title">Harden</h3>
-          <p class="loop-step-body">The seccomp allowlist and AppArmor profile are generated from the syscalls and paths the workload actually used during profiling.</p>
+          <h3 class="loop-step-title">Score</h3>
+          <p class="loop-step-body">A confidence score is computed from the observation-source breakdown and profiling coverage. If the recording has gaps, the score says so before you ship.</p>
         </div>
 
         <div class="loop-arrow" aria-hidden="true">
@@ -135,7 +135,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <div class="loop-step-num label">04</div>
           <h3 class="loop-step-title">Sign &amp; attest</h3>
-          <p class="loop-step-body">syft generates CycloneDX and SPDX SBOMs for the minimised image; cosign signs them and they ship alongside it in the registry.</p>
+          <p class="loop-step-body">syft generates CycloneDX and SPDX SBOMs for the minimised image, with optional cosign signing. A removal manifest records every package that was dropped.</p>
         </div>
       </div>
     </div>
@@ -236,15 +236,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li class="feature-item">
               <span class="feature-check">&#10003;</span>
               <div>
-                <strong>CLI (<code>tracepod</code> + <code>harden</code>)</strong>
-                <span class="feature-desc">Fetch profiles from the cluster, build and push hardened images. Static binaries.</span>
+                <strong><code>harden</code> CLI</strong>
+                <span class="feature-desc">Builds and pushes the minimised image from a recorded profile. Standalone static binary; works with nothing but the sensor output.</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check">&#10003;</span>
               <div>
                 <strong>Helm chart</strong>
-                <span class="feature-desc">DaemonSet + aggregation controller, RBAC, Kubernetes-native</span>
+                <span class="feature-desc">Sensor DaemonSet with RBAC and ServiceAccount, ready for any containerd cluster</span>
               </div>
             </li>
             <li class="feature-item">
@@ -257,15 +257,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li class="feature-item">
               <span class="feature-check">&#10003;</span>
               <div>
-                <strong>Seccomp + AppArmor profiles</strong>
-                <span class="feature-desc">Syscall allowlist and AppArmor profiles from observed behaviour</span>
-              </div>
-            </li>
-            <li class="feature-item">
-              <span class="feature-check">&#10003;</span>
-              <div>
-                <strong>CycloneDX + SPDX SBOMs</strong>
-                <span class="feature-desc">Generated by syft, signed with cosign</span>
+                <strong>CycloneDX + SPDX SBOMs + removal manifest</strong>
+                <span class="feature-desc">SBOMs generated by syft, with optional cosign signing, plus a manifest of every package the hardening removed</span>
               </div>
             </li>
           </ul>
@@ -278,7 +271,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="label">Platform</div>
             <div class="compare-col-badge compare-col-badge--pro">Pro</div>
           </div>
-          <p class="compare-col-intro">Everything in open source, plus:</p>
+          <p class="compare-col-intro">
+            Runs in your cluster alongside the sensor; no data leaves your infrastructure.
+            Includes the <code>tracepod</code> CLI and everything in open source, plus:
+          </p>
           <ul class="feature-list">
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
@@ -304,8 +300,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>CVE delta reports</strong>
-                <span class="feature-desc">grype scans the source and hardened images and reports exactly which findings the hardening removed</span>
+                <strong>Build-time CVE delta</strong>
+                <span class="feature-desc">grype scans the source and hardened images on every build and reports exactly which findings the hardening removed</span>
               </div>
             </li>
             <li class="feature-item">
@@ -340,7 +336,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>RBAC + audit log</strong>
-                <span class="feature-desc">Kubernetes TokenReview, role-based access, immutable audit trail</span>
+                <span class="feature-desc">Sign-in reuses your cluster&rsquo;s existing identity; Viewer, Operator, and Admin roles; append-only audit trail</span>
               </div>
             </li>
           </ul>
@@ -398,13 +394,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div>
         <h2 class="heading-lg">Try it on one workload.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          Install the open-source tools and harden a single deployment this afternoon.
+          Install the open-source tools, profile one deployment, and compare the image sizes.
           If the numbers convince you, talk to us about running it across the fleet.
         </p>
       </div>
       <div class="cta-band-actions">
         <a href="/docs/getting-started/quickstart/" class="btn btn-primary btn-lg">
-          Get started free
+          Read the quickstart
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
         <a href="/contact" class="btn btn-secondary btn-lg">Contact us</a>
@@ -518,7 +514,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 }
 .compare-col--pro {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-dim), var(--accent-glow);
+  box-shadow: 0 0 0 1px var(--accent-dim);
 }
 .compare-col-header { display: flex; align-items: center; justify-content: space-between; }
 .compare-col-badge {
