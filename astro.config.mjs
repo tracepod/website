@@ -7,7 +7,7 @@ export default defineConfig({
   base: '/',
   integrations: [
     starlight({
-      title: 'Tracepod Docs',
+      title: 'Tracepod',
       description: 'eBPF-based container hardening — documentation',
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/tracepod/tracepod' },
@@ -43,6 +43,14 @@ export default defineConfig({
           items: [
             { label: 'CLI reference', slug: 'docs/reference/cli' },
             { label: 'Runtime presets', slug: 'docs/reference/presets' },
+          ],
+        },
+        {
+          label: 'tracepod.co.uk',
+          items: [
+            { label: 'Product home', link: '/' },
+            { label: 'Platform', link: '/platform' },
+            { label: 'Contact', link: '/contact' },
           ],
         },
       ],

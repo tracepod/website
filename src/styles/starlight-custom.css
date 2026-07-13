@@ -58,18 +58,6 @@ header {
   border-bottom: 1px solid #1e2226 !important;
 }
 
-/* Back-to-marketing link strip */
-.sl-header-strip {
-  background: #111416;
-  padding: 0.4rem 1rem;
-  font-size: 0.8rem;
-  color: #8b949e;
-  border-bottom: 1px solid #1e2226;
-}
-.sl-header-strip a {
-  color: #00d4aa;
-}
-
 /* Table of contents */
 .right-sidebar-panel {
   font-size: 0.8125rem;

@@ -108,7 +108,7 @@ const nav = [
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--bg-primary);
+  background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -234,10 +234,11 @@ const nav = [
 }
 
 @media (max-width: 768px) {
-  .nav, .header-actions .btn-primary { display: none; }
+  .nav { display: none; }
   .menu-toggle { display: flex; }
 }
 @media (max-width: 480px) {
   .header-actions { gap: var(--space-2); }
+  .header-actions .btn-primary { display: none; }
 }
 </style>

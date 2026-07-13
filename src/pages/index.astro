@@ -147,7 +147,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="confidence-section section">
     <div class="container confidence-inner">
       <div class="confidence-text">
-        <div class="eyebrow">Confidence scoring</div>
         <h2 class="heading-lg">Every file in the image can tell you why it&rsquo;s there.</h2>
         <p class="body-md">
           Most container-slimming tools hand you a flat file list and a smaller number. Tracepod keeps the
@@ -207,7 +206,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="compare-section section">
     <div class="container">
       <div class="section-header">
-        <div class="eyebrow">Open-core model</div>
         <h2 class="heading-lg">Everything you need is free and open source.<br>The platform takes it further.</h2>
       </div>
 
@@ -356,7 +354,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
-          <h4>AGPL-3.0 licensed</h4>
+          <h3>AGPL-3.0 licensed</h3>
           <p>The core toolchain is fully open. Inspect the code, run it yourself, contribute upstream.</p>
         </div>
         <div class="trust-item">
@@ -364,7 +362,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <rect x="3" y="3" width="18" height="18" rx="2"/>
             <path d="M9 9h6M9 12h6M9 15h4"/>
           </svg>
-          <h4>CycloneDX + SPDX SBOMs</h4>
+          <h3>CycloneDX + SPDX SBOMs</h3>
           <p>Both formats, signed with cosign, so the output fits whichever scanner your security team already runs.</p>
         </div>
         <div class="trust-item">
@@ -372,14 +370,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 8v4l3 3"/>
           </svg>
-          <h4>CO-RE, no kernel module</h4>
+          <h3>CO-RE, no kernel module</h3>
           <p>Pure eBPF with Compile Once, Run Everywhere. Runs on kernel 6.8+ without rebuilding anything per node.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
           </svg>
-          <h4>Kubernetes-native</h4>
+          <h3>Kubernetes-native</h3>
           <p>Deploys as a DaemonSet, authenticates with TokenReview, and reuses your existing registry secrets. No side-car injection, no admission webhook.</p>
         </div>
       </div>
@@ -419,13 +417,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   gap: var(--space-16);
   align-items: center;
 }
-.hero-content { display: flex; flex-direction: column; gap: var(--space-6); }
+.hero-content { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
 .hero-headline { line-height: 1.07; }
 .headline-accent { color: var(--accent); }
 .hero-sub { max-width: 520px; }
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 .hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
-.hero-terminal { width: 100%; }
+.hero-terminal { width: 100%; min-width: 0; }
 
 /* Loop */
 .section-header {
@@ -544,7 +542,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
 .trust-item { display: flex; flex-direction: column; gap: var(--space-3); }
 .trust-icon { color: var(--accent); }
-.trust-item h4 { font-size: 0.95rem; font-weight: 600; }
+.trust-item h3 { font-size: 0.95rem; font-weight: 600; }
 .trust-item p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
 
 /* CTA band */
