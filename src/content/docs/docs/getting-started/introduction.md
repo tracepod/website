@@ -51,7 +51,7 @@ The `tracepod` CLI connects to a separate server-side controller component that 
 
 ## Design philosophy
 
-Tracepod is not a static analyzer. It is a **runtime observer**: its output is only as complete as the workload it observed. Profile your application under the same load pattern it will see in production, and your hardened image will be correct. Profile it while it sits idle and you will need to fill gaps manually — which the [confidence score](/docs/concepts/observation-sources/) surfaces explicitly rather than hiding.
+The hardened image is only as complete as the runtime behavior you observed. Profile your application under the same load pattern it will see in production, and the image will be correct. Profile it while it sits idle and you will need to fill gaps manually. The [confidence score](/docs/concepts/observation-sources/) exists to surface those gaps before you ship, not to hide them.
 
 Every file in the manifest carries an observation source (`direct`, `inferred-elf`, `inferred-runtime`, `directory-inclusion`, `manual`), so you can always audit *why* a file ended up in the hardened image.
 
