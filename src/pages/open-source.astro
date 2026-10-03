@@ -52,7 +52,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <span class="tag">Go 1.26</span>
             <span class="tag">cilium/ebpf</span>
             <span class="tag">CO-RE</span>
-            <span class="tag">kernel 6.8+</span>
+            <span class="tag">kernel: see Requirements</span>
           </div>
         </div>
 
@@ -171,9 +171,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h2 class="heading-lg">Install with Helm from the repo.</h2>
           <p class="body-md" style="margin-top: 1rem;">
             The chart ships in the repository; a hosted chart repo is on the roadmap.
-            You need Kubernetes 1.25+, nodes on kernel 6.8 or newer, and containerd
-            NRI enabled &ndash; a one-line config change if it isn&rsquo;t already, and the
-            <a href="/docs/getting-started/installation/">installation guide</a> covers it.
+            Check your nodes against the
+            <a href="/docs/getting-started/requirements/">requirements</a> first &ndash;
+            containerd NRI reachable, cgroup v2, kernel BTF &ndash; then the
+            <a href="/docs/getting-started/installation/">installation guide</a> covers
+            the Helm install itself.
           </p>
           <a href="/docs/getting-started/installation/" class="btn btn-secondary" style="margin-top: 1.5rem;">
             Full installation guide &rarr;
@@ -187,18 +189,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <span class="terminal-title">Install Tracepod</span>
           </div>
           <div class="terminal-body">
-            <p><span class="comment"># Kubernetes: sensor + controller via the Helm chart</span></p>
+            <p><span class="comment"># Kubernetes: sensor DaemonSet via the Helm chart</span></p>
             <p><span class="prompt">$</span> git clone https://github.com/tracepod/tracepod</p>
             <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--namespace tracepod --create-namespace</p>
             <p>&nbsp;</p>
             <p><span class="comment"># CLI binaries from GitHub releases</span></p>
-            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.1.2/tracepod_tracepod_0.1.2_linux_amd64.tar.gz</p>
-            <p><span class="prompt">$</span> sudo tar xzf tracepod_tracepod_0.1.2_linux_amd64.tar.gz -C /usr/local/bin</p>
+            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.2.3/tracepod_tracepod_0.2.3_linux_amd64.tar.gz</p>
+            <p><span class="prompt">$</span> sudo tar xzf tracepod_tracepod_0.2.3_linux_amd64.tar.gz -C /usr/local/bin</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Verify</span></p>
             <p><span class="prompt">$</span> tracepod version</p>
-            <p><span class="success">tracepod v0.1.2 (2f8a41c)</span></p>
+            <p><span class="success">tracepod v0.2.3 (2f8a41c)</span></p>
           </div>
         </div>
       </div>

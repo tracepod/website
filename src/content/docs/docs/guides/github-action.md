@@ -7,6 +7,14 @@ The repository root ships a composite GitHub Action (`tracepod/tracepod@v0`) tha
 
 Profile your app during CI e2e tests (or commit a recorded profile), then harden as part of the release pipeline.
 
+:::caution
+The action does not expose `--allow-empty`. Since `harden build` refuses manifests with
+zero `direct` (eBPF-observed) entries, a run where the sensor wasn't active or captured
+nothing during profiling now **fails the build** — where it previously built anyway with
+only a "Very Low confidence" warning. Make sure the profile step actually captured
+observations before hardening in CI.
+:::
+
 ## Usage
 
 ```yaml
