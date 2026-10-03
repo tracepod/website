@@ -51,8 +51,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;-n tracepod --create-namespace</p>
             <p>&nbsp;</p>
-            <p><span class="comment"># Grab the recorded profile once your workload has run</span></p>
-            <p><span class="prompt">$</span> kubectl exec -n tracepod ds/tracepod-sensor -- \</p>
+            <p><span class="comment"># Grab the profile from the sensor on the node your workload ran on</span></p>
+            <p><span class="prompt">$</span> NODE=$(kubectl get pod $POD -o jsonpath='&#123;.spec.nodeName&#125;')</p>
+            <p><span class="prompt">$</span> SENSOR=$(kubectl -n tracepod get pod \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;-l app.kubernetes.io/name=tracepod-sensor --field-selector spec.nodeName=$NODE \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;-o jsonpath='&#123;.items[0].metadata.name&#125;')</p>
+            <p><span class="prompt">$</span> kubectl -n tracepod exec $SENSOR -- \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;cat /profiles/$CONTAINER_ID/files.json &gt; manifest.json</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Build and push the hardened image</span></p>
