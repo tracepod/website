@@ -53,13 +53,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p><span class="comment"># Build and push the hardened image</span></p>
             <p><span class="prompt">$</span> <span class="cmd">harden</span> build --manifest manifest.json \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--source acme/web:1.4.2 \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--output /tmp/hardened-web \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--push registry.local/web:hardened</p>
-            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (315 direct, 217 inferred-runtime, &hellip;)</span></p>
-            <p><span class="output">Confidence:&nbsp;&nbsp;Medium (79/100)</span></p>
+            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (680 direct, 42 inferred-elf, 8 manual/scratch-compat)</span></p>
+            <p><span class="output">Confidence:&nbsp;&nbsp;79/100 (Medium)</span></p>
             <p><span class="success">Layer:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17.2 MiB (down from 46.2 MiB)</span></p>
             <p><span class="success">Pushed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registry.local/web:hardened</span></p>
           </div>
         </div>
+        <p class="terminal-caption">Example output.</p>
       </div>
     </div>
   </section>
@@ -270,8 +272,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="compare-col-badge compare-col-badge--pro">Pro</div>
           </div>
           <p class="compare-col-intro">
-            Runs in your cluster alongside the sensor; no data leaves your infrastructure.
-            Includes the <code>tracepod</code> CLI and everything in open source, plus:
+            Runs in your cluster alongside the sensor. Data is sent outside the cluster
+            only to endpoints you configure, such as webhooks. Includes the
+            <code>tracepod</code> CLI and everything in open source, plus:
           </p>
           <ul class="feature-list">
             <li class="feature-item">
@@ -371,7 +374,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <path d="M12 8v4l3 3"/>
           </svg>
           <h3>CO-RE, no kernel module</h3>
-          <p>Pure eBPF with Compile Once, Run Everywhere. Runs on kernel 6.8+ without rebuilding anything per node.</p>
+          <p>Pure eBPF with Compile Once, Run Everywhere — no per-node rebuild. See <a href="/docs/getting-started/requirements/">Requirements</a> for tested kernels.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
@@ -424,6 +427,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 .hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .hero-terminal { width: 100%; min-width: 0; }
+.terminal-caption {
+  margin-top: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: right;
+}
 
 /* Loop */
 .section-header {

@@ -98,7 +98,7 @@ Warning:     /etc/resolv.conf not found in image layers (bind-mounted at runtime
 
 Key things to check:
 
-- **Confidence** should be 70+ for a production build; see [Observation sources & confidence](/docs/concepts/observation-sources/) for what lowers the score.
+- **Confidence** of 80+ (High) is safe to promote with normal change management; 60–79 (Medium) is acceptable for staging but should be reviewed before production. See [Observation sources & confidence](/docs/concepts/observation-sources/) for the full score bands and what lowers the score.
 - **Files** count should be non-zero — `harden build` now refuses to build at all (exit `3`) when the manifest has zero `direct` (eBPF-observed) entries, since a build from inferred/manual entries alone with no direct observations is very likely broken. Pass `--allow-empty` to build anyway.
 - `resolv.conf` absent is **expected** — the container runtime bind-mounts it; exit code 2 is returned only for other missing scratch-compat files.
 - If `harden build` exits 0 but the hardened image fails to start, run with `--verbose` and use `--include` to add missing directories. The [runtime presets](/docs/reference/presets/) cover known gaps for common runtimes (nginx, Python, Java, Postgres, and more).
@@ -129,6 +129,8 @@ harden build \
 ```
 
 ## Troubleshooting: no profiles appear
+
+If the sensor pod itself is `CrashLoopBackOff` with `fatal: NRI unavailable` in its logs, NRI is unreachable on that node — fix the containerd config (see [Requirements](/docs/getting-started/requirements/)) before working through the rest of this list, which assumes the sensor pod is `Ready`.
 
 1. **Is NRI enabled?** Run [`./hack/discovery-probe.sh`](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) on the node — it checks the NRI socket directly rather than relying on config-file text matching. Restart containerd after changing the config.
 2. **Is the sensor connected?** `kubectl logs -n tracepod daemonset/tracepod-sensor | tail -20` — look for `NRI connected`.

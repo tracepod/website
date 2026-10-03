@@ -1,9 +1,9 @@
 ---
 title: Introduction
-description: What Tracepod is and how eBPF runtime profiling produces minimized, lower-CVE container images.
+description: What Tracepod is and how eBPF runtime profiling produces minimized container images.
 ---
 
-Tracepod is an eBPF-based container hardening tool for Kubernetes. It observes what a running container uses at runtime — files, binaries, shared libraries — via eBPF kernel tracing, then builds a minimized OCI image containing only those components. The result is a smaller attack surface: fewer files, packages, and CVEs.
+Tracepod is an eBPF-based container hardening tool for Kubernetes. It observes what a running container uses at runtime — files, binaries, shared libraries — via eBPF kernel tracing, then builds a minimized OCI image containing only those components. The result is a smaller attack surface: fewer files and packages.
 
 ## The pipeline
 
@@ -53,7 +53,7 @@ The `tracepod` CLI connects to a separate server-side controller component that 
 
 The hardened image is only as complete as the runtime behavior you observed. Profiling your application under the same load pattern it will see in production produces a correct image. Profiling it while idle leaves gaps that you will need to fill manually. The [confidence score](/docs/concepts/observation-sources/) surfaces those gaps before you ship.
 
-Every file in the manifest carries an observation source (`direct`, `inferred-elf`, `inferred-runtime`, `directory-inclusion`, `manual`), so you can always audit *why* a file ended up in the hardened image.
+Every file in the manifest carries an observation source (`direct`, `inferred-elf`, `inferred-runtime`, `directory-inclusion`, `manual`, `ensure-dir`, `ensure-file`), so you can always audit *why* a file ended up in the hardened image.
 
 ## Next steps
 
