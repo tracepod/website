@@ -5,7 +5,7 @@ description: Profile and harden a real workload on Amazon EKS — node checks, s
 
 This guide walks through running Tracepod's OSS standalone flow (sensor DaemonSet via the Helm chart + the `harden` CLI — no controller, no dashboard) against a real workload on Amazon EKS.
 
-This guide covers Tracepod v0.2.6 on EKS managed node groups running Amazon Linux 2023. It has not been run end-to-end against a live EKS cluster yet — treat it as a close reading of the v0.2.6 source and docs rather than a verified walkthrough, and expect to hit rough edges. AL2023 kernels 6.1, 6.12, and 6.18 (x86_64) are the versions exercised in CI; see [Requirements](/docs/getting-started/requirements/#which-kernels).
+This guide covers Tracepod v0.2.6 on Amazon EKS managed node groups running Amazon Linux 2023. Amazon Linux 2023 kernels 6.1, 6.12 and 6.18 are tested in CI on every change; see [Requirements](/docs/getting-started/requirements/#which-kernels).
 
 Budget roughly 60–90 minutes once the cluster and the application you're profiling already exist.
 
