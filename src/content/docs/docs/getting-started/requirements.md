@@ -95,17 +95,28 @@ out whether it works — not a version table.
 
 The repository ships `hack/discovery-probe.sh`, which turns the silent "NRI is down"
 condition into an answer you get **before** deploying, rather than an empty dashboard
-after. Run it directly on the node, or inside a privileged debug pod on that node:
+after. Run it **directly on the node** — for example over SSH, or via SSM Session
+Manager on EKS — not from inside a `kubectl debug` node-debug pod: the script checks
+host paths like `/var/run/nri/nri.sock` directly, and a node-debug pod mounts the host
+filesystem under `/host`, so running it there reports a false exit `1` on a perfectly
+healthy node. Support for that path (`HOST_ROOT`-relative checks) is in progress; this
+page will get the tested invocation once it ships.
+
+Get the script either by cloning the repository, or by fetching just the one file:
 
 ```bash
-./hack/discovery-probe.sh
-# or, from a workstation with kubectl:
-kubectl debug node/<node-name> -it --image=<any-image-with-bash> -- bash
-# then run the script inside that debug shell
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.2/hack/discovery-probe.sh
+chmod +x discovery-probe.sh
 ```
 
-It needs `bash` (not a plain `/bin/sh`), and it's read-only — it writes only under `/tmp`
-and never restarts anything.
+Then, on the node itself:
+
+```bash
+./discovery-probe.sh
+```
+
+It needs `bash` (not a plain `/bin/sh`) on the node, and it's read-only — it writes only
+under `/tmp` and never restarts anything.
 
 **Exit codes:**
 

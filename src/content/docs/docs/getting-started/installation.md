@@ -39,13 +39,7 @@ Then restart containerd:
 sudo systemctl restart containerd
 ```
 
-Verify:
-
-```bash
-grep -E "^\s*disable\s*=" /etc/containerd/config.toml | grep nri
-# Should print:   disable = false
-# (or be absent — NRI is enabled by default in containerd 2.x)
-```
+Verify by running [`hack/discovery-probe.sh`](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) on the node — it checks the NRI socket directly rather than text-matching the config file.
 
 :::caution
 Only containers managed by Kubernetes (kubelet → containerd) or started via `crictl` are profiled. Containers started with `docker run`, `nerdctl run`, or `docker-compose` are silently ignored, because they do not go through the containerd NRI interface. See [Known limitations](/docs/concepts/known-limitations/).
@@ -56,9 +50,9 @@ Only containers managed by Kubernetes (kubelet → containerd) or started via `c
 Pre-built binaries are published on the [Releases page](https://github.com/tracepod/tracepod/releases). Each binary ships in its own archive, named `tracepod_<binary>_<version>_<os>_<arch>.tar.gz`:
 
 ```bash
-# Example: install harden v0.1.2 on Linux amd64
+# Example: install harden v0.2.2 on Linux amd64
 curl -fsSL \
-  https://github.com/tracepod/tracepod/releases/download/v0.1.2/tracepod_harden_0.1.2_linux_amd64.tar.gz \
+  https://github.com/tracepod/tracepod/releases/download/v0.2.2/tracepod_harden_0.2.2_linux_amd64.tar.gz \
   | tar -xz harden
 sudo install harden /usr/local/bin/harden
 
