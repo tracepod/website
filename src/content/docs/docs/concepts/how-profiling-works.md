@@ -27,7 +27,7 @@ Every event is filtered **in-kernel** by cgroup ID: only events from tracked con
 
 This is why **only CRI-managed containers are profiled**: NRI events fire only for containers launched through the containerd CRI plugin (kubelet or `crictl`). `docker run`, `nerdctl run`, and `ctr run` bypass NRI entirely, so those containers are silently invisible to the sensor. See [Known limitations](/docs/concepts/known-limitations/).
 
-It is also why there is a **startup race**: the NRI `StartContainer` hook fires after the container's init process has already exec'd, so files opened during the very first moments of startup (entrypoint scripts, pid files, log files) are missed. As of profile schema v2 the sensor emits a `coverage.process_start_observed` marker so this gap is machine-detectable per container. The [known limitations page](/docs/concepts/known-limitations/#the-nri-startup-race) covers the workarounds.
+It is also why there is a **startup race** for containers the sensor adopts late: when the sensor learns about a container via NRI's `Synchronize` hook (it was already running before the sensor attached — `adoption_mode: nri-sync`), its early file opens were dropped before the sensor could register the cgroup. Containers started normally while the sensor is already running (`adoption_mode: nri-start`) have their cgroup registered by containerd's synchronous `StartContainer` hook before the workload execs, so this race does not apply to them. As of profile schema v2 the sensor emits a `coverage.process_start_observed` marker, and since v5 a `coverage.adoption_mode` field, so this gap is machine-detectable per container. The [known limitations page](/docs/concepts/known-limitations/#the-nri-startup-race) covers the workarounds.
 
 ## The profile document
 
@@ -51,7 +51,7 @@ The profile is a JSON document, one per container profiling window. In standalon
 
 Each entry records how the file was discovered (its [observation source](/docs/concepts/observation-sources/)), when it was first and last seen, and how many times.
 
-The profile carries a `schema_version` (currently 4) and, since schema v3, a top-level `event_loss` block that counts events dropped at every audited drop point — ring-buffer overflow, decode failures, and start/stop races. A window with `event_loss.total: 0` is a positive claim that nothing was lost on the hard paths. The formal JSON Schemas live in the repository at [`docs/profile-schema/`](https://github.com/tracepod/tracepod/tree/main/docs/profile-schema).
+The profile carries a `schema_version` (currently 5). Schema v5 added `coverage.adoption_mode` (`nri-start` or `nri-sync`: how the sensor came to watch the container) and `profile_terminal` (whether the window closed because the container stopped or was cut short). The profile also carries, since schema v3, a top-level `event_loss` block that counts events dropped at every audited drop point — ring-buffer overflow, decode failures, and start/stop races. A window with `event_loss.total: 0` is a positive claim that nothing was lost on the hard paths. The formal JSON Schemas live in the repository at [`docs/profile-schema/`](https://github.com/tracepod/tracepod/tree/main/docs/profile-schema).
 
 ## Sensor flags
 

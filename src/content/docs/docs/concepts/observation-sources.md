@@ -5,7 +5,7 @@ description: How Tracepod records why each file is in the manifest, and how the 
 
 Every file in a Tracepod profile carries an **observation source** recording how it was discovered. This distinction is the foundation of confidence scoring and audit trails — it is never flattened into a plain file list.
 
-## The five observation sources
+## The seven observation sources
 
 | Source | Meaning |
 |--------|---------|
@@ -14,8 +14,10 @@ Every file in a Tracepod profile carries an **observation source** recording how
 | `inferred-runtime` | Added by a language-runtime companion rule at build time — e.g. a CPython `__pycache__` pyc implies its sibling `.py` source, which the interpreter stats but never opens. |
 | `directory-inclusion` | Added via `harden build --include <dir>` — every regular file and file symlink under that directory in the source image layers. |
 | `manual` | Added explicitly to the manifest by an operator (with an `included_because` justification). |
+| `ensure-dir` | An empty directory declared via `harden build --mkdir <path>`, written even if absent from the source image. |
+| `ensure-file` | An empty (0-byte) file declared via `harden build --touch <path>`, written only if the path is absent from the source image. |
 
-The source propagates through the build: the `Files:` summary line breaks the counts down by source, and manual entries' `included_because` values are carried into the SBOM output for audit traceability.
+The source propagates through the build: the `Files:` summary line breaks the counts down by source, and manual entries' `included_because` values are recorded in the manifest for audit traceability.
 
 ## The confidence score
 

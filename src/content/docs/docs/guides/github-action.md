@@ -3,27 +3,32 @@ title: GitHub Action
 description: Harden a container image in CI with the tracepod/tracepod composite action — build, smoke-test, SBOM, and push.
 ---
 
-The repository root ships a composite GitHub Action (`tracepod/tracepod@v0`) that hardens an image in CI from a recorded profile: it installs the `harden` binary and syft, runs `harden build` with `--sbom`, optionally smoke-tests the result in the runner's Docker daemon, and optionally pushes to a registry.
+The repository root ships a composite GitHub Action (`tracepod/tracepod@v0.2.6`) that hardens an image in CI from a recorded profile: it installs the `harden` binary and syft, runs `harden build` with `--sbom`, optionally smoke-tests the result in the runner's Docker daemon, and optionally pushes to a registry.
 
 Profile your app during CI e2e tests (or commit a recorded profile), then harden as part of the release pipeline.
+
+Pin a release tag. `@v0` tracks the latest 0.x release. Action tags v0.2.0–v0.2.3 fail at the install step (the download URL didn't include the binary name) and should not be used; tags before v0.2.0 do not contain the Action.
 
 :::caution
 The action does not expose `--allow-empty`. Since `harden build` refuses manifests with
 zero `direct` (eBPF-observed) entries, a run where the sensor wasn't active or captured
 nothing during profiling now **fails the build** — where it previously built anyway with
-only a "Very Low confidence" warning. Make sure the profile step actually captured
+only a "Very Low confidence" warning. Make sure the profile step captured
 observations before hardening in CI.
 :::
 
 ## Usage
 
 ```yaml
-- uses: tracepod/tracepod@v0
+- uses: tracepod/tracepod@v0.2.6
   with:
     manifest: profiles/app/files.json
     source: ghcr.io/acme/app:${{ github.sha }}
     push: ghcr.io/acme/app:${{ github.sha }}-hardened
+    version: v0.2.6
 ```
+
+`@v0.2.6` pins the Action's own script (checked out from that tag); `version` pins which `harden` release the Action installs and runs (default `latest`).
 
 ## Inputs
 
@@ -68,7 +73,7 @@ jobs:
 
       - name: Harden image
         id: harden
-        uses: tracepod/tracepod@v0
+        uses: tracepod/tracepod@v0.2.6
         with:
           manifest: profiles/app/files.json
           source: ghcr.io/acme/app:${{ github.sha }}

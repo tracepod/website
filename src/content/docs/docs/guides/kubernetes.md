@@ -9,7 +9,7 @@ The Helm chart at [`helm/tracepod`](https://github.com/tracepod/tracepod/tree/ma
 
 - Kubernetes ≥ 1.25
 - Helm 3
-- containerd runtime with **NRI enabled** (see [Installation](/docs/getting-started/installation/#enable-nri-in-containerd) — required, and a silent no-op if missing)
+- containerd runtime with **NRI enabled** (see [Installation](/docs/getting-started/installation/#enable-nri-in-containerd) — required; without it the sensor exits non-zero and the pod goes `CrashLoopBackOff`)
 - cgroupv2 on nodes (default on Ubuntu 22.04+ and most modern distributions)
 - The cluster must allow `privileged: true` DaemonSet pods (blocked by GKE Autopilot, Fargate, and PodSecurity `restricted`)
 
@@ -44,7 +44,7 @@ kubectl -n tracepod logs daemonset/tracepod-sensor | grep -E "NRI|tracking"
 | Value | Default | Description |
 |-------|---------|-------------|
 | `sensor.image.repository` | `ghcr.io/tracepod/tracepod-sensor` | Sensor container image |
-| `sensor.image.tag` | `latest` | Image tag — pin to a release tag in production |
+| `sensor.image.tag` | `""` | Empty defaults to the chart's `appVersion` (e.g. `v0.2.6`); override to pin a different sensor version or a dev build |
 | `sensor.image.pullPolicy` | `IfNotPresent` | Image pull policy |
 | `sensor.controllerURL` | `""` | Tracepod controller URL; empty = standalone mode |
 | `sensor.profileHostPath` | `/var/lib/tracepod/profiles` | Node-local path for profile output (standalone only) |
@@ -130,12 +130,13 @@ Profile data on node disks is **not** removed automatically — clean up with `s
 
 ## Troubleshooting
 
-Sensor starts but no profiles appear:
+If the sensor pod is `CrashLoopBackOff` and its logs show `fatal: NRI unavailable`, NRI is unreachable on that node — run [`hack/discovery-probe.sh`](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) and fix the containerd config before continuing. The probe also checks cgroup v2 and kernel BTF.
 
-1. **NRI enabled?** (most common cause) — `grep -E "^\s*disable\s*=" /etc/containerd/config.toml | grep nri` must print `disable = false` or nothing.
-2. **Sensor connected?** — `kubectl -n tracepod logs daemonset/tracepod-sensor | head -20`; a missing `NRI connected` line means registration failed.
-3. **Container started via Kubernetes?** — only kubelet-created pods are profiled.
-4. **Container stopped yet?** — profiles are written on stop, not while running.
-5. **Sensor tracking it?** — `kubectl -n tracepod logs daemonset/tracepod-sensor | grep tracking`; if your container ID is absent, the sensor missed the start event.
+Sensor is `Ready` but no profiles appear:
+
+1. **Sensor connected?** — `kubectl -n tracepod logs daemonset/tracepod-sensor | head -20`; a missing `NRI connected` line means registration failed.
+2. **Container started via Kubernetes?** — only kubelet-created pods are profiled.
+3. **Container stopped yet?** — profiles are written on stop, not while running.
+4. **Sensor tracking it?** — `kubectl -n tracepod logs daemonset/tracepod-sensor | grep tracking`; if your container ID is absent, the sensor missed the start event.
 
 See [Known limitations](/docs/concepts/known-limitations/) for the full sensor gap analysis.

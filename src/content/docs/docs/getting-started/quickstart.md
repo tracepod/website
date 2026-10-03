@@ -3,7 +3,7 @@ title: Quickstart
 description: Profile a running container with the eBPF sensor and build your first hardened image.
 ---
 
-This is the shortest real path from a running container to a hardened image. It follows the Kubernetes route; a standalone single-host variant is at the end.
+This is the shortest path from a running container to a hardened image. It follows the Kubernetes route; a standalone single-host variant is at the end.
 
 ## Before you start
 
@@ -17,7 +17,7 @@ Once installed, the sensor profiles **every** container kubelet/containerd creat
 
 ## 0. Run the discovery probe
 
-Before installing anything, confirm the node can actually run the sensor. If NRI is unreachable the sensor pod will exit and go `CrashLoopBackOff` rather than install cleanly — check this first instead of finding out from a crashing pod:
+Before installing anything, confirm the node can run the sensor. If NRI is unreachable the sensor pod will exit and go `CrashLoopBackOff` rather than install cleanly — check this first instead of finding out from a crashing pod:
 
 ```bash
 ./hack/discovery-probe.sh
@@ -98,7 +98,7 @@ Warning:     /etc/resolv.conf not found in image layers (bind-mounted at runtime
 
 Key things to check:
 
-- **Confidence** should be 70+ for a production build; see [Observation sources & confidence](/docs/concepts/observation-sources/) for what lowers the score.
+- **Confidence** of 80+ (High) is safe to promote with normal change management; 60–79 (Medium) is acceptable for staging but should be reviewed before production. See [Observation sources & confidence](/docs/concepts/observation-sources/) for the full score bands and what lowers the score.
 - **Files** count should be non-zero — `harden build` now refuses to build at all (exit `3`) when the manifest has zero `direct` (eBPF-observed) entries, since a build from inferred/manual entries alone with no direct observations is very likely broken. Pass `--allow-empty` to build anyway.
 - `resolv.conf` absent is **expected** — the container runtime bind-mounts it; exit code 2 is returned only for other missing scratch-compat files.
 - If `harden build` exits 0 but the hardened image fails to start, run with `--verbose` and use `--include` to add missing directories. The [runtime presets](/docs/reference/presets/) cover known gaps for common runtimes (nginx, Python, Java, Postgres, and more).
@@ -130,14 +130,15 @@ harden build \
 
 ## Troubleshooting: no profiles appear
 
-1. **Is NRI enabled?** Run [`./hack/discovery-probe.sh`](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) on the node — it checks the NRI socket directly rather than relying on config-file text matching. Restart containerd after changing the config.
-2. **Is the sensor connected?** `kubectl logs -n tracepod daemonset/tracepod-sensor | tail -20` — look for `NRI connected`.
-3. **Was the container started via the CRI?** Only kubelet or `crictl` containers are profiled — not `docker run`, `nerdctl run`, or `docker-compose`.
-4. **Did the container stop?** Profiles are written on container stop, not while running.
-5. **Is the sensor tracking the container?** `kubectl logs -n tracepod daemonset/tracepod-sensor | grep tracking`
+If the sensor pod itself is `CrashLoopBackOff` with `fatal: NRI unavailable` in its logs, NRI is unreachable on that node — fix the containerd config (see [Requirements](/docs/getting-started/requirements/)) before working through the rest of this list, which assumes the sensor pod is `Ready`.
+
+1. **Is the sensor connected?** `kubectl logs -n tracepod daemonset/tracepod-sensor | tail -20` — look for `NRI connected`.
+2. **Was the container started via the CRI?** Only kubelet or `crictl` containers are profiled — not `docker run`, `nerdctl run`, or `docker-compose`.
+3. **Did the container stop?** Profiles are written on container stop, not while running.
+4. **Is the sensor tracking the container?** `kubectl logs -n tracepod daemonset/tracepod-sensor | grep tracking`
 
 ## Next steps
 
-- [How profiling works](/docs/concepts/how-profiling-works/) — the eBPF machinery under the hood
+- [How profiling works](/docs/concepts/how-profiling-works/) — the eBPF sensor internals
 - [Kubernetes deployment](/docs/guides/kubernetes/) — chart values and profile retrieval in depth
 - [GitHub Action](/docs/guides/github-action/) — harden images in CI

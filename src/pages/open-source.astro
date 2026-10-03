@@ -12,11 +12,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container oss-hero-inner">
       <div>
         <div class="eyebrow">Open Source &middot; AGPL-3.0</div>
-        <h1 class="heading-xl">The full hardening toolchain, free and open.</h1>
+        <h1 class="heading-xl">The full hardening toolchain, open source.</h1>
         <p class="body-lg" style="margin-top: 1.5rem; max-width: 600px;">
           The eBPF sensor, image builder, CLI, Helm chart, and GitHub Action are all
-          open source. Profiles are plain JSON, hardened images are standard OCI, and
-          nothing phones home.
+          open source. Profiles are plain JSON, and hardened images are standard OCI.
         </p>
         <div style="display:flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;">
           <a href="https://github.com/tracepod/tracepod" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
@@ -46,7 +45,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p>
             CO-RE kprobe sensor written in pure Go using <code>cilium/ebpf</code>.
             Attaches to <code>openat()</code>, filters by cgroup/namespace, ships events over a ring buffer.
-            Runs as a DaemonSet pod. No kernel module, no DKMS, no side-cars.
+            Runs as a DaemonSet pod. Requires no kernel module, DKMS, or sidecars.
           </p>
           <div class="tool-tags">
             <span class="tag">Go 1.26</span>
@@ -67,7 +66,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p>
             Takes the sensor manifest, resolves ELF shared-library dependencies recursively
             via readelf + ld.so.conf, applies language-runtime companion rules, then emits a
-            new OCI image layer containing only the files that were actually observed.
+            new OCI image layer containing only the files that were observed.
           </p>
           <div class="tool-tags">
             <span class="tag">go-containerregistry</span>
@@ -128,7 +127,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <h3>GitHub Action</h3>
           <p>
-            Add a <code>uses: tracepod/tracepod@v0</code> step to your release workflow.
+            Add a <code>uses: tracepod/tracepod@v0.2.6</code> step to your release workflow.
             Give it a recorded profile and a source image; it builds, smoke-tests, and
             SBOMs the hardened image, and can push it alongside the original.
           </p>
@@ -195,22 +194,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--namespace tracepod --create-namespace</p>
             <p>&nbsp;</p>
             <p><span class="comment"># CLI binaries from GitHub releases</span></p>
-            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.2.3/tracepod_tracepod_0.2.3_linux_amd64.tar.gz</p>
-            <p><span class="prompt">$</span> sudo tar xzf tracepod_tracepod_0.2.3_linux_amd64.tar.gz -C /usr/local/bin</p>
+            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.2.6/tracepod_tracepod_0.2.6_linux_amd64.tar.gz</p>
+            <p><span class="prompt">$</span> sudo tar xzf tracepod_tracepod_0.2.6_linux_amd64.tar.gz -C /usr/local/bin</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Verify</span></p>
             <p><span class="prompt">$</span> tracepod version</p>
-            <p><span class="success">tracepod v0.2.3 (2f8a41c)</span></p>
+            <p><span class="success">tracepod 0.2.6 (c7c13adef76af698e71b8f48381d66d40066b4b6)</span></p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Straight answers -->
+  <!-- FAQ -->
   <section class="faq-section section">
     <div class="container">
-      <div class="eyebrow" style="margin-bottom: 2.5rem;">Straight answers</div>
+      <div class="eyebrow" style="margin-bottom: 2.5rem;">Common questions</div>
       <div class="faq-grid">
         <div class="faq-item">
           <h3>Is it safe to run eBPF on production nodes?</h3>
@@ -226,9 +225,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h3>What if profiling missed a code path?</h3>
           <p>
             Then the confidence score is lower and the manifest shows the gap; you profile longer
-            or add the paths by hand. This is the honest limit of runtime profiling, and it is why
-            the platform exists: sandbox validation runs the hardened image before it ships, and
-            the auto-fix loop rebuilds with anything that turns out to be missing.
+            or add the paths by hand. This is an inherent limit of runtime profiling. Platform's
+            sandbox validation runs the hardened image before it ships, and the auto-fix loop
+            rebuilds with anything that turns out to be missing.
           </p>
         </div>
         <div class="faq-item">

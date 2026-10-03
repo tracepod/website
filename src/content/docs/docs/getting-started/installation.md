@@ -25,7 +25,7 @@ For **hardening** (the CLI): no special prerequisites. `skopeo` or `crane` is us
 
 ### Enable NRI in containerd
 
-The sensor integrates with containerd through NRI (Node Resource Interface). NRI must be enabled **before** installing the sensor — without it the sensor connects but no containers are ever profiled:
+The sensor integrates with containerd through NRI (Node Resource Interface). NRI must be enabled **before** installing the sensor — without it the sensor exits non-zero and refuses to run (the pod goes `CrashLoopBackOff` instead of tracing silently; see [Requirements](/docs/getting-started/requirements/)):
 
 ```toml
 # /etc/containerd/config.toml on each node
@@ -50,9 +50,9 @@ Only containers managed by Kubernetes (kubelet → containerd) or started via `c
 Pre-built binaries are published on the [Releases page](https://github.com/tracepod/tracepod/releases). Each binary ships in its own archive, named `tracepod_<binary>_<version>_<os>_<arch>.tar.gz`:
 
 ```bash
-# Example: install harden v0.2.3 on Linux amd64
+# Example: install harden v0.2.6 on Linux amd64
 curl -fsSL \
-  https://github.com/tracepod/tracepod/releases/download/v0.2.3/tracepod_harden_0.2.3_linux_amd64.tar.gz \
+  https://github.com/tracepod/tracepod/releases/download/v0.2.6/tracepod_harden_0.2.6_linux_amd64.tar.gz \
   | tar -xz harden
 sudo install harden /usr/local/bin/harden
 
@@ -87,7 +87,7 @@ CGO_ENABLED=0 go build ./cmd/harden/
 CGO_ENABLED=0 go build ./cmd/tracepod/
 ```
 
-The **sensor** requires a Linux kernel (6.8+) with eBPF support, clang-18, and bpftool to build. macOS contributors can use the Lima VM configuration shipped in the repo — see [CONTRIBUTING.md](https://github.com/tracepod/tracepod/blob/main/CONTRIBUTING.md).
+Building the **sensor** requires a Linux host with eBPF support, clang-18, and bpftool; see [Requirements](/docs/getting-started/requirements/#which-kernels) for which kernels that covers. macOS contributors can use the Lima VM configuration shipped in the repo — see [CONTRIBUTING.md](https://github.com/tracepod/tracepod/blob/main/CONTRIBUTING.md).
 
 ## Next steps
 
