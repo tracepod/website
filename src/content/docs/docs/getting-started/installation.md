@@ -74,7 +74,7 @@ helm install tracepod ./helm/tracepod \
   --create-namespace
 ```
 
-The chart uses the sensor container image from GHCR (`ghcr.io/tracepod/tracepod-sensor`). See the [Kubernetes deployment guide](/docs/guides/kubernetes/) for chart values, verification steps, and troubleshooting.
+The chart uses the sensor container image from GHCR (`ghcr.io/tracepod/tracepod-sensor`). See the [Kubernetes deployment guide](/docs/guides/kubernetes/) for chart values, verification steps, and troubleshooting. Running on Amazon EKS? See the [EKS guide](/docs/guides/eks/).
 
 ## Build from source
 

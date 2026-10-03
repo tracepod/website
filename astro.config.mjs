@@ -35,6 +35,7 @@ export default defineConfig({
           label: 'Guides',
           items: [
             { label: 'Kubernetes deployment', slug: 'docs/guides/kubernetes' },
+            { label: 'Amazon EKS', slug: 'docs/guides/eks' },
             { label: 'GitHub Action', slug: 'docs/guides/github-action' },
             { label: 'CVE reporting', slug: 'docs/guides/cve-reporting' },
           ],
