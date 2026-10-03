@@ -1,11 +1,11 @@
 ---
 title: Amazon EKS
-description: Profile and harden a real workload on Amazon EKS — node checks, sensor install, profiling, build, and validation, pinned to v0.2.3.
+description: Profile and harden a real workload on Amazon EKS — node checks, sensor install, profiling, build, and validation, pinned to v0.2.6.
 ---
 
 This guide walks through running Tracepod's OSS standalone flow (sensor DaemonSet via the Helm chart + the `harden` CLI — no controller, no dashboard) against a real workload on Amazon EKS.
 
-This guide covers Tracepod v0.2.3 on EKS managed node groups running Amazon Linux 2023. It has not been run end-to-end against a live EKS cluster yet — treat it as a close reading of the v0.2.3 source and docs rather than a verified walkthrough, and expect to hit rough edges. AL2023 kernels 6.1, 6.12, and 6.18 (x86_64) are the versions exercised in CI; see [Requirements](/docs/getting-started/requirements/#which-kernels).
+This guide covers Tracepod v0.2.6 on EKS managed node groups running Amazon Linux 2023. It has not been run end-to-end against a live EKS cluster yet — treat it as a close reading of the v0.2.6 source and docs rather than a verified walkthrough, and expect to hit rough edges. AL2023 kernels 6.1, 6.12, and 6.18 (x86_64) are the versions exercised in CI; see [Requirements](/docs/getting-started/requirements/#which-kernels).
 
 Budget roughly 60–90 minutes once the cluster and the application you're profiling already exist.
 
@@ -20,7 +20,7 @@ Use one real application you ship, not a placeholder. `nginx` is a reasonable co
 You'll need `hack/discovery-probe.sh` (step 1) and the Helm chart (step 2) from the exact tag. The probe steps below fetch the script via `curl` from `raw.githubusercontent.com`, which requires egress from wherever you run them — your workstation, an SSM session, or a debug pod. On a fully private node with no outbound internet, that `curl` will fail; copy the script out of this local clone instead (for example `kubectl cp` into the debug pod, or paste the script contents over the SSM session).
 
 ```bash
-git clone --branch v0.2.3 https://github.com/tracepod/tracepod.git /tmp/tracepod-v0.2.3
+git clone --branch v0.2.6 https://github.com/tracepod/tracepod.git /tmp/tracepod-v0.2.6
 ```
 
 ### Set variables once
@@ -52,7 +52,7 @@ Auto Mode's managed nodes have an unconfirmed privileged/`hostPID` admission pol
 
 ### Choose a node OS
 
-Per [Known limitations](/docs/concepts/known-limitations/) and the [KNOWN-LIMITATIONS.md §0.6](https://github.com/tracepod/tracepod/blob/v0.2.3/docs/KNOWN-LIMITATIONS.md#06-nri-must-be-enabled-in-containerd-off-by-default-before-containerd-20) table at v0.2.3:
+Per [Known limitations](/docs/concepts/known-limitations/) and the [KNOWN-LIMITATIONS.md §0.6](https://github.com/tracepod/tracepod/blob/v0.2.6/docs/KNOWN-LIMITATIONS.md#06-nri-must-be-enabled-in-containerd-off-by-default-before-containerd-20) table at v0.2.6:
 
 | Node image | containerd | NRI default | Use for your first run? |
 |---|---|---|---|
@@ -80,7 +80,7 @@ If Kyverno or Gatekeeper is installed, check for policies that block `privileged
 
 ### Node egress for the sensor image
 
-The sensor image is public: `ghcr.io/tracepod/tracepod-sensor:v0.2.3`. If your nodes have no NAT/internet egress (a fully private cluster), mirror it to ECR first:
+The sensor image is public: `ghcr.io/tracepod/tracepod-sensor:v0.2.6`. If your nodes have no NAT/internet egress (a fully private cluster), mirror it to ECR first:
 
 ```bash
 aws ecr create-repository --repository-name $ECR_MIRROR_REPO --region $REGION || true
@@ -88,21 +88,21 @@ aws ecr get-login-password --region $REGION | \
   docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
 # crane (handles the multi-arch index correctly)
-crane copy ghcr.io/tracepod/tracepod-sensor:v0.2.3 \
-  $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_MIRROR_REPO:v0.2.3
+crane copy ghcr.io/tracepod/tracepod-sensor:v0.2.6 \
+  $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_MIRROR_REPO:v0.2.6
 
 # or skopeo — pass --all, or you only copy the arch of the host running the command
 skopeo copy --all \
-  docker://ghcr.io/tracepod/tracepod-sensor:v0.2.3 \
-  docker://$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_MIRROR_REPO:v0.2.3
+  docker://ghcr.io/tracepod/tracepod-sensor:v0.2.6 \
+  docker://$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_MIRROR_REPO:v0.2.6
 ```
 
-Then override at install time (values keys confirmed from `helm/tracepod/values.yaml` at v0.2.3 — `sensor.image.repository` / `sensor.image.tag`):
+Then override at install time (values keys confirmed from `helm/tracepod/values.yaml` at v0.2.6 — `sensor.image.repository` / `sensor.image.tag`; an empty `sensor.image.tag` defaults to the chart's `appVersion`, `0.2.6` for this clone, so a plain `helm install` with no image overrides already runs the v0.2.6 sensor):
 
 ```bash
 # add to the helm install command in step 2:
 --set sensor.image.repository=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_MIRROR_REPO \
---set sensor.image.tag=v0.2.3
+--set sensor.image.tag=v0.2.6
 ```
 
 ## 1. Check your nodes
@@ -126,7 +126,7 @@ Once in the session (as root or via `sudo`), install `socat` first. Without it, 
 
 ```bash
 sudo dnf install -y socat
-curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.6/hack/discovery-probe.sh
 sudo bash discovery-probe.sh
 ```
 
@@ -140,7 +140,7 @@ Confirm the exact package name and availability of `socat` on your AL2023 AMI �
 kubectl debug node/$NODE -it --image=ubuntu:24.04 -- bash
 # inside the debug pod — the host filesystem is bind-mounted at /host, not /:
 apt-get update -qq && apt-get install -y -qq curl socat
-curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.6/hack/discovery-probe.sh
 HOST_ROOT=/host bash discovery-probe.sh
 ```
 
@@ -159,13 +159,13 @@ Exit codes (from the script's own header):
 ## 2. Install the sensor
 
 ```bash
-cd /tmp/tracepod-v0.2.3   # cloned above
+cd /tmp/tracepod-v0.2.6   # cloned above
 
 helm install tracepod ./helm/tracepod \
   --namespace $TRACEPOD_NS --create-namespace
   # If you mirrored the sensor image to ECR, add before running:
   #   --set sensor.image.repository=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$ECR_MIRROR_REPO \
-  #   --set sensor.image.tag=v0.2.3
+  #   --set sensor.image.tag=v0.2.6
   # If your node group is tainted (the chart sets no tolerations by default), add:
   #   --set-json 'sensor.tolerations=[{"key":"...","operator":"Exists","effect":"NoSchedule"}]'
 ```
@@ -195,7 +195,7 @@ If instead the pod is `CrashLoopBackOff` and logs show (exact text from `cmd/sen
 fatal: NRI unavailable (...) — refusing to run: no containers would be traced. Enable NRI in containerd (docs/KNOWN-LIMITATIONS.md §0.6) or run hack/discovery-probe.sh on this node.
 ```
 
-this is v0.2.3's deliberate behavior — before v0.2.3 the sensor warned and kept running quietly while tracing nothing; now it refuses to run instead. It self-heals once NRI is fixed on the node (kubelet backoff, up to ~5 minutes between restarts), with no other intervention needed.
+this has been the sensor's deliberate behavior since v0.2.3 — before v0.2.3 it warned and kept running quietly while tracing nothing; now it refuses to run instead. It self-heals once NRI is fixed on the node (kubelet backoff, up to ~5 minutes between restarts), with no other intervention needed.
 
 `values.yaml` sets `sensor.resources: {}` (unbounded) by default — no resource overhead to account for unless you explicitly set limits.
 
@@ -293,7 +293,7 @@ kubectl -n $TRACEPOD_NS exec "$SENSOR" -- cat "/profiles/$CONTAINER_ID/files.jso
 
 ### Check the profile before trusting it
 
-Field names below are taken directly from `manifest/manifest.go` at v0.2.3 — use these exact `jq` paths, not guesses:
+Field names below are taken directly from `manifest/manifest.go` at v0.2.6 — use these exact `jq` paths, not guesses:
 
 ```bash
 jq '{
@@ -314,12 +314,12 @@ What to require before moving on:
 
 | Field | Want | Why |
 |---|---|---|
-| `schema_version` | `5` | Confirms you're reading a v0.2.3 sensor's output with `adoption_mode`/`profile_terminal` present — both are v5 additions and absent/meaningless on an older profile. |
+| `schema_version` | `5` | Confirms you're reading a v0.2.6 sensor's output with `adoption_mode`/`profile_terminal` present — both are v5 additions and absent/meaningless on an older profile. |
 | `direct_count` | non-zero | 0 direct entries means `harden build` will refuse (exit 3) unless you pass `--allow-empty`, which you should not for a production image. |
 | `coverage.adoption_mode` | `"nri-start"` | Confirms the rollout-restart ordering above actually worked — attach-before-exec, not an adopted-already-running container. If you see `"nri-sync"`, the window is truncated by construction; redo the rollout restart above rather than proceeding. |
 | `profile_terminal` | `true` | Confirms this manifest closed because the container actually stopped, not a mid-life snapshot with fewer-than-real file entries. |
 | `event_loss.total` | `0` | Nonzero means events were dropped under buffer pressure during this window — the manifest may be missing paths with no indication which ones. Re-profile if nonzero, especially for a bursty app. |
-| `event_loss.not_instrumented` | `[]` (empty) | A non-empty list names a drop point that could not be counted — a gap in the loss accounting itself, not just a loss. Treat as informational for v0.2.3; it should be empty in practice. |
+| `event_loss.not_instrumented` | `[]` (empty) | A non-empty list names a drop point that could not be counted — a gap in the loss accounting itself, not just a loss. Treat as informational for v0.2.6; it should be empty in practice. |
 
 If you see `adoption_mode: "nri-start"` together with `process_start_observed: false`, the sensor did win the attach-before-exec race but didn't observe the first exec cleanly — treat the entrypoint phase (shell, entrypoint script, pre-fork opens) as likely still missing, and expect to need `--include` for it in step 4, same as the `nri-sync` case.
 
@@ -330,11 +330,11 @@ If you see `adoption_mode: "nri-start"` together with `process_start_observed: f
 
 ### Where to run `harden`
 
-`harden` ships for Linux and macOS (goreleaser assets for v0.2.3: `tracepod_harden_0.2.3_{darwin,linux}_{amd64,arm64}.tar.gz`). Run it on whichever workstation you have Docker on — Docker is required if you also want `--smoke-test` (it shells out to `docker`), or want to `skopeo copy` into a local daemon afterward.
+`harden` ships for Linux and macOS (goreleaser assets for v0.2.6: `tracepod_harden_0.2.6_{darwin,linux}_{amd64,arm64}.tar.gz`). Run it on whichever workstation you have Docker on — Docker is required if you also want `--smoke-test` (it shells out to `docker`), or want to `skopeo copy` into a local daemon afterward.
 
 ```bash
-curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.2.3/tracepod_harden_0.2.3_<os>_<arch>.tar.gz
-tar xzf tracepod_harden_0.2.3_<os>_<arch>.tar.gz
+curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.2.6/tracepod_harden_0.2.6_<os>_<arch>.tar.gz
+tar xzf tracepod_harden_0.2.6_<os>_<arch>.tar.gz
 ./harden version
 ```
 
