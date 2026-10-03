@@ -3,7 +3,7 @@ title: GitHub Action
 description: Harden a container image in CI with the tracepod/tracepod composite action — build, smoke-test, SBOM, and push.
 ---
 
-The repository root ships a composite GitHub Action (`tracepod/tracepod@v0.2.5`) that hardens an image in CI from a recorded profile: it installs the `harden` binary and syft, runs `harden build` with `--sbom`, optionally smoke-tests the result in the runner's Docker daemon, and optionally pushes to a registry.
+The repository root ships a composite GitHub Action (`tracepod/tracepod@v0.2.6`) that hardens an image in CI from a recorded profile: it installs the `harden` binary and syft, runs `harden build` with `--sbom`, optionally smoke-tests the result in the runner's Docker daemon, and optionally pushes to a registry.
 
 Profile your app during CI e2e tests (or commit a recorded profile), then harden as part of the release pipeline.
 
@@ -20,15 +20,15 @@ observations before hardening in CI.
 ## Usage
 
 ```yaml
-- uses: tracepod/tracepod@v0.2.5
+- uses: tracepod/tracepod@v0.2.6
   with:
     manifest: profiles/app/files.json
     source: ghcr.io/acme/app:${{ github.sha }}
     push: ghcr.io/acme/app:${{ github.sha }}-hardened
-    version: v0.2.5
+    version: v0.2.6
 ```
 
-`@v0.2.5` pins the Action's own script (checked out from that tag); `version` pins which `harden` release the Action installs and runs (default `latest`).
+`@v0.2.6` pins the Action's own script (checked out from that tag); `version` pins which `harden` release the Action installs and runs (default `latest`).
 
 ## Inputs
 
@@ -73,7 +73,7 @@ jobs:
 
       - name: Harden image
         id: harden
-        uses: tracepod/tracepod@v0.2.5
+        uses: tracepod/tracepod@v0.2.6
         with:
           manifest: profiles/app/files.json
           source: ghcr.io/acme/app:${{ github.sha }}
