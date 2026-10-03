@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-  title="Tracepod — Container hardening based on what your workloads actually do"
+  title="Tracepod — Container hardening based on what your workloads do"
   description="Tracepod profiles running container workloads via eBPF and builds minimised OCI images, SBOMs, and removal manifests from the recorded runtime behaviour."
 >
 
@@ -15,7 +15,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="hero-content">
         <div class="eyebrow">Open-core &middot; AGPL-3.0 &middot; Kubernetes-native</div>
         <h1 class="heading-xl hero-headline">
-          Harden containers based on what they actually do
+          Harden containers based on what they do
           <span class="headline-accent"> at runtime.</span>
         </h1>
         <p class="body-lg hero-sub">
@@ -53,13 +53,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p><span class="comment"># Build and push the hardened image</span></p>
             <p><span class="prompt">$</span> <span class="cmd">harden</span> build --manifest manifest.json \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--source acme/web:1.4.2 \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--output /tmp/hardened-web \</p>
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--push registry.local/web:hardened</p>
-            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (315 direct, 217 inferred-runtime, &hellip;)</span></p>
-            <p><span class="output">Confidence:&nbsp;&nbsp;Medium (79/100)</span></p>
+            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (680 direct, 42 inferred-elf, 8 manual/scratch-compat)</span></p>
+            <p><span class="output">Confidence:&nbsp;&nbsp;79/100 (Medium)</span></p>
             <p><span class="success">Layer:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17.2 MiB (down from 46.2 MiB)</span></p>
             <p><span class="success">Pushed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registry.local/web:hardened</span></p>
           </div>
         </div>
+        <p class="terminal-caption">Example output.</p>
       </div>
     </div>
   </section>
@@ -147,16 +149,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="confidence-section section">
     <div class="container confidence-inner">
       <div class="confidence-text">
-        <h2 class="heading-lg">Every file in the image can tell you why it&rsquo;s there.</h2>
+        <h2 class="heading-lg">The manifest records why each file is in the image.</h2>
         <p class="body-md">
-          Most container-slimming tools hand you a flat file list and a smaller number. Tracepod keeps the
-          evidence. Each path in the manifest records whether the sensor saw it opened, an ELF dependency
+          Most container-slimming tools hand you a flat file list and a smaller number. Tracepod records
+          the source for each path in the manifest: whether the sensor saw it opened, an ELF dependency
           pulled it in, a language-runtime rule added it, or a person put it there. The confidence score is
           computed from that record, and it drops when profiling coverage has gaps.
         </p>
         <p class="body-md" style="margin-top: 1rem;">
-          A minimised image that crashes in production is worse than not hardening at all. The score exists
-          so you find out before you deploy, not after.
+          A minimised image that crashes in production is worse than not hardening at all. The score
+          surfaces coverage gaps before you deploy.
         </p>
         <a href="/docs/concepts/how-profiling-works/" class="btn btn-secondary" style="margin-top: 1.5rem;">
           Read the concept docs
@@ -206,7 +208,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="compare-section section">
     <div class="container">
       <div class="section-header">
-        <h2 class="heading-lg">Everything you need is free and open source.<br>The platform takes it further.</h2>
+        <h2 class="heading-lg">Everything you need is free and open source.<br>Platform adds fleet-wide tooling on top.</h2>
       </div>
 
       <div class="compare-grid">
@@ -270,8 +272,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="compare-col-badge compare-col-badge--pro">Pro</div>
           </div>
           <p class="compare-col-intro">
-            Runs in your cluster alongside the sensor; no data leaves your infrastructure.
-            Includes the <code>tracepod</code> CLI and everything in open source, plus:
+            Runs in your cluster alongside the sensor. Data is sent outside the cluster
+            only to endpoints you configure, such as webhooks, and to the
+            vulnerability-database feed used for CVE scanning. Includes the
+            <code>tracepod</code> CLI and everything in open source, plus:
           </p>
           <ul class="feature-list">
             <li class="feature-item">
@@ -355,7 +359,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
           <h3>AGPL-3.0 licensed</h3>
-          <p>The core toolchain is fully open. Inspect the code, run it yourself, contribute upstream.</p>
+          <p>The core toolchain is fully open. Inspect the code, run it yourself, and contribute upstream.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
@@ -371,14 +375,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <path d="M12 8v4l3 3"/>
           </svg>
           <h3>CO-RE, no kernel module</h3>
-          <p>Pure eBPF with Compile Once, Run Everywhere. Runs on kernel 6.8+ without rebuilding anything per node.</p>
+          <p>Pure eBPF with Compile Once, Run Everywhere — no per-node rebuild. See <a href="/docs/getting-started/requirements/">Requirements</a> for tested kernels.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
           </svg>
           <h3>Kubernetes-native</h3>
-          <p>Deploys as a DaemonSet, authenticates with TokenReview, and reuses your existing registry secrets. No side-car injection, no admission webhook.</p>
+          <p>Deploys as a DaemonSet, authenticates with TokenReview, and reuses your existing registry secrets. Requires no sidecar injection or admission webhook.</p>
         </div>
       </div>
     </div>
@@ -393,7 +397,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2 class="heading-lg">Try it on one workload.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
           Install the open-source tools, profile one deployment, and compare the image sizes.
-          If the numbers convince you, talk to us about running it across the fleet.
+          Contact us to run it across a fleet.
         </p>
       </div>
       <div class="cta-band-actions">
@@ -424,6 +428,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 .hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
 .hero-terminal { width: 100%; min-width: 0; }
+.terminal-caption {
+  margin-top: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: right;
+}
 
 /* Loop */
 .section-header {

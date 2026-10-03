@@ -3,9 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const faqs = [
   {
-    q: 'What does Tracepod actually do?',
+    q: 'What does Tracepod do?',
     a: `Tracepod watches a running container with an eBPF kprobe on <code>openat()</code> and
-    records every file it actually opens. The <code>harden</code> CLI then takes that
+    records every file it opens. The <code>harden</code> CLI then takes that
     manifest and builds a new OCI image containing only the files that were observed,
     their recursively resolved ELF shared-library dependencies, and anything you
     explicitly included. The result is a smaller image: fewer files and fewer
@@ -24,19 +24,19 @@ const faqs = [
   },
   {
     q: "What happens if I start a container with docker run instead of through Kubernetes?",
-    a: `It won't be profiled, and nothing tells you that. <code>docker run</code>,
+    a: `It won't be profiled, and no warning or error indicates that. <code>docker run</code>,
     <code>nerdctl run</code>, <code>docker compose</code>, and <code>ctr run</code> all
     talk to containerd's native API directly rather than going through the CRI plugin,
     so they never fire the NRI events the sensor listens for. The sensor stays healthy,
-    the container runs normally, and no manifest is ever written &mdash; there's no error
+    the container runs normally, and no manifest is ever written; there is no error
     on either side. Start the container through kubelet (a normal Pod) or <code>crictl</code>
     instead.`,
   },
   {
     q: 'How long do I need to profile, and when does the manifest get written?',
     a: `In standalone mode (the default, no controller configured) a manifest is written
-    for a container as soon as that container stops &mdash; there's no fixed profiling
-    window you have to wait out. What matters is whether the traffic the container saw
+    for a container as soon as that container stops; there is no fixed profiling
+    window to wait out. What matters is whether the traffic the container saw
     before it stopped was representative of production: a profile recorded against an
     idle container will be missing files that only get opened under real load.`,
   },
@@ -45,10 +45,10 @@ const faqs = [
     a: `It's a coverage signal, not a quality grade: it answers "how representative was
     this profiling session," not "is this image safe." It starts at 100 and loses points
     for things like a short profiling window or manually added paths the sensor never
-    observed. A score below 100 doesn't mean the image is broken &mdash; it means specific,
+    observed. A score below 100 doesn't mean the image is broken; it means specific,
     named gaps are still open, and the build output tells you exactly which ones.
     <strong>The penalty weights are v1 defaults</strong>, calibrated against a reference
-    nginx profile, and are expected to change before GA &mdash; don't hard-code specific
+    nginx profile, and are expected to change before GA, so don't hard-code specific
     thresholds into CI gates yet. Full breakdown in the
     <a href="/docs/concepts/observation-sources/">confidence scoring docs</a>.`,
   },
@@ -99,10 +99,10 @@ const faqs = [
   <section class="faq-hero section">
     <div class="container">
       <div class="eyebrow">FAQ</div>
-      <h1 class="heading-xl">Questions people actually ask.</h1>
+      <h1 class="heading-xl">Frequently asked questions</h1>
       <p class="body-lg" style="margin-top: 1.5rem; max-width: 640px;">
-        Straight answers about what the sensor needs, what it misses, and where the free
-        tooling ends and the platform begins.
+        What the sensor needs, what it can't see, and what's included in open source
+        versus Platform.
       </p>
     </div>
   </section>

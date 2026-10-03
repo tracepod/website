@@ -1,6 +1,6 @@
 ---
 title: Known limitations
-description: An honest account of what the Tracepod sensor cannot observe, the risk of each gap, and the workarounds.
+description: What the Tracepod sensor cannot observe, the risk of each gap, and the workarounds.
 ---
 
 Tracepod is a runtime observer, not a static analyzer. Its output is only as complete as the workload it observed. This page summarizes the known sensor gaps; the canonical, fully detailed version lives in the repository at [`docs/KNOWN-LIMITATIONS.md`](https://github.com/tracepod/tracepod/blob/main/docs/KNOWN-LIMITATIONS.md).
@@ -10,7 +10,7 @@ Tracepod is a runtime observer, not a static analyzer. Its output is only as com
 | Gap | Security risk | Image breakage risk |
 |-----|--------------|---------------------|
 | CRI-only profiling (silent miss for docker/nerdctl targets) | None | N/A — no manifest written |
-| NRI startup race (entrypoint + init phase) | None | High (startup failure) — loud, caught before serving traffic |
+| NRI startup race (entrypoint + init phase, late-adopted containers) | None | High (startup failure) — loud, caught before serving traffic |
 | Static content not served during profiling | None | Low (404s, not a crash) |
 | `dlopen()` on uninvoked code paths | Low | Low |
 | Event loss under buffer pressure | None | Low (fail-safe) — but taints "not loaded" claims |
@@ -35,11 +35,11 @@ The result is a **silent miss**: the sensor looks healthy, the container runs no
 
 ## The NRI startup race
 
-The NRI `StartContainer` hook fires *after* the container's init process has exec'd. Everything the application opens before that moment — the entrypoint interpreter, entrypoint scripts and the tools they call, pid files, log files, cache directories — is invisible to the sensor, no matter how long you profile.
+This race applies to containers the sensor **adopts late** — ones already running when the sensor attached (schema v5 `adoption_mode: nri-sync`), for example after a sensor restart, rollout, or node drain. For those, everything the application opened before the sensor could register the cgroup — the entrypoint interpreter, entrypoint scripts and the tools they call, pid files, log files, cache directories — is invisible to the sensor, no matter how long you profile. Containers started normally while the sensor is already running (`adoption_mode: nri-start`) have their cgroup registered by containerd's synchronous `StartContainer` hook before the workload execs, so this race does not apply to them.
 
 **Risk: broken image, not a security gap.** The missed paths are typically empty directories and a pid file. A hardened image missing them fails to start loudly and immediately — it does not silently degrade.
 
-Since profile schema v2 the race is machine-detectable: the sensor emits a `coverage.process_start_observed` marker that is `true` only when it verifiably attached before the workload's first exec. Any uncertainty resolves to `false`.
+Since profile schema v2 the race is machine-detectable: the sensor emits a `coverage.process_start_observed` marker that is `true` only when it verifiably attached before the workload's first exec. Any uncertainty resolves to `false`. Since schema v5, `coverage.adoption_mode` records directly whether the container was `nri-start` or `nri-sync` adopted.
 
 **Workarounds:**
 
@@ -50,7 +50,7 @@ Since profile schema v2 the race is machine-detectable: the sensor emits a `cove
 
 ## Static content not accessed during profiling
 
-Files served over HTTP are only observed if a request arrives for them during the profiling window. This is expected behavior, not a bug — the whole premise is that the image contains what the workload actually needed. Either send synthetic requests to every endpoint during profiling, or force-include the content directory:
+Files served over HTTP are only observed if a request arrives for them during the profiling window. This is expected behavior, not a bug — the whole premise is that the image contains what the workload needed. Either send synthetic requests to every endpoint during profiling, or force-include the content directory:
 
 ```bash
 harden build ... --include /usr/share/nginx/html

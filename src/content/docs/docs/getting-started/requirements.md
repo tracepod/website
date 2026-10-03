@@ -3,7 +3,7 @@ title: Requirements
 description: What a node needs before you install the Tracepod sensor, and how to check it with the discovery probe before you deploy.
 ---
 
-Before installing the sensor, check whether the node can actually run it. The sensor's
+Before installing the sensor, check whether the node can run it. The sensor's
 only container-discovery mechanism is containerd's NRI (Node Resource Interface), and on
 a node where NRI is unreachable the sensor **exits non-zero and refuses to run** — the
 pod goes `CrashLoopBackOff` / not `Ready` instead of tracing silently. Logs show:
@@ -88,7 +88,7 @@ relying on it.
 
 ## Which kernels
 
-Rather than quote a minimum kernel version, here's what's actually exercised in CI on
+Rather than quote a minimum kernel version, this lists what's exercised in CI on
 every pull request:
 
 - **Amazon Linux 2023, kernels 6.1, 6.12, and 6.18 (x86_64)** — the full end-to-end path
@@ -98,18 +98,17 @@ every pull request:
   exact kernel version they carry isn't something the project pins or publishes, so it
   isn't listed here as a tested version.
 
-If your node is on a kernel outside that AL2023 matrix, the probe below is the way to find
-out whether it works — not a version table.
+If your node is on a kernel outside that AL2023 matrix, run the probe below to find
+out whether it works.
 
 ## Run the discovery probe before you install
 
-The repository ships `hack/discovery-probe.sh`, which turns the old silent "NRI is down"
-condition into an answer you get **before** deploying, rather than a `CrashLoopBackOff`
-after. Run it directly on the node — for example over SSH, or via SSM Session Manager on
-EKS:
+The repository ships `hack/discovery-probe.sh`, which checks the node before you deploy,
+instead of finding out from a `CrashLoopBackOff` afterward. Run it directly on the node,
+for example over SSH, or via SSM Session Manager on EKS:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.4/hack/discovery-probe.sh
 chmod +x discovery-probe.sh
 ./discovery-probe.sh
 ```
@@ -123,7 +122,7 @@ With no node/SSH access, run it via a node-debug pod instead. The debug pod's ow
 kubectl debug node/<node-name> -it --image=ubuntu:24.04 -- bash
 # then, inside the debug pod:
 apt-get update -qq && apt-get install -y -qq curl socat
-curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.4/hack/discovery-probe.sh
 HOST_ROOT=/host bash discovery-probe.sh
 ```
 

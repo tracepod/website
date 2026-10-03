@@ -12,7 +12,7 @@ The primary output: an [OCI image layout](https://github.com/opencontainers/imag
 - files directly observed at runtime (`direct`),
 - their recursively resolved ELF shared-library dependencies (`inferred-elf`),
 - runtime companion files (`inferred-runtime`, e.g. Python `.py` sources implied by observed `.pyc` files),
-- operator-included paths (`directory-inclusion`, `manual`), and
+- operator-included paths (`directory-inclusion`, `manual`, `ensure-dir`, `ensure-file`), and
 - scratch-compatibility files the hardener adds automatically (`/etc/passwd`, `/etc/group`, the dynamic linker, TLS certificates).
 
 The original image config is preserved — `Entrypoint`, `Cmd`, `Env`, `User`, `WorkingDir`, `ExposedPorts`, `Healthcheck` — and `com.tracepod.*` provenance labels are added.
@@ -52,7 +52,7 @@ Pass `--sbom` to generate both formats via a [syft](https://github.com/anchore/s
 
 Both formats are produced because enterprise toolchains typically require one or the other. `syft` must be on `PATH`; SBOM failure is non-fatal (a warning, not a build error).
 
-Because the SBOM is generated from the *hardened* image, it reflects only the packages that actually ship — and `included_because` justifications from manual manifest entries propagate into it, giving auditors traceability for every operator-added path.
+Because the SBOM is generated from the *hardened* image, it reflects only the packages that ship. `included_because` justifications for manual entries are recorded in the manifest passed to `harden build`, not in the SBOM itself.
 
 ### Cosign signing
 
@@ -78,6 +78,7 @@ Exit codes:
 | `0` | Success |
 | `1` | Fatal error — missing required flags, pull failure, unresolved ELF (`DT_NEEDED`) dependencies, or a failed smoke test |
 | `2` | Non-fatal warning: a scratch-compat file other than `resolv.conf` was absent from the source image layers (`resolv.conf` absence is expected — the container runtime bind-mounts it) |
+| `3` | The manifest has zero `direct` (eBPF-observed) entries — the sensor wasn't active or the profiling window captured nothing. Pass `--allow-empty` to build anyway |
 
 ## Smoke test
 
