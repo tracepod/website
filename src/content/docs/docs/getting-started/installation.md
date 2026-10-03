@@ -50,9 +50,9 @@ Only containers managed by Kubernetes (kubelet → containerd) or started via `c
 Pre-built binaries are published on the [Releases page](https://github.com/tracepod/tracepod/releases). Each binary ships in its own archive, named `tracepod_<binary>_<version>_<os>_<arch>.tar.gz`:
 
 ```bash
-# Example: install harden v0.2.4 on Linux amd64
+# Example: install harden v0.2.5 on Linux amd64
 curl -fsSL \
-  https://github.com/tracepod/tracepod/releases/download/v0.2.4/tracepod_harden_0.2.4_linux_amd64.tar.gz \
+  https://github.com/tracepod/tracepod/releases/download/v0.2.5/tracepod_harden_0.2.5_linux_amd64.tar.gz \
   | tar -xz harden
 sudo install harden /usr/local/bin/harden
 
