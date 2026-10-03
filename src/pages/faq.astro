@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const faqs = [
   {
-    q: 'What does Tracepod actually do?',
+    q: 'What does Tracepod do?',
     a: `Tracepod watches a running container with an eBPF kprobe on <code>openat()</code> and
     records every file it actually opens. The <code>harden</code> CLI then takes that
     manifest and builds a new OCI image containing only the files that were observed,
@@ -99,10 +99,10 @@ const faqs = [
   <section class="faq-hero section">
     <div class="container">
       <div class="eyebrow">FAQ</div>
-      <h1 class="heading-xl">Questions people actually ask.</h1>
+      <h1 class="heading-xl">Frequently asked questions</h1>
       <p class="body-lg" style="margin-top: 1.5rem; max-width: 640px;">
-        Straight answers about what the sensor needs, what it misses, and where the free
-        tooling ends and the platform begins.
+        What the sensor needs, what it can't see, and what's included in open source
+        versus Platform.
       </p>
     </div>
   </section>

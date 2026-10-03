@@ -88,7 +88,7 @@ relying on it.
 
 ## Which kernels
 
-Rather than quote a minimum kernel version, here's what's actually exercised in CI on
+Rather than quote a minimum kernel version, this lists what's exercised in CI on
 every pull request:
 
 - **Amazon Linux 2023, kernels 6.1, 6.12, and 6.18 (x86_64)** — the full end-to-end path
@@ -98,15 +98,14 @@ every pull request:
   exact kernel version they carry isn't something the project pins or publishes, so it
   isn't listed here as a tested version.
 
-If your node is on a kernel outside that AL2023 matrix, the probe below is the way to find
-out whether it works — not a version table.
+If your node is on a kernel outside that AL2023 matrix, run the probe below to find
+out whether it works.
 
 ## Run the discovery probe before you install
 
-The repository ships `hack/discovery-probe.sh`, which turns the old silent "NRI is down"
-condition into an answer you get **before** deploying, rather than a `CrashLoopBackOff`
-after. Run it directly on the node — for example over SSH, or via SSM Session Manager on
-EKS:
+The repository ships `hack/discovery-probe.sh`, which checks the node before you deploy,
+instead of finding out from a `CrashLoopBackOff` afterward. Run it directly on the node,
+for example over SSH, or via SSM Session Manager on EKS:
 
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh

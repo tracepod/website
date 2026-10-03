@@ -9,11 +9,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="compare-hero section">
     <div class="container">
       <div class="eyebrow">Compare</div>
-      <h1 class="heading-xl">Where Tracepod fits.</h1>
+      <h1 class="heading-xl">How Tracepod compares</h1>
       <p class="body-lg" style="margin-top: 1.5rem; max-width: 680px;">
-        A few categories of tools get mentioned in the same breath as Tracepod. Most of
-        them aren&rsquo;t competitors so much as adjacent approaches to a related problem &mdash;
-        here&rsquo;s how each one actually differs.
+        Tracepod is often compared with image minimizers, hardened base images, and
+        runtime security tools. This page explains how each one relates to it.
       </p>
     </div>
   </section>
@@ -25,8 +24,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           Tracepod's distinguishing choice is <strong>how it decides what belongs in the
           image</strong>: it observes the real workload running in your cluster via eBPF
           and builds the minimized image from what that workload actually opened, rather
-          than from a static analysis of the source image or a hand-maintained base. That
-          single choice is what the comparisons below come back to.
+          than from a static analysis of the source image or a hand-maintained base.
         </p>
       </div>
     </div>
@@ -45,10 +43,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             how each tool decides what to keep. SlimToolkit instruments a container run and
             captures that run's behavior using its own sensor technique; Tracepod uses an
             eBPF kprobe on <code>openat()</code> running as a Kubernetes DaemonSet, profiling
-            the workload where it actually runs &mdash; in your cluster, under real traffic,
-            for as long as you choose &mdash; and it carries an explicit per-file observation
-            source (direct, inferred, manually added) through to a confidence score, so you
-            can see exactly how complete a given profiling run was.
+            the workload in your own cluster under production traffic for as long as you
+            choose. It also carries an explicit per-file observation source (direct, inferred,
+            manually added) through to a confidence score, so you can see exactly how
+            complete a given profiling run was.
           </p>
         </div>
 
@@ -117,9 +115,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="cta-band section">
     <div class="container cta-band-inner">
       <div>
-        <h2 class="heading-lg">See it against a real image.</h2>
+        <h2 class="heading-lg">Try it on your own workload</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          Try the open-source toolchain against one of your own workloads.
+          Install the open-source sensor and run a build against one of your workloads.
         </p>
       </div>
       <div style="display: flex; gap: 1rem; flex-shrink: 0;">
