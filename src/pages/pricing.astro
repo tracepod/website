@@ -14,7 +14,7 @@ const ossFeatures = [
 
 const proFeatures = [
   'Web dashboard — fleet-wide CVE counts, size savings, and coverage for every workload',
-  'Sandbox validation — proves a hardened image boots and serves traffic before it ships',
+  'Sandbox validation — runs a hardened image in an ephemeral pod and checks it before it ships',
   'Auto-fix loop — rebuilds and revalidates automatically when validation finds missing files',
   'CVE delta reports — grype scan of source vs. hardened image, stored on the build record',
   'Fleet policy & compliance — namespace-scoped policies with a pass/fail compliance report',
@@ -22,7 +22,7 @@ const proFeatures = [
   'Webhooks + source-image watching — build/validation/autofix events, and auto-rebuild on upstream digest changes',
   'RBAC via Kubernetes TokenReview — no new identity system; roles set in a ConfigMap',
   'Append-only audit log — every action recorded, exportable as CSV or JSON',
-  'OpenVEX export with reachability — suppress false positives based on what was actually loaded',
+  'OpenVEX export with reachability — based on whether a vulnerable component is actually present in the minimized image',
   'Registry management — store and test target registry configs, anonymous or authenticated',
 ];
 ---
@@ -50,7 +50,7 @@ const proFeatures = [
           <div class="pricing-card-head">
             <div class="eyebrow">Open Source</div>
             <h2 class="heading-lg">Free</h2>
-            <p class="body-md">AGPL-3.0. Self-hosted, in your own cluster. Nothing phones home.</p>
+            <p class="body-md">AGPL-3.0. Self-hosted, in your own cluster.</p>
           </div>
           <ul class="pricing-features">
             {ossFeatures.map((f) => <li set:html={f.replace(/`([^`]+)`/g, '<code>$1</code>')} />)}

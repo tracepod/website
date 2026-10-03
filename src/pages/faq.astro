@@ -8,8 +8,9 @@ const faqs = [
     records every file it actually opens. The <code>harden</code> CLI then takes that
     manifest and builds a new OCI image containing only the files that were observed,
     their recursively resolved ELF shared-library dependencies, and anything you
-    explicitly included. The result is a smaller image: fewer files, fewer packages,
-    fewer CVEs than the base image it started from.`,
+    explicitly included. The result is a smaller image: fewer files and fewer
+    packages than the base image it started from, which means a smaller attack
+    surface.`,
   },
   {
     q: 'What is NRI, and why does the sensor need it?',
@@ -37,9 +38,7 @@ const faqs = [
     for a container as soon as that container stops &mdash; there's no fixed profiling
     window you have to wait out. What matters is whether the traffic the container saw
     before it stopped was representative of production: a profile recorded against an
-    idle container will be missing files that only get opened under real load. The
-    confidence score's recommended minimum window is 10 minutes, as a rule of thumb for
-    "long enough to be representative," not a hard requirement.`,
+    idle container will be missing files that only get opened under real load.`,
   },
   {
     q: 'What does the confidence score mean?',
@@ -61,11 +60,9 @@ const faqs = [
   },
   {
     q: 'What license is Tracepod under?',
-    a: `AGPL-3.0. You can read, modify, and self-host everything in the
-    <a href="https://github.com/tracepod/tracepod" target="_blank" rel="noopener noreferrer">OSS repo</a>
-    freely. AGPL's copyleft obligations apply if you modify Tracepod itself and offer
-    that modified version to others as a service &mdash; running it as a tool against your
-    own workloads, and the images it produces, carry no obligations back to you.`,
+    a: `AGPL-3.0. Free to self-host. See the
+    <a href="https://github.com/tracepod/tracepod/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">LICENSE file</a>
+    in the repository for the full terms.`,
   },
   {
     q: "What's the difference between the open-source core and Platform (Pro)?",

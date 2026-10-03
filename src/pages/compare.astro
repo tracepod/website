@@ -90,10 +90,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             triage which CVEs in a scan result actually matter &mdash; it tells you which
             vulnerable packages were exercised at runtime, so you can prioritize those
             first. That's a triage layer on top of your existing image; it doesn't change
-            what ships in the image itself. Tracepod's reachability reporting answers a
-            related question (was the vulnerable package loaded during profiling?), but
-            Tracepod's primary output is the minimized image itself, built from that same
-            runtime-observation data &mdash; not just a reordered vulnerability list.
+            what ships in the image itself. Tracepod Platform's reachability reporting
+            answers a related question (was the vulnerable package loaded during
+            profiling?), but Tracepod's primary output &mdash; in the open-source core
+            &mdash; is the minimized image itself, built from that same runtime-observation
+            data, not a reordered vulnerability list.
           </p>
         </div>
 
