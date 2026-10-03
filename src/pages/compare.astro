@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Compare — Tracepod"
+  description="How Tracepod's runtime-observed image minimization relates to static image minimizers, base-image swaps, and runtime detection tools."
+>
+  <section class="compare-hero section">
+    <div class="container">
+      <div class="eyebrow">Compare</div>
+      <h1 class="heading-xl">Where Tracepod fits.</h1>
+      <p class="body-lg" style="margin-top: 1.5rem; max-width: 680px;">
+        A few categories of tools get mentioned in the same breath as Tracepod. Most of
+        them aren&rsquo;t competitors so much as adjacent approaches to a related problem &mdash;
+        here&rsquo;s how each one actually differs.
+      </p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="compare-lede card">
+        <p class="body-md">
+          Tracepod's distinguishing choice is <strong>how it decides what belongs in the
+          image</strong>: it observes the real workload running in your cluster via eBPF
+          and builds the minimized image from what that workload actually opened, rather
+          than from a static analysis of the source image or a hand-maintained base. That
+          single choice is what the comparisons below come back to.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="compare-grid">
+
+        <div class="compare-card card">
+          <div class="eyebrow">Closest comparison</div>
+          <h2 class="heading-md">SlimToolkit</h2>
+          <p class="body-md">
+            SlimToolkit (formerly DockerSlim) is the closest thing to a direct comparison:
+            it also produces a minimized image from an existing one. The difference is in
+            how each tool decides what to keep. SlimToolkit instruments a container run and
+            captures that run's behavior using its own sensor technique; Tracepod uses an
+            eBPF kprobe on <code>openat()</code> running as a Kubernetes DaemonSet, profiling
+            the workload where it actually runs &mdash; in your cluster, under real traffic,
+            for as long as you choose &mdash; and it carries an explicit per-file observation
+            source (direct, inferred, manually added) through to a confidence score, so you
+            can see exactly how complete a given profiling run was.
+          </p>
+        </div>
+
+        <div class="compare-card card">
+          <div class="eyebrow">Complementary, not competing</div>
+          <h2 class="heading-md">Distroless, Chainguard, Docker Hardened Images</h2>
+          <p class="body-md">
+            These are base-image swaps: you change your <code>FROM</code> line to a
+            smaller, more carefully maintained base and get a reduced surface and
+            (depending on the project) a faster CVE-patch cadence for the packages that
+            base ships. That's a different axis from what Tracepod does. Tracepod doesn't
+            care what your base image is &mdash; it builds a minimized image from
+            <em>observed runtime behavior</em> on top of whichever source image you give it.
+            The two approaches stack: start from a hardened base, then let Tracepod trim
+            it further to exactly what your workload uses.
+          </p>
+        </div>
+
+        <div class="compare-card card">
+          <div class="eyebrow">Different problem</div>
+          <h2 class="heading-md">Falco, Tetragon</h2>
+          <p class="body-md">
+            Falco and Tetragon are runtime detection tools: they watch for anomalous
+            or policy-violating behavior <em>while your workload is running in
+            production</em>, and alert or block on it. Tracepod also uses eBPF, but for a
+            different purpose and at a different point in the lifecycle &mdash; it profiles a
+            workload to learn what it needs, then <strong>builds a new, smaller image</strong>
+            from that observation. Tracepod doesn't do runtime policy enforcement, and
+            Falco/Tetragon don't produce a minimized image. Many teams use detection
+            tooling and image minimization together, at different stages of the pipeline.
+          </p>
+        </div>
+
+        <div class="compare-card card">
+          <div class="eyebrow">Adjacent use case</div>
+          <h2 class="heading-md">Kubescape</h2>
+          <p class="body-md">
+            Kubescape's relevance scoring uses runtime file-activity data to help you
+            triage which CVEs in a scan result actually matter &mdash; it tells you which
+            vulnerable packages were exercised at runtime, so you can prioritize those
+            first. That's a triage layer on top of your existing image; it doesn't change
+            what ships in the image itself. Tracepod Platform's reachability reporting
+            answers a related question (was the vulnerable package loaded during
+            profiling?), but Tracepod's primary output &mdash; in the open-source core
+            &mdash; is the minimized image itself, built from that same runtime-observation
+            data, not a reordered vulnerability list.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="compare-note card">
+        <p class="body-md">
+          We've tried to describe each of these fairly, based on how their own
+          documentation describes them. If something here is out of date or you think
+          we've mischaracterized a tool, <a href="/contact">tell us</a> and we'll fix it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band section">
+    <div class="container cta-band-inner">
+      <div>
+        <h2 class="heading-lg">See it against a real image.</h2>
+        <p class="body-md" style="margin-top: 0.75rem;">
+          Try the open-source toolchain against one of your own workloads.
+        </p>
+      </div>
+      <div style="display: flex; gap: 1rem; flex-shrink: 0;">
+        <a href="/open-source" class="btn btn-secondary btn-lg">Open Source</a>
+        <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.compare-hero { padding-top: var(--space-16); }
+
+.compare-lede { max-width: 820px; margin: 0 auto; }
+.compare-lede strong { color: var(--text-primary); }
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+.compare-card h2 { margin-top: var(--space-2); margin-bottom: var(--space-3); }
+.compare-card p { color: var(--text-secondary); line-height: 1.7; }
+.compare-card code {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 0.85em;
+}
+
+.compare-note { max-width: 820px; margin: 0 auto; }
+.compare-note p { color: var(--text-secondary); }
+
+.cta-band { background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; }
+.btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
+
+@media (max-width: 860px) {
+  .compare-grid { grid-template-columns: 1fr; }
+}
+</style>

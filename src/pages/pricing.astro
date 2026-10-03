@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const ossFeatures = [
+  'eBPF sensor (DaemonSet) — profiles running containers via an openat() kprobe, no kernel module',
+  '`harden` CLI — builds minimized OCI images from a sensor profile, with recursive ELF dependency resolution',
+  'Confidence scoring — a 0–100 coverage signal for every build, with the full penalty breakdown',
+  'Removal manifest — the exact set of packages the hardening dropped, with file-level evidence',
+  'CycloneDX and SPDX SBOM generation (via syft), with optional cosign signing',
+  'Official Helm chart — DaemonSet, RBAC, values for kernel and runtime tuning',
+  'GitHub Action — build, smoke-test, and SBOM a hardened image in CI',
+  'Runtime presets for common language runtimes (e.g. Python)',
+];
+
+const proFeatures = [
+  'Web dashboard — fleet-wide CVE counts, size savings, and coverage for every workload',
+  'Sandbox validation — runs a hardened image in an ephemeral pod and checks it before it ships',
+  'Auto-fix loop — rebuilds and revalidates automatically when validation finds missing files',
+  'CVE delta reports — grype scan of source vs. hardened image, stored on the build record',
+  'Fleet policy & compliance — namespace-scoped policies with a pass/fail compliance report',
+  'Apply & drift detection — roll out the hardened image and get alerted when it drifts',
+  'Webhooks + source-image watching — build/validation/autofix events, and auto-rebuild on upstream digest changes',
+  'RBAC via Kubernetes TokenReview — no new identity system; roles set in a ConfigMap',
+  'Append-only audit log — every action recorded, exportable as CSV or JSON',
+  'OpenVEX export with reachability — based on whether a vulnerable component is actually present in the minimized image',
+  'Registry management — store and test target registry configs, anonymous or authenticated',
+];
+---
+
+<BaseLayout
+  title="Pricing — Tracepod"
+  description="The open-source core is free under AGPL-3.0. Platform (Pro) is available by contacting us — no public pricing yet."
+>
+  <section class="pricing-hero section">
+    <div class="container">
+      <div class="eyebrow">Pricing</div>
+      <h1 class="heading-xl">The core tooling is free. The platform is a conversation.</h1>
+      <p class="body-lg" style="margin-top: 1.5rem; max-width: 640px;">
+        No seat counts, no published price list yet &mdash; Platform is in private beta.
+        If that changes, this page will say so.
+      </p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="pricing-grid">
+
+        <div class="pricing-card card">
+          <div class="pricing-card-head">
+            <div class="eyebrow">Open Source</div>
+            <h2 class="heading-lg">Free</h2>
+            <p class="body-md">AGPL-3.0. Self-hosted, in your own cluster.</p>
+          </div>
+          <ul class="pricing-features">
+            {ossFeatures.map((f) => <li set:html={f.replace(/`([^`]+)`/g, '<code>$1</code>')} />)}
+          </ul>
+          <div class="pricing-card-cta">
+            <a href="/open-source" class="btn btn-secondary" style="width:100%; justify-content:center;">See Open Source</a>
+          </div>
+        </div>
+
+        <div class="pricing-card pricing-card--pro card">
+          <div class="pricing-card-head">
+            <div class="eyebrow">Platform (Pro)</div>
+            <h2 class="heading-lg">Contact us</h2>
+            <p class="body-md">Private beta. Deploys into your cluster via Helm &mdash; no data leaves your infrastructure.</p>
+          </div>
+          <ul class="pricing-features">
+            {proFeatures.map((f) => <li>{f}</li>)}
+          </ul>
+          <div class="pricing-card-cta">
+            <a href="/contact" class="btn btn-primary" style="width:100%; justify-content:center;">Request access</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="pricing-note card">
+        <p class="body-md">
+          Platform includes everything in Open Source, plus the features listed above.
+          Both run inside your own cluster. See
+          <a href="/compare">how Tracepod compares</a> to other tools, or read the
+          <a href="/docs">docs</a> before you decide what you need.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band section">
+    <div class="container cta-band-inner">
+      <div>
+        <h2 class="heading-lg">Not sure which you need?</h2>
+        <p class="body-md" style="margin-top: 0.75rem;">
+          Start with the open-source toolchain on one workload. Talk to us when you want the fleet view.
+        </p>
+      </div>
+      <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.pricing-hero { padding-top: var(--space-16); }
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.pricing-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.pricing-card--pro {
+  border-color: var(--accent);
+}
+
+.pricing-card-head h2 { margin-top: var(--space-2); }
+.pricing-card-head p { color: var(--text-secondary); margin-top: var(--space-2); font-size: 0.9rem; }
+
+.pricing-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+.pricing-features li {
+  position: relative;
+  padding-left: 1.4rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.pricing-features li::before {
+  content: '\2713';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+.pricing-features code {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 0.85em;
+}
+
+.pricing-card-cta { margin-top: auto; }
+
+.pricing-note { max-width: 760px; margin: 0 auto; }
+.pricing-note p { color: var(--text-secondary); }
+
+.cta-band { background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; }
+.btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
+
+@media (max-width: 860px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}
+</style>

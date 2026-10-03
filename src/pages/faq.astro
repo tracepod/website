@@ -1,0 +1,190 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const faqs = [
+  {
+    q: 'What does Tracepod actually do?',
+    a: `Tracepod watches a running container with an eBPF kprobe on <code>openat()</code> and
+    records every file it actually opens. The <code>harden</code> CLI then takes that
+    manifest and builds a new OCI image containing only the files that were observed,
+    their recursively resolved ELF shared-library dependencies, and anything you
+    explicitly included. The result is a smaller image: fewer files and fewer
+    packages than the base image it started from, which means a smaller attack
+    surface.`,
+  },
+  {
+    q: 'What is NRI, and why does the sensor need it?',
+    a: `NRI (Node Resource Interface) is containerd's plugin interface for observing
+    container lifecycle events. It's the only mechanism the sensor uses to find out when
+    a container starts and stops, so it can attach its eBPF program to the right
+    container. NRI ships disabled by default on containerd below version 2.0, and
+    enabled by default from 2.0 onward &mdash; see
+    <a href="/docs/getting-started/requirements/">Requirements</a> for which node images
+    that affects today, and how to turn it on where it's off.`,
+  },
+  {
+    q: "What happens if I start a container with docker run instead of through Kubernetes?",
+    a: `It won't be profiled, and nothing tells you that. <code>docker run</code>,
+    <code>nerdctl run</code>, <code>docker compose</code>, and <code>ctr run</code> all
+    talk to containerd's native API directly rather than going through the CRI plugin,
+    so they never fire the NRI events the sensor listens for. The sensor stays healthy,
+    the container runs normally, and no manifest is ever written &mdash; there's no error
+    on either side. Start the container through kubelet (a normal Pod) or <code>crictl</code>
+    instead.`,
+  },
+  {
+    q: 'How long do I need to profile, and when does the manifest get written?',
+    a: `In standalone mode (the default, no controller configured) a manifest is written
+    for a container as soon as that container stops &mdash; there's no fixed profiling
+    window you have to wait out. What matters is whether the traffic the container saw
+    before it stopped was representative of production: a profile recorded against an
+    idle container will be missing files that only get opened under real load.`,
+  },
+  {
+    q: 'What does the confidence score mean?',
+    a: `It's a coverage signal, not a quality grade: it answers "how representative was
+    this profiling session," not "is this image safe." It starts at 100 and loses points
+    for things like a short profiling window or manually added paths the sensor never
+    observed. A score below 100 doesn't mean the image is broken &mdash; it means specific,
+    named gaps are still open, and the build output tells you exactly which ones.
+    <strong>The penalty weights are v1 defaults</strong>, calibrated against a reference
+    nginx profile, and are expected to change before GA &mdash; don't hard-code specific
+    thresholds into CI gates yet. Full breakdown in the
+    <a href="/docs/concepts/observation-sources/">confidence scoring docs</a>.`,
+  },
+  {
+    q: 'What SBOM formats does it produce?',
+    a: `Both CycloneDX and SPDX, generated via <code>syft</code> when you pass
+    <code>--sbom</code> to <code>harden build</code>. If you also pass a cosign signing
+    key, each SBOM is signed and a <code>.sig</code> sidecar is written next to it.`,
+  },
+  {
+    q: 'What license is Tracepod under?',
+    a: `AGPL-3.0. Free to self-host. See the
+    <a href="https://github.com/tracepod/tracepod/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">LICENSE file</a>
+    in the repository for the full terms.`,
+  },
+  {
+    q: "What's the difference between the open-source core and Platform (Pro)?",
+    a: `The open-source core &mdash; the eBPF sensor, the <code>harden</code> image builder,
+    the Helm chart, and the GitHub Action &mdash; is everything you need to profile a
+    container and produce a hardened image and its SBOM, and it's free. The Platform adds
+    a web dashboard across your whole fleet, automated sandbox validation before a build
+    ships, an auto-fix loop for validation failures, CVE delta reporting, fleet policy
+    and compliance, and more. See <a href="/open-source">Open Source</a> and
+    <a href="/platform">Platform</a> for the full breakdown, or <a href="/pricing">Pricing</a>
+    for what's included where.`,
+  },
+  {
+    q: 'Does it work on EKS, AKS, GKE, or Fargate?',
+    a: `It depends on the node image and the pod-admission policy, not the managed
+    offering by name. On EKS and AKS, whether NRI is already on depends on the
+    containerd version the node image bundles &mdash; current AL2023 and AKS Ubuntu 24.04
+    images have it on by default; older images (like AKS Ubuntu 22.04) need it enabled
+    manually. GKE <strong>Autopilot</strong> and <strong>AWS Fargate</strong> block the
+    sensor outright: Autopilot blocks privileged pods at admission, and Fargate gives you
+    no node to run a DaemonSet on at all. GKE Standard isn't covered by that specific
+    block, but every cluster needs to admit a <code>privileged</code>, <code>hostPID</code>
+    pod regardless of provider. See <a href="/docs/getting-started/requirements/">Requirements</a>
+    for the full picture, and run <code>hack/discovery-probe.sh</code> against a real
+    node before you commit to a rollout.`,
+  },
+];
+---
+
+<BaseLayout
+  title="FAQ — Tracepod"
+  description="Answers to practical questions about how Tracepod's eBPF sensor works, what it needs, and what's free vs. Platform."
+>
+  <section class="faq-hero section">
+    <div class="container">
+      <div class="eyebrow">FAQ</div>
+      <h1 class="heading-xl">Questions people actually ask.</h1>
+      <p class="body-lg" style="margin-top: 1.5rem; max-width: 640px;">
+        Straight answers about what the sensor needs, what it misses, and where the free
+        tooling ends and the platform begins.
+      </p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container faq-list-container">
+      {faqs.map((item) => (
+        <details class="faq-entry">
+          <summary class="faq-question">{item.q}</summary>
+          <div class="faq-answer" set:html={item.a} />
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="cta-band section">
+    <div class="container cta-band-inner">
+      <div>
+        <h2 class="heading-lg">Still have a question?</h2>
+        <p class="body-md" style="margin-top: 0.75rem;">
+          Check the <a href="/docs">docs</a>, or ask us directly.
+        </p>
+      </div>
+      <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+.faq-hero { padding-top: var(--space-16); padding-bottom: var(--space-4); }
+
+.faq-list-container {
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.faq-entry {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  padding: var(--space-2) var(--space-5);
+}
+
+.faq-question {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--space-3) 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::after {
+  content: '+';
+  font-weight: 400;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+.faq-entry[open] .faq-question::after { content: '\2212'; }
+
+.faq-answer {
+  padding: 0 0 var(--space-4);
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+.faq-answer code {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 0.85em;
+}
+.faq-answer a { color: var(--accent); }
+.faq-answer strong { color: var(--text-primary); }
+
+.cta-band { background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: var(--space-8); }
+.cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; }
+.btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
+</style>
