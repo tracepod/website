@@ -64,7 +64,7 @@ const proFeatures = [
           <div class="pricing-card-head">
             <div class="eyebrow">Platform (Pro)</div>
             <h2 class="heading-lg">Contact us</h2>
-            <p class="body-md">Private beta. Deploys into your cluster via Helm. Data is sent outside it only to endpoints you configure, such as webhooks.</p>
+            <p class="body-md">Private beta. Deploys into your cluster via Helm. Data is sent outside the cluster only to endpoints you configure, such as webhooks, and to the vulnerability-database feed used for CVE scanning.</p>
           </div>
           <ul class="pricing-features">
             {proFeatures.map((f) => <li>{f}</li>)}

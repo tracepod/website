@@ -118,5 +118,5 @@ tracepod [--kubeconfig <path>] [--controller-namespace <ns>] <command>
 | `profile list [--namespace <ns>]` | List active and completed profiling sessions |
 | `profile get --namespace <ns> --deployment <name> [--output <file>]` | Download a merged manifest for a deployment |
 | `profile stop --namespace <ns> --deployment <name>` | Stop profiling a deployment (freezes the manifest) |
-| `cve-report <workload\|profile-id> [flags]` | Render the reachability/CVE report — see the [CVE reporting guide](/docs/guides/cve-reporting/) |
+| `cve-report [flags] <workload\|profile-id>` | Render the reachability/CVE report — flags must come before the target; see the [CVE reporting guide](/docs/guides/cve-reporting/) |
 | `version` | Print version |

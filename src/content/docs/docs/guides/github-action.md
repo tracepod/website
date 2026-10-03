@@ -3,9 +3,11 @@ title: GitHub Action
 description: Harden a container image in CI with the tracepod/tracepod composite action — build, smoke-test, SBOM, and push.
 ---
 
-The repository root ships a composite GitHub Action (`tracepod/tracepod@v0`) that hardens an image in CI from a recorded profile: it installs the `harden` binary and syft, runs `harden build` with `--sbom`, optionally smoke-tests the result in the runner's Docker daemon, and optionally pushes to a registry.
+The repository root ships a composite GitHub Action (`tracepod/tracepod@v0.2.4`) that hardens an image in CI from a recorded profile: it installs the `harden` binary and syft, runs `harden build` with `--sbom`, optionally smoke-tests the result in the runner's Docker daemon, and optionally pushes to a registry.
 
 Profile your app during CI e2e tests (or commit a recorded profile), then harden as part of the release pipeline.
+
+Pin a release tag. `@v0` tracks the latest 0.x release. Action tags v0.2.0–v0.2.3 fail at the install step (the download URL didn't include the binary name) and should not be used; tags before v0.2.0 do not contain the Action.
 
 :::caution
 The action does not expose `--allow-empty`. Since `harden build` refuses manifests with
@@ -18,7 +20,7 @@ observations before hardening in CI.
 ## Usage
 
 ```yaml
-- uses: tracepod/tracepod@v0
+- uses: tracepod/tracepod@v0.2.4
   with:
     manifest: profiles/app/files.json
     source: ghcr.io/acme/app:${{ github.sha }}
@@ -68,7 +70,7 @@ jobs:
 
       - name: Harden image
         id: harden
-        uses: tracepod/tracepod@v0
+        uses: tracepod/tracepod@v0.2.4
         with:
           manifest: profiles/app/files.json
           source: ghcr.io/acme/app:${{ github.sha }}
