@@ -5,9 +5,19 @@ description: What a node needs before you install the Tracepod sensor, and how t
 
 Before installing the sensor, check whether the node can actually run it. The sensor's
 only container-discovery mechanism is containerd's NRI (Node Resource Interface), and on
-a node where NRI is unreachable the sensor **starts normally, stays `Ready`, and traces
-nothing** — there is no crash and no error that surfaces outside the pod's own logs. Work
-through this page, then run the probe below, before you `helm install`.
+a node where NRI is unreachable the sensor **exits non-zero and refuses to run** — the
+pod goes `CrashLoopBackOff` / not `Ready` instead of tracing silently. Logs show:
+
+```
+fatal: NRI unavailable (...) — refusing to run: no containers would be traced.
+```
+
+It recovers on its own, with no manual intervention beyond fixing the containerd config,
+once NRI is enabled on the node — the next kubelet-driven restart connects normally.
+(Before v0.2.3 the sensor instead warned once to stderr and kept running with an empty
+BPF allowlist, so the pod stayed `Ready` while tracing nothing — if you're running an
+older sensor image, that's the behavior to expect instead.) Work through this page, then
+run the probe below, before you `helm install`.
 
 ## What a node needs
 
@@ -93,30 +103,32 @@ out whether it works — not a version table.
 
 ## Run the discovery probe before you install
 
-The repository ships `hack/discovery-probe.sh`, which turns the silent "NRI is down"
-condition into an answer you get **before** deploying, rather than an empty dashboard
-after. Run it **directly on the node** — for example over SSH, or via SSM Session
-Manager on EKS — not from inside a `kubectl debug` node-debug pod: the script checks
-host paths like `/var/run/nri/nri.sock` directly, and a node-debug pod mounts the host
-filesystem under `/host`, so running it there reports a false exit `1` on a perfectly
-healthy node. Support for that path (`HOST_ROOT`-relative checks) is in progress; this
-page will get the tested invocation once it ships.
-
-Get the script either by cloning the repository, or by fetching just the one file:
+The repository ships `hack/discovery-probe.sh`, which turns the old silent "NRI is down"
+condition into an answer you get **before** deploying, rather than a `CrashLoopBackOff`
+after. Run it directly on the node — for example over SSH, or via SSM Session Manager on
+EKS:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.2/hack/discovery-probe.sh
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh
 chmod +x discovery-probe.sh
-```
-
-Then, on the node itself:
-
-```bash
 ./discovery-probe.sh
 ```
 
-It needs `bash` (not a plain `/bin/sh`) on the node, and it's read-only — it writes only
-under `/tmp` and never restarts anything.
+With no node/SSH access, run it via a node-debug pod instead. The debug pod's own
+`/sys`/`/proc` reflect the pod, not the host — the host filesystem is bind-mounted at
+`/host` instead, so `HOST_ROOT` must be set, and the debug image needs `bash` and
+`socat` (not just `/bin/sh`):
+
+```bash
+kubectl debug node/<node-name> -it --image=ubuntu:24.04 -- bash
+# then, inside the debug pod:
+apt-get update -qq && apt-get install -y -qq curl socat
+curl -fsSLO https://raw.githubusercontent.com/tracepod/tracepod/v0.2.3/hack/discovery-probe.sh
+HOST_ROOT=/host bash discovery-probe.sh
+```
+
+It needs `bash` (not a plain `/bin/sh`), and it's read-only — it writes only under `/tmp`
+and never restarts anything.
 
 **Exit codes:**
 

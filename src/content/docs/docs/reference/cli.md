@@ -46,6 +46,7 @@ Assembles a FROM-scratch OCI image from a sensor manifest, writes it as an OCI l
 | `--sbom-sign-key <path>` | — | Path to a cosign private key for signing SBOMs (requires `--sbom`) |
 | `--smoke-test` | `false` | After building, load the image into the local Docker daemon and run it briefly — fails the build if the minimized image cannot boot |
 | `--smoke-window <dur>` | `5s` | How long the smoke-test container must survive (requires `--smoke-test`) |
+| `--allow-empty` | `false` | Build even when the manifest has zero `direct` (eBPF-observed) entries (default: refuse — see exit code `3` below) |
 
 **Exit codes:**
 
@@ -54,6 +55,7 @@ Assembles a FROM-scratch OCI image from a sensor manifest, writes it as an OCI l
 | `0` | Success |
 | `1` | Fatal error — missing required flags, pull/network failure, unresolved ELF dependencies, failed smoke test |
 | `2` | Warning: a scratch-compat file other than `resolv.conf` absent from source image layers (`resolv.conf` absence is expected and exits 0) |
+| `3` | The manifest has zero `direct` (eBPF-observed) entries — the sensor wasn't active or the profiling window captured nothing, and a build from inferred/manual entries alone is very likely broken. Pass `--allow-empty` to build anyway |
 
 See [Outputs](/docs/concepts/outputs/) for what a build produces and [Observation sources & confidence](/docs/concepts/observation-sources/) for the confidence score behind the `Confidence:` line.
 

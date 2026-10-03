@@ -17,7 +17,7 @@ Once installed, the sensor profiles **every** container kubelet/containerd creat
 
 ## 0. Run the discovery probe
 
-Before installing anything, confirm the node can actually run the sensor — a node with NRI unreachable will stay `Ready` and simply trace nothing, with no error visible outside its own logs:
+Before installing anything, confirm the node can actually run the sensor. If NRI is unreachable the sensor pod will exit and go `CrashLoopBackOff` rather than install cleanly — check this first instead of finding out from a crashing pod:
 
 ```bash
 ./hack/discovery-probe.sh
@@ -99,7 +99,7 @@ Warning:     /etc/resolv.conf not found in image layers (bind-mounted at runtime
 Key things to check:
 
 - **Confidence** should be 70+ for a production build; see [Observation sources & confidence](/docs/concepts/observation-sources/) for what lowers the score.
-- **Files** count should be non-zero — 0 direct observations means the sensor was not active or profiling captured no file-opens.
+- **Files** count should be non-zero — `harden build` now refuses to build at all (exit `3`) when the manifest has zero `direct` (eBPF-observed) entries, since a build from inferred/manual entries alone with no direct observations is very likely broken. Pass `--allow-empty` to build anyway.
 - `resolv.conf` absent is **expected** — the container runtime bind-mounts it; exit code 2 is returned only for other missing scratch-compat files.
 - If `harden build` exits 0 but the hardened image fails to start, run with `--verbose` and use `--include` to add missing directories. The [runtime presets](/docs/reference/presets/) cover known gaps for common runtimes (nginx, Python, Java, Postgres, and more).
 
