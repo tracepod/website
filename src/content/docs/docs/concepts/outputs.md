@@ -52,7 +52,7 @@ Pass `--sbom` to generate both formats via a [syft](https://github.com/anchore/s
 
 Both formats are produced because enterprise toolchains typically require one or the other. `syft` must be on `PATH`; SBOM failure is non-fatal (a warning, not a build error).
 
-Because the SBOM is generated from the *hardened* image, it reflects only the packages that actually ship — and `included_because` justifications from manual manifest entries propagate into it, giving auditors traceability for every operator-added path.
+Because the SBOM is generated from the *hardened* image, it reflects only the packages that ship — and `included_because` justifications from manual manifest entries propagate into it, giving auditors traceability for every operator-added path.
 
 ### Cosign signing
 

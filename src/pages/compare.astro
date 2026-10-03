@@ -23,7 +23,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <p class="body-md">
           Tracepod's distinguishing choice is <strong>how it decides what belongs in the
           image</strong>: it observes the real workload running in your cluster via eBPF
-          and builds the minimized image from what that workload actually opened, rather
+          and builds the minimized image from what that workload opened, rather
           than from a static analysis of the source image or a hand-maintained base.
         </p>
       </div>
@@ -43,7 +43,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             how each tool decides what to keep. SlimToolkit instruments a container run and
             captures that run's behavior using its own sensor technique; Tracepod uses an
             eBPF kprobe on <code>openat()</code> running as a Kubernetes DaemonSet, profiling
-            the workload in your own cluster under production traffic for as long as you
+            the workload in your own cluster under real traffic for as long as you
             choose. It also carries an explicit per-file observation source (direct, inferred,
             manually added) through to a confidence score, so you can see exactly how
             complete a given profiling run was.
@@ -51,15 +51,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
 
         <div class="compare-card card">
-          <div class="eyebrow">Complementary, not competing</div>
+          <div class="eyebrow">Complementary approach</div>
           <h2 class="heading-md">Distroless, Chainguard, Docker Hardened Images</h2>
           <p class="body-md">
             These are base-image swaps: you change your <code>FROM</code> line to a
             smaller, more carefully maintained base and get a reduced surface and
             (depending on the project) a faster CVE-patch cadence for the packages that
-            base ships. That's a different axis from what Tracepod does. Tracepod doesn't
-            care what your base image is &mdash; it builds a minimized image from
-            <em>observed runtime behavior</em> on top of whichever source image you give it.
+            base ships. That's a different axis from what Tracepod does: Tracepod builds a
+            minimized image from <em>observed runtime behavior</em> on top of whichever
+            source image you give it, independent of which base image that is.
             The two approaches stack: start from a hardened base, then let Tracepod trim
             it further to exactly what your workload uses.
           </p>
@@ -85,7 +85,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h2 class="heading-md">Kubescape</h2>
           <p class="body-md">
             Kubescape's relevance scoring uses runtime file-activity data to help you
-            triage which CVEs in a scan result actually matter &mdash; it tells you which
+            triage which CVEs in a scan result matter &mdash; it tells you which
             vulnerable packages were exercised at runtime, so you can prioritize those
             first. That's a triage layer on top of your existing image; it doesn't change
             what ships in the image itself. Tracepod Platform's reachability reporting

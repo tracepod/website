@@ -12,7 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="container">
       <div class="eyebrow">Pro platform</div>
       <h1 class="heading-xl platform-headline">
-        Container hardening at fleet scale, with the proof that it still runs.
+        Container hardening at fleet scale, with validation that each image still runs.
       </h1>
       <p class="body-lg platform-sub">
         The Tracepod platform puts a dashboard, automated validation, and compliance tooling
@@ -129,15 +129,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Auto-fix loop</div>
-          <h2 class="heading-md">Failed validations fix themselves.</h2>
+          <h2 class="heading-md">Failed validations trigger an automatic rebuild.</h2>
           <p class="body-md">
             When sandbox validation finds missing files, the auto-fix loop rebuilds the image
-            with those paths included and validates again, up to three rounds without anyone
-            watching. Missing paths come from the sensor diff and from <code>ENOENT</code> lines
-            in the container logs. In our postgres test, a build that crashed on missing ICU
-            locale data came back green after two rounds.
+            with those paths included and validates again, for up to three rounds with no
+            manual intervention. Missing paths come from the sensor diff and from
+            <code>ENOENT</code> lines in the container logs. In our Postgres test, a build
+            that crashed on missing ICU locale data passed after two rounds.
             Every auto-fixed build keeps its provenance: which build it repaired, and on
-            which round. Webhooks fire when the loop finishes, either way.
+            which round. Webhooks fire when the loop finishes, whether it passes or fails.
           </p>
         </div>
         <div class="feature-block-visual">
@@ -173,7 +173,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <p class="body-md">
             After each build, Tracepod runs grype against both the source and hardened images
             and computes the delta. CVE counts by severity are stored on the build record and
-            surfaced in the dashboard. These are the numbers your security team will ask for.
+            surfaced in the dashboard.
           </p>
           <ul class="feature-bullets">
             <li>grype scan of source vs hardened image</li>
@@ -300,7 +300,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               </svg>
             </div>
             <h3>OpenVEX export with reachability</h3>
-            <p>Generate machine-readable VEX documents based on whether a vulnerable component is actually present in the minimised image. Suppresses false positives in scanner output.</p>
+            <p>Generate machine-readable VEX documents based on whether a vulnerable component is present in the minimised image. Suppresses false positives in scanner output.</p>
           </div>
 
           <div class="remaining-item card">
@@ -325,7 +325,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <section class="cta-band section">
     <div class="container cta-band-inner">
       <div>
-        <h2 class="heading-lg">Book a demo. Bring one workload.</h2>
+        <h2 class="heading-lg">Request a demo with one of your workloads.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
           We&rsquo;ll show you the hardened image, the CVE delta, and the sandbox pass, live,
           on a workload like yours.

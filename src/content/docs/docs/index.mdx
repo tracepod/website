@@ -3,7 +3,7 @@ title: Tracepod Documentation
 description: eBPF-based container hardening — documentation home.
 template: splash
 hero:
-  tagline: Profile running containers via eBPF. Build minimized OCI images containing only what your workload actually uses — with SBOMs, confidence scoring, and CVE reachability.
+  tagline: Profile running containers via eBPF. Build minimized OCI images containing only what your workload uses — with SBOMs, confidence scoring, and CVE reachability.
   actions:
     - text: Quickstart
       link: /docs/getting-started/quickstart/
@@ -18,10 +18,10 @@ hero:
 
 Tracepod is an eBPF-based container hardening tool for Kubernetes. It attaches kprobes to your running workloads, records every file they open, exec, and map at runtime, and uses that observation to produce:
 
-- **Minimized OCI images** — a single deterministic layer with only the files actually observed at runtime, plus recursively resolved ELF dependencies. Fewer files, fewer packages, fewer CVEs.
+- **Minimized OCI images** — a single deterministic layer with only the files observed at runtime, plus recursively resolved ELF dependencies. Fewer files, packages, and CVEs.
 - **A confidence score** — quantifying how representative your profiling window was, with an exact breakdown of every remaining gap.
 - **CycloneDX + SPDX SBOMs** — generated from the hardened image, optionally signed with cosign, plus a removal manifest listing every package that no longer ships.
-- **CVE reachability reports** — per CVE, whether the affected package was actually loaded during profiling.
+- **CVE reachability reports** — per CVE, whether the affected package was loaded during profiling.
 
 ## Browse the docs
 

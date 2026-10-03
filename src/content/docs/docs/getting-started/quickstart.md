@@ -3,7 +3,7 @@ title: Quickstart
 description: Profile a running container with the eBPF sensor and build your first hardened image.
 ---
 
-This is the shortest real path from a running container to a hardened image. It follows the Kubernetes route; a standalone single-host variant is at the end.
+This is the shortest path from a running container to a hardened image. It follows the Kubernetes route; a standalone single-host variant is at the end.
 
 ## Before you start
 
@@ -17,7 +17,7 @@ Once installed, the sensor profiles **every** container kubelet/containerd creat
 
 ## 0. Run the discovery probe
 
-Before installing anything, confirm the node can actually run the sensor. If NRI is unreachable the sensor pod will exit and go `CrashLoopBackOff` rather than install cleanly — check this first instead of finding out from a crashing pod:
+Before installing anything, confirm the node can run the sensor. If NRI is unreachable the sensor pod will exit and go `CrashLoopBackOff` rather than install cleanly — check this first instead of finding out from a crashing pod:
 
 ```bash
 ./hack/discovery-probe.sh
@@ -138,6 +138,6 @@ harden build \
 
 ## Next steps
 
-- [How profiling works](/docs/concepts/how-profiling-works/) — the eBPF machinery under the hood
+- [How profiling works](/docs/concepts/how-profiling-works/) — the eBPF sensor internals
 - [Kubernetes deployment](/docs/guides/kubernetes/) — chart values and profile retrieval in depth
 - [GitHub Action](/docs/guides/github-action/) — harden images in CI

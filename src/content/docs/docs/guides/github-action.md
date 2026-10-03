@@ -11,7 +11,7 @@ Profile your app during CI e2e tests (or commit a recorded profile), then harden
 The action does not expose `--allow-empty`. Since `harden build` refuses manifests with
 zero `direct` (eBPF-observed) entries, a run where the sensor wasn't active or captured
 nothing during profiling now **fails the build** — where it previously built anyway with
-only a "Very Low confidence" warning. Make sure the profile step actually captured
+only a "Very Low confidence" warning. Make sure the profile step captured
 observations before hardening in CI.
 :::
 

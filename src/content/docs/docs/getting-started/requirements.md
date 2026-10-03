@@ -3,7 +3,7 @@ title: Requirements
 description: What a node needs before you install the Tracepod sensor, and how to check it with the discovery probe before you deploy.
 ---
 
-Before installing the sensor, check whether the node can actually run it. The sensor's
+Before installing the sensor, check whether the node can run it. The sensor's
 only container-discovery mechanism is containerd's NRI (Node Resource Interface), and on
 a node where NRI is unreachable the sensor **exits non-zero and refuses to run** — the
 pod goes `CrashLoopBackOff` / not `Ready` instead of tracing silently. Logs show:

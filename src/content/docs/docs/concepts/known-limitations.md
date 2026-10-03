@@ -1,6 +1,6 @@
 ---
 title: Known limitations
-description: An honest account of what the Tracepod sensor cannot observe, the risk of each gap, and the workarounds.
+description: What the Tracepod sensor cannot observe, the risk of each gap, and the workarounds.
 ---
 
 Tracepod is a runtime observer, not a static analyzer. Its output is only as complete as the workload it observed. This page summarizes the known sensor gaps; the canonical, fully detailed version lives in the repository at [`docs/KNOWN-LIMITATIONS.md`](https://github.com/tracepod/tracepod/blob/main/docs/KNOWN-LIMITATIONS.md).
@@ -50,7 +50,7 @@ Since profile schema v2 the race is machine-detectable: the sensor emits a `cove
 
 ## Static content not accessed during profiling
 
-Files served over HTTP are only observed if a request arrives for them during the profiling window. This is expected behavior, not a bug — the whole premise is that the image contains what the workload actually needed. Either send synthetic requests to every endpoint during profiling, or force-include the content directory:
+Files served over HTTP are only observed if a request arrives for them during the profiling window. This is expected behavior, not a bug — the whole premise is that the image contains what the workload needed. Either send synthetic requests to every endpoint during profiling, or force-include the content directory:
 
 ```bash
 harden build ... --include /usr/share/nginx/html
