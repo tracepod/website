@@ -132,11 +132,10 @@ harden build \
 
 If the sensor pod itself is `CrashLoopBackOff` with `fatal: NRI unavailable` in its logs, NRI is unreachable on that node — fix the containerd config (see [Requirements](/docs/getting-started/requirements/)) before working through the rest of this list, which assumes the sensor pod is `Ready`.
 
-1. **Is NRI enabled?** Run [`./hack/discovery-probe.sh`](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) on the node — it checks the NRI socket directly rather than relying on config-file text matching. Restart containerd after changing the config.
-2. **Is the sensor connected?** `kubectl logs -n tracepod daemonset/tracepod-sensor | tail -20` — look for `NRI connected`.
-3. **Was the container started via the CRI?** Only kubelet or `crictl` containers are profiled — not `docker run`, `nerdctl run`, or `docker-compose`.
-4. **Did the container stop?** Profiles are written on container stop, not while running.
-5. **Is the sensor tracking the container?** `kubectl logs -n tracepod daemonset/tracepod-sensor | grep tracking`
+1. **Is the sensor connected?** `kubectl logs -n tracepod daemonset/tracepod-sensor | tail -20` — look for `NRI connected`.
+2. **Was the container started via the CRI?** Only kubelet or `crictl` containers are profiled — not `docker run`, `nerdctl run`, or `docker-compose`.
+3. **Did the container stop?** Profiles are written on container stop, not while running.
+4. **Is the sensor tracking the container?** `kubectl logs -n tracepod daemonset/tracepod-sensor | grep tracking`
 
 ## Next steps
 
