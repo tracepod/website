@@ -156,6 +156,8 @@ The probe also checks node-level preconditions only — it says nothing about wh
 and kernel version can both vary by node pool or node image within the same cluster, run
 the probe against each node pool you intend to deploy to, not just one node.
 
+Running on Amazon EKS? See the [EKS guide](/docs/guides/eks/).
+
 ## Next steps
 
 - [Installation](/docs/getting-started/installation/) — install the sensor via Helm
