@@ -7,13 +7,23 @@ This is the shortest real path from a running container to a hardened image. It 
 
 ## Before you start
 
-- NRI is enabled in containerd on every node — see [Installation](/docs/getting-started/installation/#enable-nri-in-containerd)
+- Your nodes meet the [Requirements](/docs/getting-started/requirements/) — NRI reachable, cgroup v2, kernel BTF, and a cluster that allows `privileged`/`hostPID` DaemonSet pods
 - The `harden` binary is installed locally
 - `skopeo` (or `crane`) is available for importing the result
 
 :::note
 Once installed, the sensor profiles **every** container kubelet/containerd creates on the node — including `kube-system`. There is no per-pod opt-in (no label, annotation, or namespace selector). You filter downstream by mapping container IDs back to pods (step 3 below). In standalone mode (the default), every stopped container produces a manifest.
 :::
+
+## 0. Run the discovery probe
+
+Before installing anything, confirm the node can actually run the sensor — a node with NRI unreachable will stay `Ready` and simply trace nothing, with no error visible outside its own logs:
+
+```bash
+./hack/discovery-probe.sh
+```
+
+Exit `0` means proceed; exit `1` means don't install yet (follow the remediation it prints); exit `2` means the probe itself couldn't run. See [Requirements](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) for the full breakdown of what it checks.
 
 ## 1. Install the sensor DaemonSet
 
@@ -120,7 +130,7 @@ harden build \
 
 ## Troubleshooting: no profiles appear
 
-1. **Is NRI enabled?** `grep disable /etc/containerd/config.toml | grep nri` should print `disable = false` (or nothing). Restart containerd after changing it.
+1. **Is NRI enabled?** Run [`./hack/discovery-probe.sh`](/docs/getting-started/requirements/#run-the-discovery-probe-before-you-install) on the node — it checks the NRI socket directly rather than relying on config-file text matching. Restart containerd after changing the config.
 2. **Is the sensor connected?** `kubectl logs -n tracepod daemonset/tracepod-sensor | tail -20` — look for `NRI connected`.
 3. **Was the container started via the CRI?** Only kubelet or `crictl` containers are profiled — not `docker run`, `nerdctl run`, or `docker-compose`.
 4. **Did the container stop?** Profiles are written on container stop, not while running.
