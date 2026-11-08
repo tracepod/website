@@ -1,26 +1,29 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Product screenshots are hidden until they are retaken from the current UI.
+const showScreenshots = false;
 ---
 
 <BaseLayout
   title="Platform — Tracepod"
-  description="The Tracepod platform adds a web dashboard, sandbox validation, auto-fix loop, CVE delta reports, fleet policy, and more on top of the open-source toolchain."
+  description="The Tracepod platform adds a web dashboard, an in-place validation pipeline, auto-fix, CVE delta reports, fleet policy, and more on top of the open-source toolchain."
 >
 
   <!-- Hero -->
   <section class="platform-hero section">
     <div class="container">
-      <div class="eyebrow">Pro platform</div>
+      <div class="eyebrow">Platform</div>
       <h1 class="heading-xl platform-headline">
-        Container hardening at fleet scale, with validation that each image still runs.
+        Container hardening at fleet scale, tested on the workload it was built for.
       </h1>
       <p class="body-lg platform-sub">
         The Tracepod platform puts a dashboard, automated validation, and compliance tooling
         on top of the open-source hardening engine. It deploys into your cluster via Helm.
         Data is sent outside your cluster only to endpoints you configure, such as
         webhooks, and to the vulnerability-database feed used for CVE scanning. You see
-        exactly what every workload has been hardened to, and whether it passed a live
-        sandbox test.
+        exactly what every workload has been hardened to, and whether the running workload
+        touched anything the hardened image dropped.
       </p>
       <div style="display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; align-items: center;">
         <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
@@ -30,12 +33,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 
   <!-- Dashboard screenshot -->
+  {showScreenshots && (
   <section class="screenshot-hero-section">
     <div class="container">
       <div class="screenshot-slot" role="img" aria-label="Tracepod dashboard overview">
         <img
           src="/screenshots/dashboard.png"
-          alt="Tracepod web dashboard showing fleet of hardened workloads, CVE counts, and compliance status"
+          alt="Tracepod dashboard overview with profiling, hardening, coverage and image-size totals, items needing attention, and recent activity"
           loading="lazy"
           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
         />
@@ -45,83 +49,86 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </div>
   </section>
+  )}
 
   <!-- Feature sections -->
   <section class="section">
     <div class="container">
 
       <!-- Feature: Dashboard -->
-      <div class="feature-block">
+      <div class:list={['feature-block', { 'feature-block--text-only': !showScreenshots }]}>
         <div class="feature-block-text">
           <div class="eyebrow">Web dashboard</div>
           <h2 class="heading-md">CVE counts, size savings, and coverage for every workload in the cluster.</h2>
           <p class="body-md">
             The dashboard gives you a fleet-wide picture: which workloads have been profiled,
-            hardened, validated, and applied. See CVE counts, image size savings, and coverage
+            hardened, tested, and promoted. See CVE counts, image size savings, and coverage
             scores at a glance. Drill down to individual builds to inspect the manifest,
-            confidence scores, and sandbox results.
+            confidence scores, and pipeline results.
           </p>
           <ul class="feature-bullets">
-            <li>Fleet summary with attention items (drift, failed validations, missing coverage)</li>
+            <li>Fleet summary with attention items (drift, blocked pipelines, missing coverage)</li>
             <li>Per-workload build history and lineage</li>
-            <li>Live updates as builds and validations run</li>
+            <li>Live updates as builds and pipelines run</li>
             <li>Full audit log, exportable</li>
           </ul>
         </div>
+        {showScreenshots && (
         <div class="feature-block-visual">
           <div class="screenshot-slot" role="img" aria-label="Tracepod workload detail view">
             <img
               src="/screenshots/workload-detail.png"
-              alt="Tracepod workload detail page showing file manifest, confidence scores, and sandbox validation result"
+              alt="Tracepod workload detail page showing the coverage breakdown and the observed file manifest with the observation source of each path"
               loading="lazy"
               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
             />
             <div class="screenshot-placeholder" style="display:none"><span>workload-detail.png</span></div>
           </div>
         </div>
+        )}
       </div>
 
       <div class="feature-divider"></div>
 
-      <!-- Feature: Sandbox validation -->
+      <!-- Feature: Validation in place -->
       <div class="feature-block feature-block--reversed">
         <div class="feature-block-text">
-          <div class="eyebrow">Sandbox validation</div>
-          <h2 class="heading-md">Prove the hardened image works before you ship it.</h2>
+          <div class="eyebrow">Validation in place</div>
+          <h2 class="heading-md">Test the hardened image where the workload actually runs.</h2>
           <p class="body-md">
-            Tracepod spins up an ephemeral copy of your hardened container, cloning the
-            workload&rsquo;s pod template (env vars, secrets, config maps, ports). It runs the
-            readiness probe, captures logs, and waits for the sensor to report back.
-            Missing files are detected and surfaced before the image ever reaches production.
+            Tracepod tests a hardened image in the workload&rsquo;s own namespace, with its
+            service account, secrets and network. It first watches the original pods for
+            files the hardened image would be missing. In Pro, it then swaps the image on one
+            pod, compares it with the rest, and rolls back on its own if that pod fails.
+            When every stage passes, an Admin promotes the image to a new tag for your CD
+            to deploy.
           </p>
           <ul class="feature-bullets">
-            <li>Full pod-spec fidelity (env, secrets, ConfigMaps, commands)</li>
-            <li>Readiness probe reused as health check</li>
-            <li>Missing-file diff against the hardened manifest</li>
-            <li>Pass/fail result stored with the build record</li>
+            <li>Shadow: the sensor checks every file the running pods open against the hardened image</li>
+            <li>Canary (Pro): one pod gets the hardened image and real traffic</li>
+            <li>Rollout (Pro): more pods in steps, with automatic rollback on failure</li>
+            <li>Promote: pushes a separate hardened tag and never overwrites the source tag</li>
+            <li>Canary and rollout only run in namespaces you label <code>tracepod.io/pipeline=enabled</code>; Tracepod never edits your Deployment spec. Rollback evicts the hardened pods so they come back on the original image.</li>
           </ul>
         </div>
-        <div class="feature-block-visual sandbox-visual">
+        <div class="feature-block-visual">
           <div class="mini-terminal terminal">
             <div class="terminal-bar">
               <div class="terminal-dot"></div>
               <div class="terminal-dot"></div>
               <div class="terminal-dot"></div>
-              <span class="terminal-title">sandbox validation</span>
+              <span class="terminal-title">pipeline &middot; shop/checkout</span>
             </div>
-            <div class="terminal-body">
-              <p><span class="output">Pushing hardened image to sandbox registry&hellip;</span></p>
-              <p><span class="output">Creating ephemeral pod in tracepod-sandbox&hellip;</span></p>
-              <p><span class="output">Waiting for readiness probe&hellip;</span></p>
-              <p><span class="success">&#10003; Pod healthy (12.4s)</span></p>
-              <p><span class="output">Capturing sensor profile&hellip;</span></p>
-              <p><span class="output">Diffing against hardened manifest&hellip;</span></p>
-              <p><span class="success">&#10003; No missing files detected</span></p>
-              <p><span class="success">&#10003; Validation PASSED</span></p>
-              <p><span class="output">Cleaning up pod&hellip;</span></p>
-              <p><span class="success">&#10003; Official image auto-pushed</span></p>
+            <div class="terminal-body pipeline-stages">
+              <p><span class="stage-name">build</span><span class="output">hardened image built from the profile</span></p>
+              <p><span class="stage-name">publish</span><span class="output">pushed to a staging tag</span></p>
+              <p><span class="stage-name">shadow</span><span class="output">3d 4h observed &middot; 0 would&#8209;break</span></p>
+              <p><span class="stage-name">canary</span><span class="output">1/6 pods &middot; ready &middot; 0 restarts</span><span class="stage-tier">Pro</span></p>
+              <p><span class="stage-name">rollout</span><span class="output">25% &rarr; 50% &rarr; 100%</span><span class="stage-tier">Pro</span></p>
+              <p><span class="stage-name">promote</span><span class="success">app:1.4.2-hardened (approved by admin)</span></p>
             </div>
           </div>
+          <p class="stage-note">Free runs build, publish, shadow and promote. Pro adds canary and rollout on live pods.</p>
         </div>
       </div>
 
@@ -131,34 +138,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Auto-fix loop</div>
-          <h2 class="heading-md">Failed validations trigger an automatic rebuild.</h2>
+          <h2 class="heading-md">A missing file turns into a rebuild that includes it.</h2>
           <p class="body-md">
-            When sandbox validation finds missing files, the auto-fix loop rebuilds the image
-            with those paths included and validates again, for up to three rounds with no
-            manual intervention. Missing paths come from the sensor diff and from
-            <code>ENOENT</code> lines in the container logs. In our Postgres test, a build
-            that crashed on missing ICU locale data passed after two rounds.
-            Every auto-fixed build keeps its provenance: which build it repaired, and on
-            which round. Webhooks fire when the loop finishes, whether it passes or fails.
+            When the pipeline sees a file the hardened image would be missing, auto-fix
+            proposes a rebuild that includes exactly those paths and runs shadow again.
+            It only adds paths that exist in the source image. In Free, an Operator starts
+            each rebuild with one click. In Pro, the rebuild starts on its own, for up to
+            three rounds by default. Every auto-fixed build records which build it repaired,
+            and on which round. Webhooks fire when the loop finishes, whether it passes or fails.
           </p>
         </div>
         <div class="feature-block-visual">
           <div class="autofix-flow">
             <div class="flow-step flow-step--active">
               <span class="flow-step-num label">01</span>
-              <span class="flow-step-label">Validate</span>
-              <span class="flow-step-result flow-fail">2 missing files</span>
+              <span class="flow-step-label">Shadow</span>
+              <span class="flow-step-result">watching pods</span>
             </div>
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-step flow-step--active">
               <span class="flow-step-num label">02</span>
+              <span class="flow-step-label">Would&#8209;break</span>
+              <span class="flow-step-result flow-fail">2 paths missing</span>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step flow-step--active">
+              <span class="flow-step-num label">03</span>
               <span class="flow-step-label">Rebuild</span>
               <span class="flow-step-result">+2 paths added</span>
             </div>
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-step flow-step--pass">
-              <span class="flow-step-num label">03</span>
-              <span class="flow-step-label">Revalidate</span>
+              <span class="flow-step-num label">04</span>
+              <span class="flow-step-label">Shadow</span>
               <span class="flow-step-result flow-pass">PASS</span>
             </div>
           </div>
@@ -168,9 +180,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-divider"></div>
 
       <!-- Feature: CVE delta -->
-      <div class="feature-block feature-block--reversed">
+      <div class:list={['feature-block', 'feature-block--reversed', { 'feature-block--text-only': !showScreenshots }]}>
         <div class="feature-block-text">
-          <div class="eyebrow">CVE delta reports</div>
+          <div class="eyebrow">CVE delta reports<span class="tier-pill">Pro</span></div>
           <h2 class="heading-md">See exactly how many vulnerabilities you removed.</h2>
           <p class="body-md">
             After each build, Tracepod runs grype against both the source and hardened images
@@ -184,6 +196,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li>OpenVEX export with reachability for false-positive suppression</li>
           </ul>
         </div>
+        {showScreenshots && (
         <div class="feature-block-visual">
           <div class="screenshot-slot" role="img" aria-label="CVE delta report">
             <img
@@ -195,6 +208,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="screenshot-placeholder" style="display:none"><span>cve-delta.png</span></div>
           </div>
         </div>
+        )}
       </div>
 
       <div class="feature-divider"></div>
@@ -202,11 +216,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <!-- Feature: Fleet policy -->
       <div class="feature-block">
         <div class="feature-block-text">
-          <div class="eyebrow">Fleet policy &amp; compliance</div>
+          <div class="eyebrow">Fleet policy &amp; compliance<span class="tier-pill">Pro</span></div>
           <h2 class="heading-md">Define what &ldquo;hardened&rdquo; means per namespace, then see which workloads miss it.</h2>
           <p class="body-md">
             Define policies per namespace (glob-matched): minimum manifest coverage,
-            hardened image required, sandbox validation required.
+            hardened image required, validated required (the workload&rsquo;s current build
+            completed the pipeline).
             The <code>/compliance</code> endpoint evaluates every workload against applicable
             policies and returns a pass/fail matrix you can gate deployments on or feed into
             GRC tooling.
@@ -249,8 +264,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
             </div>
-            <h3>Apply &amp; drift detection</h3>
-            <p>Roll the hardened image out to the live workload from the dashboard (Admin role, with confirmation). The attention panel alerts when the live image drifts from the hardened version.</p>
+            <h3>Promote to a hardened tag</h3>
+            <p>Promote pushes the tested image to a separate tag (by default <code>&lt;source-tag&gt;-hardened</code>) for your CD to deploy. Admin role. The attention panel alerts when the running image differs from the promoted one.</p>
           </div>
 
           <div class="remaining-item card">
@@ -263,8 +278,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <line x1="14" y1="1" x2="14" y2="4"/>
               </svg>
             </div>
-            <h3>Webhooks + source-image watching</h3>
-            <p>Configure a <code>webhook_url</code> to receive build, validation, and autofix events as JSON. Source-image watching polls upstream digests and triggers auto-rebuild when they change.</p>
+            <h3>Webhooks + source-image watching<span class="tier-pill">Pro</span></h3>
+            <p>Configure a <code>webhook_url</code> to receive build, pipeline, and autofix events as JSON. Source-image watching polls upstream digests and triggers auto-rebuild when they change.</p>
           </div>
 
           <div class="remaining-item card">
@@ -291,7 +306,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               </svg>
             </div>
             <h3>Append-only audit log</h3>
-            <p>Every action (build, push, validate, apply, policy change) is recorded with user, timestamp, and structured metadata. Exportable as CSV or JSON.</p>
+            <p>Every action (build, push, pipeline start, approve, promote, rollback, policy change) is recorded with user, timestamp, and structured metadata. Exportable as CSV or JSON.</p>
           </div>
 
           <div class="remaining-item card">
@@ -301,7 +316,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <path d="M12 8v4M12 16h.01"/>
               </svg>
             </div>
-            <h3>OpenVEX export with reachability</h3>
+            <h3>OpenVEX export with reachability<span class="tier-pill">Pro</span></h3>
             <p>Generate machine-readable VEX documents based on whether a vulnerable component is present in the minimised image. Suppresses false positives in scanner output.</p>
           </div>
 
@@ -329,7 +344,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div>
         <h2 class="heading-lg">Request a demo with one of your workloads.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          We&rsquo;ll show you the hardened image, the CVE delta, and the sandbox pass, live,
+          We&rsquo;ll show you the hardened image, the CVE delta, and the pipeline run, live,
           on a workload like yours.
         </p>
       </div>
@@ -430,10 +445,48 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 /* Mini terminal */
 .mini-terminal { width: 100%; }
 
+/* Pipeline stages */
+.pipeline-stages p {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.pipeline-stages .stage-name {
+  color: var(--accent);
+  min-width: 4.5rem;
+  flex-shrink: 0;
+}
+.pipeline-stages .stage-tier {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm, 4px);
+  padding: 0 0.4rem;
+  line-height: 1.5;
+}
+.stage-note {
+  margin-top: var(--space-3);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+@media (max-width: 480px) {
+  .pipeline-stages { overflow-x: auto; }
+  .pipeline-stages p { white-space: nowrap; }
+  .pipeline-stages .stage-tier { order: 1; margin-left: 0; }
+  .pipeline-stages .output,
+  .pipeline-stages .success { order: 2; }
+}
+.feature-block > .feature-block-text,
+.feature-block > .feature-block-visual { min-width: 0; }
+.feature-block--text-only { grid-template-columns: 1fr; }
+.feature-block--text-only .feature-block-text { max-width: 720px; }
+
 /* Autofix flow */
 .autofix-flow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -450,10 +503,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 }
 .flow-step-num { font-size: 0.7rem; }
 .flow-step-label { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-.flow-step-result { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
+.flow-step-result { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); }
 .flow-fail { color: #f85149; }
 .flow-pass { color: #3fb950; font-weight: 600; }
-.flow-arrow { color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
+.flow-arrow { color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; align-self: center; }
 
 /* Policy cards */
 .mini-policy-cards {
@@ -515,7 +568,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .feature-block--reversed .feature-block-text { order: 1; }
   .feature-block--reversed .feature-block-visual { order: 2; }
   .remaining-grid { grid-template-columns: 1fr 1fr; }
-  .autofix-flow { flex-direction: column; }
+  .autofix-flow { flex-direction: column; align-items: center; }
   .flow-arrow { transform: rotate(90deg); }
 }
 @media (max-width: 640px) {

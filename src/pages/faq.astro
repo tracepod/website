@@ -65,15 +65,21 @@ const faqs = [
     in the repository for the full terms.`,
   },
   {
-    q: "What's the difference between the open-source core and Platform (Pro)?",
+    q: "What's the difference between the open-source core and the Platform?",
     a: `The open-source core &mdash; the eBPF sensor, the <code>harden</code> image builder,
     the Helm chart, and the GitHub Action &mdash; is everything you need to profile a
     container and produce a hardened image and its SBOM, and it's free. The Platform adds
-    a web dashboard across your whole fleet, automated sandbox validation before a build
-    ships, an auto-fix loop for validation failures, CVE delta reporting, fleet policy
-    and compliance, and more. See <a href="/open-source">Open Source</a> and
+    a fleet dashboard, an in-place validation pipeline with automatic rollback, an auto-fix
+    loop, CVE delta reports, fleet policy and more. The Platform has a Free tier and a Pro
+    tier. See <a href="/open-source">Open Source</a> and
     <a href="/platform">Platform</a> for the full breakdown, or <a href="/pricing">Pricing</a>
     for what's included where.`,
+  },
+  {
+    q: 'Can I promote a hardened image without testing it on live pods?',
+    a: `Yes. Tracepod watches the running workload first and only lets you promote once it
+    has seen nothing the hardened image would be missing. Testing on live pods (canary and
+    rollout) is part of Pro.`,
   },
   {
     q: 'Does it work on EKS, AKS, GKE, or Fargate?',

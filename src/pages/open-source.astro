@@ -225,9 +225,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h3>What if profiling missed a code path?</h3>
           <p>
             Then the confidence score is lower and the manifest shows the gap; you profile longer
-            or add the paths by hand. This is an inherent limit of runtime profiling. Platform's
-            sandbox validation runs the hardened image before it ships, and the auto-fix loop
-            rebuilds with anything that turns out to be missing.
+            or add the paths by hand. This is an inherent limit of runtime profiling. The
+            Platform's validation pipeline watches the running workload for files the hardened
+            image would be missing before you promote it, and auto-fix rebuilds with anything
+            it finds.
           </p>
         </div>
         <div class="faq-item">
@@ -249,7 +250,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div>
         <h2 class="heading-lg">Want the full platform?</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          The Tracepod platform adds a web dashboard, sandbox validation, auto-fix, CVE delta reports, and more.
+          The Tracepod platform adds a web dashboard, an in-place validation pipeline, auto-fix, CVE delta reports, and more.
         </p>
       </div>
       <div style="display: flex; gap: 1rem; flex-shrink: 0;">
