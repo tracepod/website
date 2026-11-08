@@ -334,7 +334,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="compare-col compare-col--pro">
           <div class="compare-col-header">
             <div class="label">Platform</div>
-            <div class="compare-col-badge compare-col-badge--pro">Pro</div>
+            <div class="compare-col-badge compare-col-badge--pro">Free + Pro</div>
           </div>
           <p class="compare-col-intro">
             Runs in your cluster alongside the sensor. Data is sent outside the cluster
@@ -347,21 +347,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>Web dashboard</strong>
-                <span class="feature-desc">Fleet view of workloads, builds, validations, and compliance</span>
+                <span class="feature-desc">Fleet view of workloads, builds, pipelines, and compliance</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>Sandbox validation</strong>
-                <span class="feature-desc">Run the hardened container in an ephemeral sandbox; detect missing files before you ship</span>
+                <strong>Validation in place</strong>
+                <span class="feature-desc">Shadow watches the running workload for files the hardened image would be missing. Pro adds a one-pod canary and a stepped rollout, with automatic rollback.</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>Auto-fix loop</strong>
-                <span class="feature-desc">Failed validations trigger a rebuild that includes the missing paths, then a re-run. Up to three rounds, unattended.</span>
+                <span class="feature-desc">A would-break leads to a rebuild with the missing paths, then shadow again. Free suggests the rebuild; Pro runs the rounds unattended (up to three by default).</span>
               </div>
             </li>
             <li class="feature-item">
@@ -374,8 +374,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>One-click apply + drift detection</strong>
-                <span class="feature-desc">Patch the live workload; dashboard alerts when it drifts from the hardened ref</span>
+                <strong>Promote to a hardened tag + drift detection</strong>
+                <span class="feature-desc">Push the tested image to a separate tag for your CD; dashboard alerts when the running image differs from it</span>
               </div>
             </li>
             <li class="feature-item">
