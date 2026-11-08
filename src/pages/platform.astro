@@ -26,7 +26,8 @@ const showScreenshots = false;
         touched anything the hardened image dropped.
       </p>
       <div style="display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; align-items: center;">
-        <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
+        <a href="/contact?plan=free" class="btn btn-primary btn-lg">Request free Platform access</a>
+        <a href="/contact?plan=pro" class="btn btn-secondary btn-lg">Discuss Pro</a>
         <a href="/open-source" class="hero-text-link">or start with open source &rarr;</a>
       </div>
     </div>
@@ -348,7 +349,10 @@ const showScreenshots = false;
           on a workload like yours.
         </p>
       </div>
-      <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
+      <div class="cta-band-actions">
+        <a href="/contact?plan=free" class="btn btn-primary btn-lg">Request free Platform access</a>
+        <a href="/contact?plan=pro" class="btn btn-secondary btn-lg">Discuss Pro</a>
+      </div>
     </div>
   </section>
 
@@ -562,6 +566,7 @@ const showScreenshots = false;
 /* CTA band */
 .cta-band { background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); }
+.cta-band-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; flex-shrink: 0; }
 
 @media (max-width: 960px) {
   .feature-block { grid-template-columns: 1fr; gap: var(--space-8); }
@@ -574,5 +579,6 @@ const showScreenshots = false;
 @media (max-width: 640px) {
   .remaining-grid { grid-template-columns: 1fr; }
   .cta-band-inner { flex-direction: column; text-align: center; }
+  .cta-band-actions { justify-content: center; }
 }
 </style>

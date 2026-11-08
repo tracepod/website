@@ -64,7 +64,7 @@ The sensor binary accepts the following flags (verified against `cmd/sensor`):
 | `--node-name <name>` | — | Node name (set via the Downward API in the DaemonSet) |
 | `--trace-stat` | `false` | Additionally trace stat-family existence checks (access mode `s`, schema v4). Higher event volume |
 | `--ringbuf-bytes <n>` | `0` (256 KB) | Override the events ring-buffer size in bytes (power of two, page-multiple). Primarily a test knob, but accepts larger values for bursty workloads |
-| `--post-unowned-pods-namespace <ns>` | — | POST profiles for pods with no tracked workload owner in this one namespace (used by the controller's sandbox validation) |
+| `--post-unowned-pods-namespace <ns>` | — | Deprecated in v0.2.9; ignored |
 | `--cgroup-path <path>` | — | Manually allow a cgroup path (debug) |
 | `--verbose` | `false` | Print every file-open event to stderr (noisy; for debugging) |
 | `--version` | — | Print version and exit |

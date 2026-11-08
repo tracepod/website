@@ -14,8 +14,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="eyebrow">Contact</div>
         <h1 class="heading-xl">Contact us</h1>
         <p class="body-md" style="margin-top: 1rem;">
-          Platform evaluations, enterprise licensing, and partnership questions all go
-          to the same inbox, and are read by the team building the product.
+          Requests for free Platform access, Pro discussions, and partnership questions all
+          go to the same inbox, and are read by the team building the product.
         </p>
 
         <div class="contact-points">
@@ -34,8 +34,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <path d="M9 9h6M9 12h6M9 15h4"/>
             </svg>
             <div>
-              <strong>Platform or enterprise?</strong>
-              <p>Use the form. We aim to respond within one business day.</p>
+              <strong>What happens next</strong>
+              <p>We reply by email with next steps: install instructions if you asked for
+              free Platform access, or a call to scope your setup if you want to discuss Pro.</p>
             </div>
           </div>
         </div>
@@ -106,6 +107,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div class="form-group">
+            <label for="topic" class="form-label">I&rsquo;m asking about</label>
+            <select id="topic" name="topic" class="form-input">
+              <option value="Free Platform access">Free Platform access</option>
+              <option value="Pro">Pro</option>
+              <option value="Something else" selected>Something else</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label for="message" class="form-label">Message <span class="required">*</span></label>
             <textarea
               id="message"
@@ -145,6 +155,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
   const errorEl = document.getElementById('form-error');
   const successEl = document.getElementById('form-success');
+  const topicEl = document.getElementById('topic') as HTMLSelectElement | null;
+  const subjectEl = form?.querySelector<HTMLInputElement>('input[name="subject"]') ?? null;
+
+  // /contact?plan=free|pro preselects the topic (links from the pricing and platform pages).
+  const plan = new URLSearchParams(window.location.search).get('plan');
+  const planTopics: Record<string, string> = { free: 'Free Platform access', pro: 'Pro' };
+  if (topicEl && plan && planTopics[plan]) topicEl.value = planTopics[plan];
+
+  const setSubject = () => {
+    if (subjectEl && topicEl) subjectEl.value = `Tracepod website enquiry: ${topicEl.value}`;
+  };
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -159,6 +180,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     submitBtn.textContent = 'Sending…';
 
     try {
+      setSubject();
       const data = new FormData(form);
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
@@ -169,6 +191,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (json.success) {
         if (successEl) successEl.hidden = false;
         form.reset();
+        if (topicEl && plan && planTopics[plan]) topicEl.value = planTopics[plan];
       } else {
         throw new Error(json.message || 'Submission failed');
       }

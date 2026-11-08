@@ -19,9 +19,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <span class="headline-accent"> at runtime.</span>
         </h1>
         <p class="body-lg hero-sub">
-          Tracepod watches your workloads through an eBPF sensor and records every file they touch.
+          Tracepod watches your workloads through an eBPF sensor and records the files they open.
           From that record it builds a minimised OCI image, SBOMs you can sign with cosign, and a
-          manifest of everything it removed. Nothing goes into the image that your workload didn&rsquo;t use.
+          manifest of everything it removed. The image keeps the observed files, their dependencies,
+          and paths you explicitly include.
         </p>
         <div class="hero-actions">
           <a href="/docs/getting-started/quickstart/" class="btn btn-primary btn-lg">
@@ -407,7 +408,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               </div>
             </li>
           </ul>
-          <a href="/contact" class="btn btn-primary compare-cta">Contact us</a>
+          <div class="compare-cta-group">
+            <a href="/contact?plan=free" class="btn btn-primary compare-cta">Request free Platform access</a>
+            <a href="/contact?plan=pro" class="btn btn-secondary compare-cta">Discuss Pro</a>
+          </div>
         </div>
       </div>
     </div>
@@ -432,7 +436,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <path d="M9 9h6M9 12h6M9 15h4"/>
           </svg>
           <h3>CycloneDX + SPDX SBOMs</h3>
-          <p>Both formats, signed with cosign, so the output fits whichever scanner your security team already runs.</p>
+          <p>Both formats, with optional cosign signing, so the output fits whichever scanner your security team already runs.</p>
         </div>
         <div class="trust-item">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trust-icon" aria-hidden="true">
@@ -447,7 +451,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
           </svg>
           <h3>Kubernetes-native</h3>
-          <p>Deploys as a DaemonSet, authenticates with TokenReview, and reuses your existing registry secrets. Requires no sidecar injection or admission webhook.</p>
+          <p>The sensor deploys as a DaemonSet with no sidecar injection. The open-source tools install no admission webhook; the Platform adds one that only sees pods in namespaces you label, and only Pro uses it to change pods.</p>
         </div>
       </div>
     </div>
@@ -462,7 +466,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <h2 class="heading-lg">Try it on one workload.</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
           Install the open-source tools, profile one deployment, and compare the image sizes.
-          Contact us to run it across a fleet.
+          Request free Platform access to run it across a fleet.
         </p>
       </div>
       <div class="cta-band-actions">
@@ -470,7 +474,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           Read the quickstart
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href="/contact" class="btn btn-secondary btn-lg">Contact us</a>
+        <a href="/contact?plan=free" class="btn btn-secondary btn-lg">Request free Platform access</a>
+        <a href="/contact?plan=pro" class="btn btn-secondary btn-lg">Discuss Pro</a>
       </div>
     </div>
   </section>
@@ -636,6 +641,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .feature-item strong { display: block; font-weight: 600; color: var(--text-primary); }
 .feature-item code { font-family: var(--font-mono); font-size: 0.85em; color: var(--accent); }
 .feature-desc { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.15rem; line-height: 1.5; }
+.compare-cta-group { display: flex; flex-direction: column; gap: var(--space-3); }
 .compare-cta { width: 100%; justify-content: center; }
 
 /* Trust */
