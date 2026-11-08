@@ -13,22 +13,24 @@ const ossFeatures = [
 ];
 
 const freeFeatures = [
-  'Web dashboard for your workloads — profiles, builds, coverage and CVE counts',
+  'Web dashboard for your workloads',
   'Shadow verification — watches the running workload and lists any file the hardened image would be missing',
-  'Publish the hardened image tag once shadow passes, with Admin approval, for your CD to deploy; the dashboard shows when it is running and flags drift',
-  'Auto-fix suggestions — proposes a rebuild with the exact missing paths; an Operator starts it with one click',
-  'RBAC via Kubernetes TokenReview and an append-only audit log',
+  'Publish the hardened image tag once shadow passes',
 ];
 
 const proFeatures = [
+  'Web dashboard — fleet-wide CVE counts, size savings, and coverage for every workload',
   'Canary and rollout on live pods — swaps the image on one pod, then more, and rolls back automatically if they fail',
-  'Unattended auto-fix — rebuilds with the missing paths and starts a new pipeline without waiting for an Operator',
+  'Auto-fix loop — rebuilds with the missing paths and runs shadow again when the pipeline finds a would-break',
   'CVE delta reports — grype scan of source vs. hardened image, stored on the build record',
-  'OpenVEX export with reachability — based on whether a vulnerable component is present in the minimized image',
   'Fleet policy & compliance — namespace-scoped policies with a pass/fail compliance report',
-  'Webhooks + source-image watching — build, pipeline and autofix events, and auto-rebuild on upstream digest changes',
+  'Publish and handoff — pushes the hardened image tag for your CD, and tracks when it is deployed',
+  'Webhooks + source-image watching — build/pipeline/autofix events, and auto-rebuild on upstream digest changes',
+  'RBAC via Kubernetes TokenReview — no new identity system; roles set in a ConfigMap',
+  'Append-only audit log — every action recorded, exportable as CSV or JSON',
+  'OpenVEX export with reachability — based on whether a vulnerable component is present in the minimized image',
   'Registry management — store and test target registry configs, anonymous or authenticated',
-];
+]
 ------
 
 <BaseLayout

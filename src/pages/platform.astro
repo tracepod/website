@@ -35,7 +35,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="screenshot-slot" role="img" aria-label="Tracepod dashboard overview">
         <img
           src="/screenshots/dashboard.png"
-          alt="Tracepod dashboard overview with profiled and hardened workload counts, coverage, average image size reduction, and the needs-attention list"
+          alt="Tracepod dashboard overview with profiling, hardening, coverage and image-size totals, items needing attention, and recent activity"
           loading="lazy"
           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
         />
@@ -72,7 +72,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="screenshot-slot" role="img" aria-label="Tracepod workload detail view">
             <img
               src="/screenshots/workload-detail.png"
-              alt="Tracepod workload detail page showing files observed, profile window, and the coverage score breakdown"
+              alt="Tracepod workload detail page showing the coverage breakdown and the observed file manifest with the observation source of each path"
               loading="lazy"
               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
             />
@@ -145,17 +145,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="flow-step flow-step--active">
               <span class="flow-step-num label">01</span>
               <span class="flow-step-label">Shadow</span>
-              <span class="flow-step-result flow-fail">2 would&#8209;break</span>
+              <span class="flow-step-result">watching pods</span>
             </div>
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-step flow-step--active">
               <span class="flow-step-num label">02</span>
+              <span class="flow-step-label">Would&#8209;break</span>
+              <span class="flow-step-result flow-fail">2 paths missing</span>
+            </div>
+            <div class="flow-arrow">&#8594;</div>
+            <div class="flow-step flow-step--active">
+              <span class="flow-step-num label">03</span>
               <span class="flow-step-label">Rebuild</span>
               <span class="flow-step-result">+2 paths added</span>
             </div>
             <div class="flow-arrow">&#8594;</div>
             <div class="flow-step flow-step--pass">
-              <span class="flow-step-num label">03</span>
+              <span class="flow-step-num label">04</span>
               <span class="flow-step-label">Shadow</span>
               <span class="flow-step-result flow-pass">PASS</span>
             </div>
@@ -186,7 +192,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="screenshot-slot" role="img" aria-label="CVE delta report">
             <img
               src="/screenshots/cve-delta.png"
-              alt="CVE comparison showing scanner findings in the source image versus the hardened build"
+              alt="CVE delta report showing reduction in critical and high severity vulnerabilities after hardening"
               loading="lazy"
               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
             />

@@ -86,7 +86,7 @@ The eBPF profiling daemon. Linux only; requires root (`privileged` + `hostPID` w
 | `--node-name <name>` | — | Node name (set via the Downward API in the DaemonSet) |
 | `--trace-stat` | `false` | Additionally trace stat-family existence checks (`vfs_fstatat` kprobe; access mode `s`, schema v4). Higher event volume — watch the `event_loss` counters |
 | `--ringbuf-bytes <n>` | `0` | Override the events ring-buffer size in bytes (0 = default 256 KB; power of two, page-multiple) |
-| `--post-unowned-pods-namespace <ns>` | — | POST profiles for pods with no tracked workload owner in this one namespace |
+| `--post-unowned-pods-namespace <ns>` | — | POST profiles for pods with no tracked workload owner in this one namespace (controller sandbox validation) |
 | `--cgroup-path <path>` | — | Manually allow this cgroup path (debug) |
 | `--verbose` | `false` | Print every file-open event to stderr (noisy; for debugging) |
 | `--version` | — | Print version and exit |
