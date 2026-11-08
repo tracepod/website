@@ -76,14 +76,14 @@ const proFeatures = [
             {freeFeatures.map((f) => <li>{f}</li>)}
           </ul>
           <div class="pricing-card-cta">
-            <a href="/contact" class="btn btn-secondary" style="width:100%; justify-content:center;">Request access</a>
+            <a href="/contact?plan=free" class="btn btn-secondary" style="width:100%; justify-content:center;">Request free Platform access</a>
           </div>
         </div>
 
         <div class="pricing-card pricing-card--pro card">
           <div class="pricing-card-head">
             <div class="eyebrow">Platform (Pro)</div>
-            <h2 class="heading-lg">Contact us</h2>
+            <h2 class="heading-lg">Pro</h2>
             <p class="body-md">Private beta. Deploys into your cluster via Helm. Data is sent outside the cluster only to endpoints you configure, such as webhooks, and to the vulnerability-database feed used for CVE scanning.</p>
           </div>
           <p class="pricing-includes">Everything in Platform (Free), plus:</p>
@@ -91,7 +91,7 @@ const proFeatures = [
             {proFeatures.map((f) => <li>{f}</li>)}
           </ul>
           <div class="pricing-card-cta">
-            <a href="/contact" class="btn btn-primary" style="width:100%; justify-content:center;">Request access</a>
+            <a href="/contact?plan=pro" class="btn btn-primary" style="width:100%; justify-content:center;">Discuss Pro</a>
           </div>
         </div>
 
@@ -104,7 +104,8 @@ const proFeatures = [
       <div class="pricing-note card">
         <p class="body-md">
           Each tier includes everything in the one before it. All three run inside your
-          own cluster. See <a href="/compare">how Tracepod compares</a> to other tools,
+          own cluster. After you send the form, we reply by email with next steps: install
+          instructions for Platform Free, or a call to scope Pro. See <a href="/compare">how Tracepod compares</a> to other tools,
           or read the <a href="/docs">docs</a> before you decide what you need.
         </p>
       </div>
@@ -116,10 +117,13 @@ const proFeatures = [
       <div>
         <h2 class="heading-lg">Not sure which you need?</h2>
         <p class="body-md" style="margin-top: 0.75rem;">
-          Start with the open-source tools on one workload, and contact us when you want to roll it out across a fleet.
+          Start with the open-source tools on one workload, and request Platform access when you want to roll it out across a fleet.
         </p>
       </div>
-      <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
+      <div class="cta-band-actions">
+        <a href="/contact?plan=free" class="btn btn-primary btn-lg">Request free Platform access</a>
+        <a href="/contact?plan=pro" class="btn btn-secondary btn-lg">Discuss Pro</a>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -189,6 +193,7 @@ const proFeatures = [
 
 .cta-band { background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; }
+.cta-band-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; flex-shrink: 0; }
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 
 @media (max-width: 1100px) {

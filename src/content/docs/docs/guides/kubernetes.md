@@ -44,12 +44,11 @@ kubectl -n tracepod logs daemonset/tracepod-sensor | grep -E "NRI|tracking"
 | Value | Default | Description |
 |-------|---------|-------------|
 | `sensor.image.repository` | `ghcr.io/tracepod/tracepod-sensor` | Sensor container image |
-| `sensor.image.tag` | `""` | Empty defaults to the chart's `appVersion` (e.g. `v0.2.8`); override to pin a different sensor version or a dev build |
+| `sensor.image.tag` | `""` | Empty defaults to the chart's `appVersion` (e.g. `v0.2.10`); override to pin a different sensor version or a dev build |
 | `sensor.image.pullPolicy` | `IfNotPresent` | Image pull policy |
 | `sensor.controllerURL` | `""` | Tracepod controller URL; empty = standalone mode |
 | `sensor.profileHostPath` | `/var/lib/tracepod/profiles` | Node-local path for profile output (standalone only) |
 | `sensor.traceStat` | `false` | Also record stat-family existence checks (schema v4 access mode `s`). Higher event volume |
-| `sensor.postUnownedPodsNamespace` | `""` | POST bare-pod profiles from this one namespace (used for controller sandbox validation) |
 | `sensor.ringbufBytes` | `0` | Override the BPF ring-buffer size in bytes (0 = default 256 KB). Test-only knob — do not set in production |
 | `sensor.resources` | `{}` | Container resource requests/limits — set limits for production |
 | `sensor.nodeSelector` | `{}` | Node selector for the DaemonSet |

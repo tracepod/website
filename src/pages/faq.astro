@@ -5,7 +5,7 @@ const faqs = [
   {
     q: 'What does Tracepod do?',
     a: `Tracepod watches a running container with an eBPF kprobe on <code>openat()</code> and
-    records every file it opens. The <code>harden</code> CLI then takes that
+    records the files it opens. The <code>harden</code> CLI then takes that
     manifest and builds a new OCI image containing only the files that were observed,
     their recursively resolved ELF shared-library dependencies, and anything you
     explicitly included. The result is a smaller image: fewer files and fewer

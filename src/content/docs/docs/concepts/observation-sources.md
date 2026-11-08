@@ -33,7 +33,7 @@ The score is a **coverage signal, not a quality grade**. It answers the question
 
 | Score | Level | In practice |
 |-------|-------|-------------|
-| 80–100 | **High** | Profiling window was representative; all common gaps mitigated. Safe to promote to production with normal change management. |
+| 80–100 | **High** | Profiling window was representative; all common gaps mitigated. Still a coverage signal, not a safety guarantee: confirm the image works (for example `harden build --smoke-test`, or the Platform validation pipeline) before production. |
 | 60–79 | **Medium** | One or two gaps remain. Review the penalty reasons. Acceptable for staging; review before production. |
 | 40–59 | **Low** | Several gaps open, or many manual entries. Verify the image starts and serves traffic before promoting. |
 | 0–39 | **Very Low** | The profile is incomplete or nearly empty; the hardener emits an extra `Warning:` line. Do not promote without a new profiling run. |

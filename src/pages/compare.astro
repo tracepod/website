@@ -61,7 +61,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             minimized image from <em>observed runtime behavior</em> on top of whichever
             source image you give it, independent of which base image that is.
             The two approaches stack: start from a hardened base, then let Tracepod trim
-            it further to exactly what your workload uses.
+            it further to the files your workload was observed using, their dependencies,
+            and paths you explicitly include.
           </p>
         </div>
 

@@ -21,7 +21,7 @@ Tracepod is an eBPF-based container hardening tool for Kubernetes. It observes w
 └─────────────────────────────────────────────────────────┘
 ```
 
-1. **Profile** — the sensor attaches eBPF kprobes to `openat()`, `execve`, and `mmap` and records every file a container opens, filtered by cgroup to the target container only.
+1. **Profile** — the sensor attaches eBPF kprobes to `openat()`, `execve`, and `mmap` and records the files a container opens, filtered by cgroup to the target container only.
 2. **Harden** — the `harden` CLI reads the resulting manifest and builds a new `FROM scratch` OCI image containing only the observed files, their recursively resolved ELF dependencies, and any explicitly included paths.
 3. **Validate** — run the hardened image (for example with `harden build --smoke-test`, or your own smoke test) to confirm it behaves correctly.
 4. **Publish** — push the hardened image to your registry with `--push`.

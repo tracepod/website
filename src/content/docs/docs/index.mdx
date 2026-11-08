@@ -18,7 +18,7 @@ hero:
 
 Tracepod is an eBPF-based container hardening tool for Kubernetes. It attaches kprobes to your running workloads, records every file they open, exec, and map at runtime, and uses that observation to produce:
 
-- **Minimized OCI images** — a single deterministic layer with only the files observed at runtime, plus recursively resolved ELF dependencies. Fewer files and packages.
+- **Minimized OCI images** — a single deterministic layer that keeps the files observed at runtime, their recursively resolved ELF dependencies, and paths you explicitly include. Fewer files and packages.
 - **A confidence score** — quantifying how representative your profiling window was, with an exact breakdown of every remaining gap.
 - **CycloneDX + SPDX SBOMs** — generated from the hardened image, optionally signed with cosign, plus a removal manifest listing every package that no longer ships.
 - **CVE reachability reports** — per CVE, whether the affected package was loaded during profiling. Requires the Tracepod controller (not part of the open-source repository).

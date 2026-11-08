@@ -98,7 +98,7 @@ Warning:     /etc/resolv.conf not found in image layers (bind-mounted at runtime
 
 Key things to check:
 
-- **Confidence** of 80+ (High) is safe to promote with normal change management; 60–79 (Medium) is acceptable for staging but should be reviewed before production. See [Observation sources & confidence](/docs/concepts/observation-sources/) for the full score bands and what lowers the score.
+- **Confidence** is a coverage signal, not a safety guarantee: 80+ (High) means the profiling window had no major coverage gaps, and 60–79 (Medium) means some gaps remain, so review the penalty reasons. Neither score proves the image works. Check that with `harden build --smoke-test` and a run under real traffic, or, on Tracepod Platform, the validation pipeline. See [Observation sources & confidence](/docs/concepts/observation-sources/) for the full score bands and what lowers the score.
 - **Files** count should be non-zero — `harden build` now refuses to build at all (exit `3`) when the manifest has zero `direct` (eBPF-observed) entries, since a build from inferred/manual entries alone with no direct observations is very likely broken. Pass `--allow-empty` to build anyway.
 - `resolv.conf` absent is **expected** — the container runtime bind-mounts it; exit code 2 is returned only for other missing scratch-compat files.
 - If `harden build` exits 0 but the hardened image fails to start, run with `--verbose` and use `--include` to add missing directories. The [runtime presets](/docs/reference/presets/) cover known gaps for common runtimes (nginx, Python, Java, Postgres, and more).
