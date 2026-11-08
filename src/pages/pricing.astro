@@ -15,23 +15,22 @@ const ossFeatures = [
 const freeFeatures = [
   'Web dashboard for your workloads',
   'Shadow verification — watches the running workload and lists any file the hardened image would be missing',
-  'Publish the hardened image tag once shadow passes',
+  'Promote the tested image to a new ‑hardened tag once shadow passes (Admin approval)',
+  'Auto-fix suggestions — proposes a rebuild with the missing paths; you start it',
+  'RBAC via Kubernetes TokenReview — no new identity system; roles set in a ConfigMap',
+  'Append-only audit log — every action recorded, exportable as CSV or JSON',
+  'Registry management — store and test target registry configs, anonymous or authenticated',
 ];
 
 const proFeatures = [
-  'Web dashboard — fleet-wide CVE counts, size savings, and coverage for every workload',
   'Canary and rollout on live pods — swaps the image on one pod, then more, and rolls back automatically if they fail',
-  'Auto-fix loop — rebuilds with the missing paths and runs shadow again when the pipeline finds a would-break',
+  'Unattended auto-fix (up to 3 rounds by default)',
   'CVE delta reports — grype scan of source vs. hardened image, stored on the build record',
-  'Fleet policy & compliance — namespace-scoped policies with a pass/fail compliance report',
-  'Publish and handoff — pushes the hardened image tag for your CD, and tracks when it is deployed',
-  'Webhooks + source-image watching — build/pipeline/autofix events, and auto-rebuild on upstream digest changes',
-  'RBAC via Kubernetes TokenReview — no new identity system; roles set in a ConfigMap',
-  'Append-only audit log — every action recorded, exportable as CSV or JSON',
   'OpenVEX export with reachability — based on whether a vulnerable component is present in the minimized image',
-  'Registry management — store and test target registry configs, anonymous or authenticated',
-]
-------
+  'Fleet policy & compliance — namespace-scoped policies with a pass/fail compliance report',
+  'Webhooks + source-image watching — build, pipeline and autofix events, and auto-rebuild on upstream digest changes',
+];
+---
 
 <BaseLayout
   title="Pricing — Tracepod"
@@ -43,7 +42,7 @@ const proFeatures = [
       <h1 class="heading-xl">Pricing</h1>
       <p class="body-lg" style="margin-top: 1.5rem; max-width: 640px;">
         The open-source tools are free under AGPL-3.0. Tracepod Platform is in private
-        beta. Its Free tier costs nothing; contact us for Pro pricing.
+        beta. Platform Free costs nothing; contact us for Pro pricing.
       </p>
     </div>
   </section>
@@ -54,9 +53,9 @@ const proFeatures = [
 
         <div class="pricing-card card">
           <div class="pricing-card-head">
-            <div class="eyebrow">Open Source</div>
-            <h2 class="heading-lg">Free</h2>
-            <p class="body-md">AGPL-3.0. Self-hosted, in your own cluster.</p>
+            <div class="eyebrow">Core tools</div>
+            <h2 class="heading-lg">Open source</h2>
+            <p class="body-md">$0 &middot; AGPL-3.0. Self-hosted, in your own cluster.</p>
           </div>
           <ul class="pricing-features">
             {ossFeatures.map((f) => <li set:html={f.replace(/`([^`]+)`/g, '<code>$1</code>')} />)}
@@ -70,7 +69,7 @@ const proFeatures = [
           <div class="pricing-card-head">
             <div class="eyebrow">Platform (Free)</div>
             <h2 class="heading-lg">Free</h2>
-            <p class="body-md">Private beta. Deploys into your cluster via Helm. Builds, tests and publishes hardened images without touching your running pods.</p>
+            <p class="body-md">Private beta. Deploys into your cluster via Helm. Builds, tests and promotes hardened images without touching your running pods.</p>
           </div>
           <p class="pricing-includes">Everything in Open Source, plus:</p>
           <ul class="pricing-features">
@@ -132,13 +131,13 @@ const proFeatures = [
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-6);
-  align-items: start;
+  align-items: stretch;
 }
 
 .pricing-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 .pricing-card--pro {
   border-color: var(--accent);
@@ -183,7 +182,7 @@ const proFeatures = [
   margin: 0;
 }
 
-.pricing-card-cta { margin-top: auto; }
+.pricing-card-cta { margin-top: auto; padding-top: var(--space-4); }
 
 .pricing-note { max-width: 760px; margin: 0 auto; }
 .pricing-note p { color: var(--text-secondary); }

@@ -367,3 +367,20 @@ code, pre, kbd {
 [data-theme="light"] .terminal {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
+
+/* ---- Tier pill (marks Pro-only features) ---- */
+.tier-pill {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  vertical-align: middle;
+}

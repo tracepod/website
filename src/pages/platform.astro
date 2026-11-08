@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Product screenshots are hidden until they are retaken from the current UI.
+const showScreenshots = false;
 ---
 
 <BaseLayout
@@ -19,8 +22,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         on top of the open-source hardening engine. It deploys into your cluster via Helm.
         Data is sent outside your cluster only to endpoints you configure, such as
         webhooks, and to the vulnerability-database feed used for CVE scanning. You see
-        exactly what every workload has been hardened to, and how the hardened image did
-        when it ran next to the original.
+        exactly what every workload has been hardened to, and whether the running workload
+        touched anything the hardened image dropped.
       </p>
       <div style="display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; align-items: center;">
         <a href="/contact" class="btn btn-primary btn-lg">Contact us</a>
@@ -30,6 +33,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 
   <!-- Dashboard screenshot -->
+  {showScreenshots && (
   <section class="screenshot-hero-section">
     <div class="container">
       <div class="screenshot-slot" role="img" aria-label="Tracepod dashboard overview">
@@ -45,13 +49,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </div>
   </section>
+  )}
 
   <!-- Feature sections -->
   <section class="section">
     <div class="container">
 
       <!-- Feature: Dashboard -->
-      <div class="feature-block">
+      <div class:list={['feature-block', { 'feature-block--text-only': !showScreenshots }]}>
         <div class="feature-block-text">
           <div class="eyebrow">Web dashboard</div>
           <h2 class="heading-md">CVE counts, size savings, and coverage for every workload in the cluster.</h2>
@@ -68,6 +73,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li>Full audit log, exportable</li>
           </ul>
         </div>
+        {showScreenshots && (
         <div class="feature-block-visual">
           <div class="screenshot-slot" role="img" aria-label="Tracepod workload detail view">
             <img
@@ -79,6 +85,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="screenshot-placeholder" style="display:none"><span>workload-detail.png</span></div>
           </div>
         </div>
+        )}
       </div>
 
       <div class="feature-divider"></div>
@@ -101,6 +108,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li>Canary (Pro): one pod gets the hardened image and real traffic</li>
             <li>Rollout (Pro): more pods in steps, with automatic rollback on failure</li>
             <li>Promote: pushes a separate hardened tag and never overwrites the source tag</li>
+            <li>Canary and rollout only run in namespaces you label <code>tracepod.io/pipeline=enabled</code>; Tracepod never edits your Deployment spec. Rollback evicts the hardened pods so they come back on the original image.</li>
           </ul>
         </div>
         <div class="feature-block-visual">
@@ -130,7 +138,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-block">
         <div class="feature-block-text">
           <div class="eyebrow">Auto-fix loop</div>
-          <h2 class="heading-md">A would-break turns into a rebuild with the missing paths.</h2>
+          <h2 class="heading-md">A missing file turns into a rebuild that includes it.</h2>
           <p class="body-md">
             When the pipeline sees a file the hardened image would be missing, auto-fix
             proposes a rebuild that includes exactly those paths and runs shadow again.
@@ -172,9 +180,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="feature-divider"></div>
 
       <!-- Feature: CVE delta -->
-      <div class="feature-block feature-block--reversed">
+      <div class:list={['feature-block', 'feature-block--reversed', { 'feature-block--text-only': !showScreenshots }]}>
         <div class="feature-block-text">
-          <div class="eyebrow">CVE delta reports</div>
+          <div class="eyebrow">CVE delta reports<span class="tier-pill">Pro</span></div>
           <h2 class="heading-md">See exactly how many vulnerabilities you removed.</h2>
           <p class="body-md">
             After each build, Tracepod runs grype against both the source and hardened images
@@ -188,6 +196,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li>OpenVEX export with reachability for false-positive suppression</li>
           </ul>
         </div>
+        {showScreenshots && (
         <div class="feature-block-visual">
           <div class="screenshot-slot" role="img" aria-label="CVE delta report">
             <img
@@ -199,6 +208,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="screenshot-placeholder" style="display:none"><span>cve-delta.png</span></div>
           </div>
         </div>
+        )}
       </div>
 
       <div class="feature-divider"></div>
@@ -206,7 +216,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <!-- Feature: Fleet policy -->
       <div class="feature-block">
         <div class="feature-block-text">
-          <div class="eyebrow">Fleet policy &amp; compliance</div>
+          <div class="eyebrow">Fleet policy &amp; compliance<span class="tier-pill">Pro</span></div>
           <h2 class="heading-md">Define what &ldquo;hardened&rdquo; means per namespace, then see which workloads miss it.</h2>
           <p class="body-md">
             Define policies per namespace (glob-matched): minimum manifest coverage,
@@ -268,7 +278,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <line x1="14" y1="1" x2="14" y2="4"/>
               </svg>
             </div>
-            <h3>Webhooks + source-image watching</h3>
+            <h3>Webhooks + source-image watching<span class="tier-pill">Pro</span></h3>
             <p>Configure a <code>webhook_url</code> to receive build, pipeline, and autofix events as JSON. Source-image watching polls upstream digests and triggers auto-rebuild when they change.</p>
           </div>
 
@@ -306,7 +316,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <path d="M12 8v4M12 16h.01"/>
               </svg>
             </div>
-            <h3>OpenVEX export with reachability</h3>
+            <h3>OpenVEX export with reachability<span class="tier-pill">Pro</span></h3>
             <p>Generate machine-readable VEX documents based on whether a vulnerable component is present in the minimised image. Suppresses false positives in scanner output.</p>
           </div>
 
@@ -459,13 +469,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 .stage-note {
   margin-top: var(--space-3);
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
+@media (max-width: 480px) {
+  .pipeline-stages { overflow-x: auto; }
+  .pipeline-stages p { white-space: nowrap; }
+  .pipeline-stages .stage-tier { order: 1; margin-left: 0; }
+  .pipeline-stages .output,
+  .pipeline-stages .success { order: 2; }
+}
+.feature-block > .feature-block-text,
+.feature-block > .feature-block-visual { min-width: 0; }
+.feature-block--text-only { grid-template-columns: 1fr; }
+.feature-block--text-only .feature-block-text { max-width: 720px; }
 
 /* Autofix flow */
 .autofix-flow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-3);
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -482,10 +503,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 }
 .flow-step-num { font-size: 0.7rem; }
 .flow-step-label { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-.flow-step-result { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
+.flow-step-result { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary); }
 .flow-fail { color: #f85149; }
 .flow-pass { color: #3fb950; font-weight: 600; }
-.flow-arrow { color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; }
+.flow-arrow { color: var(--text-muted); font-size: 1.2rem; flex-shrink: 0; align-self: center; }
 
 /* Policy cards */
 .mini-policy-cards {
@@ -547,7 +568,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .feature-block--reversed .feature-block-text { order: 1; }
   .feature-block--reversed .feature-block-visual { order: 2; }
   .remaining-grid { grid-template-columns: 1fr 1fr; }
-  .autofix-flow { flex-direction: column; }
+  .autofix-flow { flex-direction: column; align-items: center; }
   .flow-arrow { transform: rotate(90deg); }
 }
 @media (max-width: 640px) {

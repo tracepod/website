@@ -354,20 +354,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>Validation in place</strong>
-                <span class="feature-desc">Shadow watches the running workload for files the hardened image would be missing. Pro adds a one-pod canary and a stepped rollout, with automatic rollback.</span>
+                <span class="feature-desc">Tracepod first watches your running pods for any file the hardened image would be missing (shadow mode). Pro then adds a one-pod canary and a stepped rollout, with automatic rollback.</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
                 <strong>Auto-fix loop</strong>
-                <span class="feature-desc">A would-break leads to a rebuild with the missing paths, then shadow again. Free suggests the rebuild; Pro runs the rounds unattended (up to three by default).</span>
+                <span class="feature-desc">A missing file leads to a rebuild that includes it, then another shadow check. Free suggests the rebuild and you start it; Pro runs the rounds unattended (up to three by default).</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>Build-time CVE delta (Pro)</strong>
+                <strong>Build-time CVE delta <span class="tier-pill">Pro</span></strong>
                 <span class="feature-desc">grype scans the source and hardened images on every build and reports exactly which findings the hardening removed</span>
               </div>
             </li>
@@ -381,28 +381,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>Fleet policy &amp; compliance (Pro)</strong>
+                <strong>Fleet policy &amp; compliance <span class="tier-pill">Pro</span></strong>
                 <span class="feature-desc">Namespace-scoped policies: min coverage, hardened required, validated required</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>OpenVEX export with reachability (Pro)</strong>
+                <strong>OpenVEX export with reachability <span class="tier-pill">Pro</span></strong>
                 <span class="feature-desc">Machine-readable VEX documents based on whether a vulnerable component is in the minimised image</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>Webhooks + source-image watching (Pro)</strong>
+                <strong>Webhooks + source-image watching <span class="tier-pill">Pro</span></strong>
                 <span class="feature-desc">Auto-rebuild when the source image changes; push outcomes to any endpoint</span>
               </div>
             </li>
             <li class="feature-item">
               <span class="feature-check feature-check--pro">&#10003;</span>
               <div>
-                <strong>RBAC + audit log (Pro)</strong>
+                <strong>RBAC + audit log</strong>
                 <span class="feature-desc">Sign-in reuses your cluster&rsquo;s existing identity; Viewer, Operator, and Admin roles; append-only audit trail</span>
               </div>
             </li>
