@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
 ---
 
 <BaseLayout
@@ -44,7 +45,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <h3>eBPF Sensor</h3>
           <p>
             CO-RE kprobe sensor written in pure Go using <code>cilium/ebpf</code>.
-            Attaches to <code>openat()</code>, filters by cgroup/namespace, ships events over a ring buffer.
+            Records file opens, execs and dlopen loads (<a href="/docs/concepts/how-profiling-works/">details</a>), filters by cgroup/namespace, ships events over a ring buffer.
             Runs as a DaemonSet pod. Requires no kernel module, DKMS, or sidecars.
           </p>
           <div class="tool-tags">
@@ -128,7 +129,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
           <h3>GitHub Action</h3>
           <p>
-            Add a <code>uses: tracepod/tracepod@v0.2.10</code> step to your release workflow.
+            Add a <code>uses: tracepod/tracepod@{OSS_VERSION}</code> step to your release workflow.
             Give it a recorded profile and a source image; it builds, smoke-tests, and
             SBOMs the hardened image, and can push it alongside the original.
           </p>
@@ -195,7 +196,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <p>&nbsp;&nbsp;&nbsp;&nbsp;--namespace tracepod --create-namespace</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Standalone hardener (harden) from GitHub releases</span></p>
-            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/v0.2.10/tracepod_harden_0.2.10_linux_amd64.tar.gz</p>
+            <p><span class="prompt">$</span> curl -fsSLO https://github.com/tracepod/tracepod/releases/download/{OSS_VERSION}/tracepod_harden_{OSS_VERSION_BARE}_linux_amd64.tar.gz</p>
             <p><span class="prompt">$</span> sudo tar xzf tracepod_harden_0.2.10_linux_amd64.tar.gz -C /usr/local/bin harden</p>
             <p>&nbsp;</p>
             <p><span class="comment"># Verify</span></p>
@@ -215,7 +216,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="faq-item">
           <h3>Is it safe to run eBPF on production nodes?</h3>
           <p>
-            The sensor only observes: it reads <code>openat()</code> events from kprobes and does
+            The sensor only observes: it reads file-open, exec and dlopen events from kprobes and does
             not change what your workloads do. eBPF programs are checked by the kernel verifier
             before they load, and there is no kernel module to install. Under event pressure the ring
             buffer drops events rather than blocking your workloads, and the profile records the

@@ -80,11 +80,7 @@ custom launch template, where you cannot edit containerd's configuration at all.
 
 ### Bottlerocket
 
-NRI is expected on for Bottlerocket's `aws-k8s-1.33`+ variants (containerd 2.x), per a
-maintainer statement — there is no Bottlerocket setting that toggles it. Whether the
-sensor's privileged pod works under Bottlerocket's SELinux policy is **unverified**, not
-confirmed either way. Treat Bottlerocket as untested and run the probe below before
-relying on it.
+NRI is expected on (containerd 2.x); the sensor has not yet been run on Bottlerocket. Run the probe below before relying on it.
 
 ## Which kernels
 

@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const ossFeatures = [
-  'eBPF sensor (DaemonSet) — profiles running containers via an openat() kprobe, no kernel module',
+  'eBPF sensor (DaemonSet) — profiles running containers by recording file opens, execs and dlopen loads, no kernel module',
   '`harden` CLI — builds minimized OCI images from a sensor profile, with recursive ELF dependency resolution',
   'Confidence scoring — a 0–100 coverage signal for every build, with the full penalty breakdown',
   'Removal manifest — the exact set of packages the hardening dropped, with file-level evidence',
@@ -69,7 +69,7 @@ const proFeatures = [
           <div class="pricing-card-head">
             <div class="eyebrow">Platform (Free)</div>
             <h2 class="heading-lg">Free</h2>
-            <p class="body-md">Private beta. Deploys into your cluster via Helm. Builds, tests and promotes hardened images without touching your running pods.</p>
+            <p class="body-md">Private beta. Deploys into your cluster via Helm. Builds, tests and promotes hardened images without touching your running pods. &ldquo;Access&rdquo; means we send you a registry token and a Helm chart to install.</p>
           </div>
           <p class="pricing-includes">Everything in Open Source, plus:</p>
           <ul class="pricing-features">
@@ -107,6 +107,28 @@ const proFeatures = [
           own cluster. After you send the form, we reply by email with next steps: install
           instructions for Platform Free, or a call to scope Pro. See <a href="/compare">how Tracepod compares</a> to other tools,
           or read the <a href="/docs">docs</a> before you decide what you need.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="pricing-note card">
+        <h2 class="heading-lg">Which tier?</h2>
+        <h3 class="which-q">What&rsquo;s the difference between the open-source core and the Platform?</h3>
+        <p class="body-md">
+          The open-source core (the eBPF sensor, the <code>harden</code> image builder, the Helm chart and
+          the GitHub Action) is everything you need to profile a container and produce a hardened image
+          and its SBOM, and it&rsquo;s free. The Platform adds a fleet dashboard, an in-place validation
+          pipeline with automatic rollback, an auto-fix loop, CVE delta reports, fleet policy and more.
+          The Platform has a Free tier and a Pro tier.
+        </p>
+        <h3 class="which-q">Can I promote a hardened image without testing it on live pods?</h3>
+        <p class="body-md">
+          Yes. Tracepod watches the running workload first and only lets you promote once it has seen
+          nothing the hardened image would be missing. Testing on live pods (canary and rollout) is part
+          of Pro. More answers are in the <a href="/faq">FAQ</a>.
         </p>
       </div>
     </div>
@@ -190,6 +212,7 @@ const proFeatures = [
 
 .pricing-note { max-width: 760px; margin: 0 auto; }
 .pricing-note p { color: var(--text-secondary); }
+.which-q { font-size: 1rem; margin-top: var(--space-4); }
 
 .cta-band { background: var(--bg-elevated); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .cta-band-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-8); flex-wrap: wrap; }

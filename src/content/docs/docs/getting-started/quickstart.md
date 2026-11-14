@@ -35,7 +35,7 @@ helm install tracepod ./helm/tracepod \
 
 ## 2. Exercise your workload
 
-The sensor profiles containers while they run. Send real or synthetic traffic to your workload — hit every endpoint and content type you care about. The profile is written when the container **stops** (for example, when you scale the deployment down or roll a pod), to `/var/lib/tracepod/profiles/<container-id>/files.json` on the node.
+The sensor profiles containers while they run. Send real or synthetic traffic to your workload — hit every endpoint and content type you care about. The profile is written when the container **stops** (for example, when you scale the deployment down or roll a pod), to `/var/lib/tracepod/profiles/<container-id>/files.json` on the node. With the Platform, the sensor also sends the profile so far every 5 minutes while the container runs (the default `sensor.snapshotInterval` of 300s in the Platform chart).
 
 The longer and more representative the run, the higher your [confidence score](/docs/concepts/observation-sources/). The recommended minimum profiling window is 10 minutes.
 

@@ -4,8 +4,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 const faqs = [
   {
     q: 'What does Tracepod do?',
-    a: `Tracepod watches a running container with an eBPF kprobe on <code>openat()</code> and
-    records the files it opens. The <code>harden</code> CLI then takes that
+    a: `Tracepod watches a running container with eBPF and records file opens, execs and
+    dlopen loads (see <a href="/docs/concepts/how-profiling-works/">how profiling works</a>). The <code>harden</code> CLI then takes that
     manifest and builds a new OCI image containing only the files that were observed,
     their recursively resolved ELF shared-library dependencies, and anything you
     explicitly included. The result is a smaller image: fewer files and fewer
@@ -36,7 +36,8 @@ const faqs = [
     q: 'How long do I need to profile, and when does the manifest get written?',
     a: `In standalone mode (the default, no controller configured) a manifest is written
     for a container as soon as that container stops; there is no fixed profiling
-    window to wait out. What matters is whether the traffic the container saw
+    window to wait out. With the Platform, the sensor also sends the profile so far
+    every 5 minutes while the container runs. What matters is whether the traffic the container saw
     before it stopped was representative of production: a profile recorded against an
     idle container will be missing files that only get opened under real load.`,
   },
