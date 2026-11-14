@@ -1,0 +1,156 @@
+---
+// Data-flow diagram for the Platform: sensor -> controller -> your registry ->
+// admission webhook (Pro) -> your CD. Inline SVG, coloured only with existing
+// tokens: Starlight's --sl-color-* inside /docs, the site's own tokens elsewhere.
+---
+
+<figure class="tp-flow">
+  <div class="tp-flow-scroll">
+    <svg viewBox="0 0 940 470" role="img" aria-labelledby="tp-flow-title tp-flow-desc">
+      <title id="tp-flow-title">Tracepod Platform data flow</title>
+      <desc id="tp-flow-desc">
+        The sensor on each node observes workload pods and posts file-access profiles to the
+        controller. The controller pulls source images from and pushes hardened images to your
+        registry. With Pro, the admission webhook swaps the image on new pods in labelled
+        namespaces. Your CD deploys the promoted tag.
+      </desc>
+      <defs>
+        <marker id="tp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" class="tp-head" />
+        </marker>
+        <marker id="tp-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" class="tp-head tp-head--accent" />
+        </marker>
+      </defs>
+
+      <!-- Cluster boundary -->
+      <rect x="12" y="12" width="596" height="446" rx="14" class="tp-zone" />
+      <text x="32" y="42" class="tp-zone-label">YOUR CLUSTER</text>
+
+      <!-- Outside the cluster -->
+      <text x="680" y="42" class="tp-zone-label">OUTSIDE THE CLUSTER, YOURS</text>
+
+      <!-- Sensor -->
+      <rect x="40" y="70" width="200" height="104" rx="10" class="tp-box" />
+      <text x="60" y="100" class="tp-title">Sensor</text>
+      <text x="60" y="124" class="tp-sub">one pod on every node</text>
+      <text x="60" y="144" class="tp-sub">privileged, hostPID, eBPF</text>
+      <text x="60" y="162" class="tp-sub">open source</text>
+
+      <!-- Workloads -->
+      <rect x="40" y="290" width="200" height="104" rx="10" class="tp-box" />
+      <text x="60" y="320" class="tp-title">Your workloads</text>
+      <text x="60" y="344" class="tp-sub">Deployments and</text>
+      <text x="60" y="364" class="tp-sub">StatefulSets</text>
+
+      <!-- Controller -->
+      <rect x="350" y="70" width="228" height="124" rx="10" class="tp-box tp-box--accent" />
+      <text x="370" y="100" class="tp-title">Controller</text>
+      <text x="370" y="124" class="tp-sub">dashboard, API, builds,</text>
+      <text x="370" y="144" class="tp-sub">pipeline. One pod.</text>
+      <text x="370" y="172" class="tp-sub tp-mono">volume: database + builds</text>
+
+      <!-- Webhook -->
+      <rect x="350" y="290" width="228" height="104" rx="10" class="tp-box tp-box--dashed" />
+      <text x="370" y="320" class="tp-title">Admission webhook</text>
+      <text x="370" y="344" class="tp-sub">served by the controller</text>
+      <text x="370" y="364" class="tp-sub">labelled namespaces</text>
+      <rect x="522" y="358" width="42" height="22" rx="4" class="tp-pill" />
+      <text x="543" y="374" class="tp-pill-text" text-anchor="middle">Pro</text>
+
+      <!-- Registry -->
+      <rect x="680" y="70" width="228" height="124" rx="10" class="tp-box" />
+      <text x="700" y="100" class="tp-title">Your registry</text>
+      <text x="700" y="124" class="tp-sub">staging tag, then the</text>
+      <text x="700" y="144" class="tp-sub">promoted tag. The source</text>
+      <text x="700" y="164" class="tp-sub">tag is never overwritten.</text>
+
+      <!-- CD -->
+      <rect x="680" y="290" width="228" height="104" rx="10" class="tp-box" />
+      <text x="700" y="320" class="tp-title">Your CD</text>
+      <text x="700" y="344" class="tp-sub">deploys the promoted tag</text>
+      <text x="700" y="364" class="tp-sub">(Argo CD, Flux, a pipeline)</text>
+
+      <!-- 1: sensor observes workloads -->
+      <line x1="140" y1="290" x2="140" y2="178" class="tp-line" marker-end="url(#tp-arrow)" />
+      <circle cx="140" cy="232" r="13" class="tp-num" />
+      <text x="140" y="237" class="tp-num-text" text-anchor="middle">1</text>
+      <text x="162" y="237" class="tp-label">file opens, execs</text>
+
+      <!-- 2: sensor -> controller -->
+      <line x1="240" y1="122" x2="346" y2="122" class="tp-line" marker-end="url(#tp-arrow)" />
+      <circle cx="293" cy="122" r="13" class="tp-num" />
+      <text x="293" y="127" class="tp-num-text" text-anchor="middle">2</text>
+      <text x="293" y="98" class="tp-label" text-anchor="middle">profiles</text>
+
+      <!-- 3: controller <-> registry -->
+      <line x1="578" y1="122" x2="676" y2="122" class="tp-line" marker-start="url(#tp-arrow)" marker-end="url(#tp-arrow)" />
+      <circle cx="627" cy="122" r="13" class="tp-num" />
+      <text x="627" y="127" class="tp-num-text" text-anchor="middle">3</text>
+      <text x="627" y="98" class="tp-label" text-anchor="middle">pull, push</text>
+
+      <!-- controller serves webhook -->
+      <line x1="464" y1="194" x2="464" y2="290" class="tp-line tp-line--dashed" />
+
+      <!-- 4: webhook -> workloads -->
+      <line x1="350" y1="342" x2="244" y2="342" class="tp-line tp-line--accent" marker-end="url(#tp-arrow-accent)" />
+      <circle cx="297" cy="342" r="13" class="tp-num tp-num--accent" />
+      <text x="297" y="347" class="tp-num-text tp-num-text--accent" text-anchor="middle">4</text>
+      <text x="297" y="318" class="tp-label" text-anchor="middle">image swap</text>
+
+      <!-- 5: registry -> CD -> workloads -->
+      <line x1="794" y1="194" x2="794" y2="286" class="tp-line" marker-end="url(#tp-arrow)" />
+      <path d="M794 394 V430 H140 V398" class="tp-line" fill="none" marker-end="url(#tp-arrow)" />
+      <circle cx="794" cy="240" r="13" class="tp-num" />
+      <text x="794" y="245" class="tp-num-text" text-anchor="middle">5</text>
+      <text x="816" y="245" class="tp-label">promoted tag</text>
+      <text x="464" y="450" class="tp-label" text-anchor="middle">your CD rolls out the promoted image</text>
+    </svg>
+  </div>
+  <figcaption>
+    <slot>
+      Data flow. Solid boxes run in every tier; the dashed box only changes pods with a Pro licence,
+      in namespaces you label, once you set the webhook mode to <code>enforce</code>.
+    </slot>
+  </figcaption>
+</figure>
+
+<style>
+.tp-flow {
+  --d-card:   var(--sl-color-gray-6, var(--bg-card));
+  --d-zone:   var(--sl-color-black, var(--bg-secondary));
+  --d-border: var(--sl-color-gray-4, var(--border));
+  --d-text:   var(--sl-color-white, var(--text-primary));
+  --d-sub:    var(--sl-color-gray-2, var(--text-secondary));
+  --d-accent: var(--sl-color-accent, var(--accent));
+  margin: 1.5rem 0;
+}
+.tp-flow-scroll { overflow-x: auto; }
+.tp-flow svg { display: block; width: 100%; min-width: 680px; height: auto; }
+.tp-flow figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--d-sub);
+}
+.tp-zone { fill: var(--d-zone); stroke: var(--d-border); stroke-width: 1.5; stroke-dasharray: 2 5; stroke-linecap: round; }
+.tp-zone-label { fill: var(--d-sub); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; font-family: var(--sl-font-mono, var(--font-mono)); }
+.tp-box { fill: var(--d-card); stroke: var(--d-border); stroke-width: 1.5; }
+.tp-box--accent { stroke: var(--d-accent); }
+.tp-box--dashed { stroke: var(--d-accent); stroke-dasharray: 6 5; }
+.tp-title { fill: var(--d-text); font-size: 17px; font-weight: 600; }
+.tp-sub { fill: var(--d-sub); font-size: 14px; }
+.tp-mono { font-family: var(--sl-font-mono, var(--font-mono)); font-size: 12.5px; }
+.tp-label { fill: var(--d-sub); font-size: 13.5px; }
+.tp-line { stroke: var(--d-sub); stroke-width: 1.75; }
+.tp-line--dashed { stroke-dasharray: 4 5; }
+.tp-line--accent { stroke: var(--d-accent); }
+.tp-head { fill: var(--d-sub); }
+.tp-head--accent { fill: var(--d-accent); }
+.tp-num { fill: var(--d-card); stroke: var(--d-sub); stroke-width: 1.5; }
+.tp-num--accent { stroke: var(--d-accent); }
+.tp-num-text { fill: var(--d-text); font-size: 13px; font-weight: 600; }
+.tp-num-text--accent { fill: var(--d-accent); }
+.tp-pill { fill: none; stroke: var(--d-accent); stroke-width: 1.25; }
+.tp-pill-text { fill: var(--d-accent); font-size: 12px; font-weight: 600; font-family: var(--sl-font-mono, var(--font-mono)); }
+</style>

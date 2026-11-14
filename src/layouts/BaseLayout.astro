@@ -7,12 +7,14 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
 
 const {
   title,
   description = 'Tracepod — eBPF-based container hardening. Profile running workloads, then build minimised OCI images with SBOMs and a full removal manifest.',
   ogImage = '/og-default.png',
+  noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -25,6 +27,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex" />}
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
