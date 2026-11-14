@@ -42,7 +42,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             it also produces a minimized image from an existing one. The difference is in
             how each tool decides what to keep. SlimToolkit instruments a container run and
             captures that run's behavior using its own sensor technique; Tracepod uses an
-            eBPF kprobe on <code>openat()</code> running as a Kubernetes DaemonSet, profiling
+            eBPF sensor that records file opens, execs and dlopen loads (<a href="/docs/concepts/how-profiling-works/">how it works</a>) running as a Kubernetes DaemonSet, profiling
             the workload in your own cluster under real traffic for as long as you
             choose. It also carries an explicit per-file observation source (direct, inferred,
             manually added) through to a confidence score, so you can see exactly how

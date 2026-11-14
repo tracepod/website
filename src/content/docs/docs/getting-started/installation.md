@@ -17,7 +17,7 @@ For **profiling** (the sensor):
 
 - Kubernetes cluster with containerd 1.7+ as the runtime (for the Kubernetes path)
 - NRI enabled in containerd — see below
-- cgroupv2 on nodes (default on Ubuntu 22.04+ and most modern distributions)
+- cgroupv2 on nodes (default on Ubuntu 22.04+ and most modern distributions). Note that AKS Ubuntu 22.04 images ship with NRI off, so you need to enable it there; see [Requirements](/docs/getting-started/requirements/)
 - The cluster must allow `privileged: true` DaemonSet pods
 - Helm 3 (for the Kubernetes deployment path)
 

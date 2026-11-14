@@ -231,7 +231,7 @@ const showScreenshots = false;
             <li>Namespace-glob scoped policies</li>
             <li>Min coverage, hardened-required, validated-required</li>
             <li>Fleet compliance report via <code>GET /api/v1/compliance</code></li>
-            <li>RBAC-gated: Operator to write, Viewer to read</li>
+            <li>RBAC-gated: Admin writes, Viewer reads</li>
           </ul>
         </div>
         <div class="feature-block-visual feature-cards-visual">
@@ -580,5 +580,9 @@ const showScreenshots = false;
   .remaining-grid { grid-template-columns: 1fr; }
   .cta-band-inner { flex-direction: column; text-align: center; }
   .cta-band-actions { justify-content: center; }
+}
+@media (max-width: 480px) {
+  .cta-band-actions { flex-direction: column; width: 100%; }
+  .cta-band-actions .btn { justify-content: center; }
 }
 </style>
