@@ -10,7 +10,7 @@ It works in two steps:
 1. **Watch.** While the original pods keep running, Tracepod compares what they access with what the hardened image contains, and reports any file the hardened image would be missing. Each one is a *would-break*. Nothing in the cluster changes during this step.
 2. **Swap (Pro).** Tracepod replaces the image on one pod (the canary), then on a growing share of pods, watches their health, and rolls back by itself if they fail.
 
-Promote then pushes the tested image to a production tag for your CD to deploy. Tracepod never edits the workload's pod template.
+Promote then pushes the hardened image to a production tag for your CD to deploy. Tracepod never edits the workload's pod template.
 
 ## Stages
 
@@ -20,6 +20,8 @@ build → publish → shadow → canary → rollout → promote → done
 
 Free runs `build → publish → shadow → promote → done`. Pro adds `canary` and `rollout`.
 
+In Free the hardened image is checked against what the running workload opens, but it is not run before promote. Approving promote in Free asks the Admin to confirm that. The pipeline page shows a `docker run` command for the staged image, so you can boot it yourself first. Pro runs it on live pods (canary, rollout) before promote.
+
 | Stage | What happens | Gate to move on (defaults) | If it fails |
 |---|---|---|---|
 | **Build** | Checks that the build finished and has a file inventory of the source image | Inventory recorded | The pipeline ends `failed` |
@@ -27,7 +29,7 @@ Free runs `build → publish → shadow → promote → done`. Pro adds `canary`
 | **Shadow** | The original pods keep running. Sensor snapshots are compared with the file inventory to find would-breaks | 24 hours since shadow started, at least one container start that the sensor saw from the beginning, and no open would-breaks | `blocked`. Auto-fix can rebuild |
 | **Canary** (Pro) | The controller evicts one pod; the admission webhook swaps the image on its replacement | Canary Ready within 5 minutes, then healthy for 30 minutes | Automatic rollback |
 | **Rollout** (Pro) | The share of hardened pods rises in steps: 25%, 50%, 100%. Pods are evicted one at a time | Each step healthy for 15 minutes | Automatic rollback |
-| **Promote** | Waits for an Admin's approval, then copies the hardened image to the production tag | Approval, push succeeded, and the pushed digest equals the tested digest | `paused` with the reason. Resume retries |
+| **Promote** | Waits for an Admin's approval, then copies the hardened image to the production tag | Approval (in Free, with confirmation that the image has not been run), push succeeded, and the pushed digest equals the staged digest | `paused` with the reason. Resume retries |
 | **Done** | Waits until the workload's pod template uses the promoted image, which means your CD deployed it | Template on the promoted image | Ends `superseded` if the template moves to another image |
 
 A workload has one active pipeline at a time. A pipeline is in one of these states: `running`, `waiting_approval`, `blocked`, `paused`, `rolling_back`, or one of the final states `completed`, `rolled_back`, `failed`, `superseded`, `cancelled`. Only errors that a retry cannot fix (the build failed, the workload was deleted, there is no file inventory) end in `failed`; everything else pauses with a reason and waits for you.

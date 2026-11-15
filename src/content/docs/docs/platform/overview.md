@@ -31,7 +31,7 @@ Nothing runs outside your cluster. There is no Tracepod-hosted service, and no a
 1. **Profile.** The sensor profiles every Deployment and StatefulSet pod on the nodes it runs on, from container start. Each workload appears in the dashboard with its file list and a coverage score.
 2. **Build.** From a workload's page you build a hardened image: a copy of the source image that keeps the files the workload used, their shared-library dependencies and any paths you include. Each build gets CycloneDX and SPDX SBOMs.
 3. **Validate.** You start a pipeline for the build. The controller pushes the hardened image to a staging tag in your registry, then compares what the running pods access with what the hardened image contains. A file the hardened image would be missing is reported as a *would-break* and blocks the pipeline until a rebuild includes it. With Pro, the pipeline then swaps the image on one pod, then on more pods in steps, and rolls back by itself if they become unhealthy.
-4. **Promote.** After an Admin approves, the controller pushes the tested image to a production tag. Your CD deploys that tag. Tracepod never edits your Deployment or StatefulSet.
+4. **Promote.** After an Admin approves, the controller pushes the hardened image to a production tag. Your CD deploys that tag. Tracepod never edits your Deployment or StatefulSet.
 
 [The validation pipeline](/docs/platform/pipeline/) describes each stage, its gate and what happens when it fails.
 

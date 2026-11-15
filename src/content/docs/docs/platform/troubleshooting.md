@@ -43,7 +43,7 @@ See [Roles and sign-in](/docs/platform/roles-and-sign-in/).
 |---|---|
 | A sensor runs on the workload's node | `kubectl -n "$NS" get pods -o wide`; compare with `kubectl -n "$APP_NS" get pods -o wide` |
 | The sensor reaches the controller | The sensor log has no `connection refused` or POST errors to `<release>-controller.<namespace>.svc:8080` |
-| The sensor is allowed to post | The sensor log shows `controller returned 401` or `403`, or the controller log shows `ingest auth: rejected`. `401`: the sensor sent no token or one for the wrong audience (a sensor older than v0.2.12, or `sensor.controllerToken.audience` changed without restarting the sensors). `403`: the token belongs to a ServiceAccount other than `<release>-sensor`. `503`: the controller cannot reach the Kubernetes TokenReview API |
+| The sensor is allowed to post | The sensor log shows `controller returned 401` or `403`, or the controller log shows `ingest auth: rejected`. `401`: the sensor sent no token or one for the wrong audience (a sensor older than v0.2.13, or `sensor.controllerToken.audience` changed without restarting the sensors). `403`: the token belongs to a ServiceAccount other than `<release>-sensor`. `503`: the controller cannot reach the Kubernetes TokenReview API |
 | The workload started after the sensor | `kubectl -n "$APP_NS" rollout restart deploy/<name>` |
 | It is a Deployment or StatefulSet | Bare pods, Jobs and DaemonSets are not profiled as workloads |
 | Enough time has passed | A running container is posted every `sensor.snapshotInterval` (5 minutes by default), and when it stops |
