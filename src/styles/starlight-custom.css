@@ -82,3 +82,6 @@ header {
   --sl-color-hairline-light:#d0d7de;
   --sl-color-hairline-shade:#c6cdd5;
 }
+
+/* Verb lists in permission tables stay on one line */
+.sl-markdown-content td:nth-child(2) > code:only-child { white-space: nowrap; }

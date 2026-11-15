@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
+import ProductShot from '../components/ProductShot.astro';
+import { OSS_VERSION } from '../version';
 ---
-
 <BaseLayout
   title="Tracepod — Container hardening based on what your workloads do"
   description="Tracepod profiles running container workloads via eBPF and builds minimised OCI images, SBOMs, and removal manifests from the recorded runtime behaviour."
@@ -11,68 +11,60 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
   <!-- ============================================================
        HERO
        ============================================================ -->
-  <section class="hero section">
-    <div class="container hero-inner">
-      <div class="hero-content">
-        <div class="eyebrow">Open-core &middot; AGPL-3.0 &middot; Kubernetes-native</div>
+  <section class="hero hero--b section">
+    <div class="container">
+      <div class="heroB-head">
+        <div class="eyebrow">Open-core &middot; Kubernetes-native</div>
         <h1 class="heading-xl hero-headline">
           Harden containers based on what they do
           <span class="headline-accent"> at runtime.</span>
         </h1>
-        <p class="body-lg hero-sub">
-          Tracepod watches your workloads through an eBPF sensor and records the files they open.
-          From that record it builds a minimised OCI image, SBOMs you can sign with cosign, and a
-          manifest of everything it removed. The image keeps the observed files, their dependencies,
-          and paths you explicitly include.
+        <p class="body-lg heroB-sub">
+          An eBPF sensor records the files your workloads use. From that record Tracepod builds a
+          smaller image that keeps those files and their dependencies. Use the open-source tools on
+          their own, or run the Platform to do it across a cluster.
         </p>
-        <div class="hero-actions">
-          <a href="/docs/getting-started/quickstart/" class="btn btn-primary btn-lg">
-            Read the quickstart
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-          <a href="/platform" class="btn btn-secondary btn-lg">See the platform</a>
-        </div>
       </div>
 
-      <div class="hero-terminal" aria-label="Quickstart example">
-        <div class="terminal">
-          <div class="terminal-bar">
-            <div class="terminal-dot"></div>
-            <div class="terminal-dot"></div>
-            <div class="terminal-dot"></div>
-            <span class="terminal-title">bash</span>
+      <div class="heroB-grid">
+        <div class="heroB-card">
+          <div class="heroB-card-head">
+            <span class="label">Open-source core</span>
+            <span class="compare-col-badge">AGPL-3.0</span>
           </div>
-          <div class="terminal-body">
-            <p><span class="comment"># Check the node can run the sensor before you install</span></p>
-            <p><span class="prompt">$</span> curl -fsSLO \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;https://raw.githubusercontent.com/tracepod/tracepod/{OSS_VERSION}/hack/discovery-probe.sh</p>
-            <p><span class="prompt">$</span> sudo bash discovery-probe.sh <span class="comment"># run on a node; exit 0 = OK to install</span></p>
-            <p>&nbsp;</p>
-            <p><span class="comment"># Install the eBPF sensor</span></p>
-            <p><span class="prompt">$</span> git clone --branch {OSS_VERSION} https://github.com/tracepod/tracepod</p>
-            <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;-n tracepod --create-namespace</p>
-            <p>&nbsp;</p>
-            <p><span class="comment"># Grab the profile from the sensor on the node your workload ran on</span></p>
-            <p><span class="prompt">$</span> NODE=$(kubectl get pod $POD -o jsonpath='&#123;.spec.nodeName&#125;')</p>
-            <p><span class="prompt">$</span> SENSOR=$(kubectl -n tracepod get pod \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;-l app.kubernetes.io/name=tracepod-sensor --field-selector spec.nodeName=$NODE \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;-o jsonpath='&#123;.items[0].metadata.name&#125;')</p>
-            <p><span class="prompt">$</span> kubectl -n tracepod exec $SENSOR -- \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;cat /profiles/$CONTAINER_ID/files.json &gt; manifest.json</p>
-            <p>&nbsp;</p>
-            <p><span class="comment"># Build and push the hardened image</span></p>
-            <p><span class="prompt">$</span> <span class="cmd">harden</span> build --manifest manifest.json \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;--source acme/web:1.4.2 \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;--output /tmp/hardened-web \</p>
-            <p>&nbsp;&nbsp;&nbsp;&nbsp;--push registry.local/web:hardened</p>
-            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (680 direct, 42 inferred-elf, 8 manual/scratch-compat)</span></p>
-            <p><span class="output">Confidence:&nbsp;&nbsp;79/100 (Medium)</span></p>
-            <p><span class="success">Layer:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17.2 MiB (down from 46.2 MiB)</span></p>
-            <p><span class="success">Pushed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registry.local/web:hardened</span></p>
+          <h2 class="heroB-title">A sensor and a CLI. One workload at a time.</h2>
+          <ul class="heroB-list">
+            <li>The sensor DaemonSet records file opens, execs and library loads</li>
+            <li><code>harden</code> builds the minimised image from that record</li>
+            <li>CycloneDX and SPDX SBOMs, and a manifest of what was removed</li>
+          </ul>
+          <div class="heroB-actions">
+            <a href="/docs/getting-started/quickstart/" class="btn btn-primary btn-lg">
+              Read the quickstart
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="/open-source" class="heroB-link">About the open-source tools &rarr;</a>
           </div>
         </div>
-        <p class="terminal-caption">Example output.</p>
+
+        <div class="heroB-card heroB-card--platform">
+          <div class="heroB-card-head">
+            <span class="label">The Platform</span>
+            <span class="compare-col-badge compare-col-badge--pro">Free + Pro &middot; private beta</span>
+          </div>
+          <h2 class="heroB-title">A dashboard and API in your cluster. Every workload.</h2>
+          <ul class="heroB-list">
+            <li>Tests each hardened image against the running workload before you deploy it</li>
+            <li class="heroB-stages" aria-label="Pipeline stages">
+              <span>build</span><span>publish</span><span>shadow</span><span class="is-pro">canary</span><span class="is-pro">rollout</span><span>promote</span>
+            </li>
+            <li>Free watches and publishes a tag. Pro also swaps live pods in steps and rolls back by itself.</li>
+          </ul>
+          <div class="heroB-actions">
+            <a href="/contact?plan=free" class="btn btn-secondary btn-lg">Request free Platform access</a>
+            <a href="/platform" class="heroB-link">See the platform &rarr;</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -207,6 +199,50 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
           <p class="loop-step-body">syft generates CycloneDX and SPDX SBOMs for the minimised image, with optional cosign signing. A removal manifest records every package that was dropped.</p>
         </div>
       </div>
+
+      <div class="loop-terminal" aria-label="Quickstart example">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <span class="terminal-title">bash</span>
+          </div>
+          <div class="terminal-body">
+            <p><span class="comment"># Check the node can run the sensor before you install</span></p>
+            <p><span class="prompt">$</span> curl -fsSLO \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;https://raw.githubusercontent.com/tracepod/tracepod/{OSS_VERSION}/hack/discovery-probe.sh</p>
+            <p><span class="prompt">$</span> sudo bash discovery-probe.sh <span class="comment"># run on a node; exit 0 = OK to install</span></p>
+            <p>&nbsp;</p>
+            <p><span class="comment"># Install the eBPF sensor</span></p>
+            <p><span class="prompt">$</span> git clone --branch {OSS_VERSION} https://github.com/tracepod/tracepod</p>
+            <p><span class="prompt">$</span> helm install tracepod ./tracepod/helm/tracepod \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;-n tracepod --create-namespace</p>
+            <p>&nbsp;</p>
+            <p><span class="comment"># Grab the profile from the sensor on the node your workload ran on</span></p>
+            <p><span class="prompt">$</span> NODE=$(kubectl get pod $POD -o jsonpath='&#123;.spec.nodeName&#125;')</p>
+            <p><span class="prompt">$</span> SENSOR=$(kubectl -n tracepod get pod \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;-l app.kubernetes.io/name=tracepod-sensor --field-selector spec.nodeName=$NODE \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;-o jsonpath='&#123;.items[0].metadata.name&#125;')</p>
+            <p><span class="prompt">$</span> kubectl -n tracepod exec $SENSOR -- \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;cat /profiles/$CONTAINER_ID/files.json &gt; manifest.json</p>
+            <p>&nbsp;</p>
+            <p><span class="comment"># Build and push the hardened image</span></p>
+            <p><span class="prompt">$</span> <span class="cmd">harden</span> build --manifest manifest.json \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--source acme/web:1.4.2 \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--output /tmp/hardened-web \</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;--push registry.local/web:hardened</p>
+            <p><span class="output">Files:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;730 (680 direct, 42 inferred-elf, 8 manual/scratch-compat)</span></p>
+            <p><span class="output">Confidence:&nbsp;&nbsp;79/100 (Medium)</span></p>
+            <p><span class="success">Layer:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17.2 MiB (down from 46.2 MiB)</span></p>
+            <p><span class="success">Pushed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registry.local/web:hardened</span></p>
+          </div>
+        </div>
+        <p class="terminal-caption">
+          Example output.
+          <a href="/docs/getting-started/quickstart/">Step by step, in the quickstart &rarr;</a>
+        </p>
+      </div>
     </div>
   </section>
 
@@ -266,6 +302,33 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
           <div class="legend-item"><span class="legend-dot manual"></span><span class="legend-label label">manual</span><span class="legend-desc">user-added override</span></div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PRODUCT IMAGE (Platform)
+       ============================================================ -->
+  <section class="product-section section">
+    <div class="container">
+      <div class="product-head">
+        <div>
+          <div class="eyebrow">The Platform</div>
+          <h2 class="heading-lg">Find the missing file before the image ships.</h2>
+        </div>
+        <p class="body-md">
+          The Platform runs in your cluster and compares what the running pods access with what the
+          hardened image contains. A file the image would be missing blocks the pipeline, with the
+          path and the pod that asked for it, while the original pods keep serving.{' '}
+          <a href="/platform">See the platform &rarr;</a>
+        </p>
+      </div>
+      <ProductShot
+        src="/screenshots/mock-pipeline-detail.png"
+        alt="Tracepod dashboard, pipeline page for shop/checkout: blocked in the shadow stage by two open would-breaks, with the stage stepper, an auto-fix proposal listing both paths, the gate conditions and the would-break table"
+        caption="A pipeline blocked in shadow. Two paths the workload opened are not in the hardened image; auto-fix proposes a rebuild that adds them."
+        crop="16 / 10"
+        footnote
+      />
     </div>
   </section>
 
@@ -339,9 +402,9 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
             <div class="compare-col-badge compare-col-badge--pro">Free + Pro</div>
           </div>
           <p class="compare-col-intro">
-            Runs in your cluster alongside the sensor. Data is sent outside the cluster
-            only to endpoints you configure, such as webhooks, and to the
-            vulnerability-database feed used for CVE scanning. Includes the
+            Runs in your cluster alongside the sensor. Outside the cluster it connects to your
+            registries, the vulnerability-database feed when a CVE scan runs, and a webhook URL
+            if you set one (<a href="/docs/platform/architecture-and-security/#network-flows">network flows</a>). Includes the
             <code>tracepod</code> CLI and everything in open source, plus:
           </p>
           <ul class="feature-list">
@@ -486,24 +549,62 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
 <style>
 /* Hero */
 .hero { padding-top: var(--space-16); }
-.hero-inner {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-16);
-  align-items: center;
-}
-.hero-content { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
 .hero-headline { line-height: 1.07; }
 .headline-accent { color: var(--accent); }
-.hero-sub { max-width: 520px; }
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
-.hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
-.hero-terminal { width: 100%; min-width: 0; }
 .terminal-caption {
   margin-top: var(--space-2);
   font-size: 0.8rem;
   color: var(--text-muted);
   text-align: right;
+}
+.terminal-caption a { margin-left: var(--space-2); }
+
+/* Hero: open-source core vs Platform */
+.hero--b { padding-top: var(--space-12); padding-bottom: var(--space-12); }
+.heroB-head { max-width: 860px; margin: 0 auto var(--space-8); text-align: center; }
+.heroB-head .hero-headline { font-size: clamp(2.2rem, 4.4vw, 3.25rem); }
+.heroB-sub { margin-top: var(--space-4); }
+.heroB-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); }
+.heroB-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.heroB-card--platform { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim); }
+.heroB-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.heroB-title { font-size: 1.25rem; font-weight: 600; line-height: 1.3; color: var(--text-primary); }
+.heroB-list { list-style: none; display: flex; flex-direction: column; gap: var(--space-2); flex: 1; }
+.heroB-list li { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55; }
+.heroB-list code { font-family: var(--font-mono); font-size: 0.85em; color: var(--accent); }
+.heroB-stages { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-2); align-items: center; }
+.heroB-stages span {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+.heroB-stages span.is-pro { border-color: var(--accent); color: var(--accent); }
+.heroB-stages span.is-pro::after { content: ' Pro'; font-size: 0.65rem; opacity: 0.8; }
+.heroB-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-2); }
+.heroB-link { font-size: 0.9rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
+.heroB-link:hover { color: var(--accent); opacity: 1; }
+.loop-terminal { max-width: 860px; margin: var(--space-12) auto 0; }
+
+/* Product image block */
+.product-section { padding-top: 0; }
+.product-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  align-items: end;
+  margin-bottom: var(--space-8);
 }
 
 /* Supported environments */
@@ -659,14 +760,16 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
 
 /* Responsive */
 @media (max-width: 960px) {
-  .hero-inner { grid-template-columns: 1fr; }
-  .hero-terminal { max-width: 600px; }
+  .product-head { grid-template-columns: 1fr; gap: var(--space-4); }
   .confidence-inner { grid-template-columns: 1fr; }
   .loop-diagram { flex-direction: column; }
   .loop-arrow { padding-top: 0; transform: rotate(90deg); }
   .trust-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
+  .heroB-grid { grid-template-columns: 1fr; }
+  .heroB-head { text-align: left; }
+  .heroB-card { padding: var(--space-6); }
   .support-grid { grid-template-columns: 1fr; }
   .compare-grid { grid-template-columns: 1fr; }
   .cta-band-inner { flex-direction: column; text-align: center; }
@@ -675,7 +778,8 @@ import { OSS_VERSION, OSS_VERSION_BARE } from '../version';
 }
 @media (max-width: 480px) {
   .trust-grid { grid-template-columns: 1fr; }
-  .hero-actions { flex-direction: column; }
+  .heroB-actions { flex-direction: column; align-items: stretch; }
+  .heroB-actions .btn { justify-content: center; }
   .cta-band-actions { flex-direction: column; width: 100%; }
   .cta-band-actions .btn { justify-content: center; }
 }

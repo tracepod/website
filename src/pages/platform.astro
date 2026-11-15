@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-// Product screenshots are hidden until they are retaken from the current UI.
-const showScreenshots = false;
+import ProductShot from '../components/ProductShot.astro';
 ---
 
 <BaseLayout
@@ -20,8 +18,8 @@ const showScreenshots = false;
       <p class="body-lg platform-sub">
         The Tracepod platform puts a dashboard, automated validation, and compliance tooling
         on top of the open-source hardening engine. It deploys into your cluster via Helm.
-        Data is sent outside your cluster only to endpoints you configure, such as
-        webhooks, and to the vulnerability-database feed used for CVE scanning. You see
+        Outside your cluster it connects to your registries, the vulnerability-database feed
+        when a CVE scan runs, and a webhook URL if you set one (<a href="/docs/platform/architecture-and-security/#network-flows">network flows</a>). You see
         exactly what every workload has been hardened to, and whether the running workload
         touched anything the hardened image dropped.
       </p>
@@ -30,63 +28,75 @@ const showScreenshots = false;
         <a href="/contact?plan=pro" class="btn btn-secondary btn-lg">Discuss Pro</a>
         <a href="/open-source" class="hero-text-link">or start with open source &rarr;</a>
       </div>
+      <p class="platform-doclinks">
+        Before you ask for access:{' '}
+        <a href="/docs/platform/overview/">read the Platform docs</a>{' '}or go straight to{' '}
+        <a href="/docs/platform/architecture-and-security/">what it does in your cluster</a>.
+      </p>
     </div>
   </section>
-
-  <!-- Dashboard screenshot -->
-  {showScreenshots && (
-  <section class="screenshot-hero-section">
-    <div class="container">
-      <div class="screenshot-slot" role="img" aria-label="Tracepod dashboard overview">
-        <img
-          src="/screenshots/dashboard.png"
-          alt="Tracepod dashboard overview with profiling, hardening, coverage and image-size totals, items needing attention, and recent activity"
-          loading="lazy"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        />
-        <div class="screenshot-placeholder" style="display:none">
-          <span>dashboard.png</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  )}
 
   <!-- Feature sections -->
   <section class="section">
     <div class="container">
 
       <!-- Feature: Dashboard -->
-      <div class:list={['feature-block', { 'feature-block--text-only': !showScreenshots }]}>
-        <div class="feature-block-text">
-          <div class="eyebrow">Web dashboard</div>
-          <h2 class="heading-md">CVE counts, size savings, and coverage for every workload in the cluster.</h2>
-          <p class="body-md">
-            The dashboard gives you a fleet-wide picture: which workloads have been profiled,
-            hardened, tested, and promoted. See CVE counts, image size savings, and coverage
-            scores at a glance. Drill down to individual builds to inspect the manifest,
-            confidence scores, and pipeline results.
-          </p>
+      <div class="dash-block">
+        <div class="dash-head">
+          <div class="feature-block-text">
+            <div class="eyebrow">Web dashboard</div>
+            <h2 class="heading-md">Every workload, its hardened image, and whether that image is safe to ship.</h2>
+            <p class="body-md">
+              The dashboard lists what the sensor has profiled, what has been built from each
+              profile, and where every hardened image is in the validation pipeline. Open a
+              pipeline to see the gate it is waiting on and the exact files the hardened image
+              would be missing.
+            </p>
+          </div>
           <ul class="feature-bullets">
-            <li>Fleet summary with attention items (drift, blocked pipelines, missing coverage)</li>
-            <li>Per-workload build history and lineage</li>
-            <li>Live updates as builds and pipelines run</li>
-            <li>Full audit log, exportable</li>
+            <li>Workloads with coverage scores, so you know which profiles are ready to build from</li>
+            <li>Per-build size, file provenance, SBOM downloads, and the CVE delta in Pro</li>
+            <li>Pipelines with a stage stepper, gate conditions, would-breaks and a timeline</li>
+            <li>Attention items: drift, blocked pipelines, promoted images not yet deployed</li>
+            <li>Live updates as builds and pipelines run; a full audit log, exportable</li>
           </ul>
         </div>
-        {showScreenshots && (
-        <div class="feature-block-visual">
-          <div class="screenshot-slot" role="img" aria-label="Tracepod workload detail view">
-            <img
-              src="/screenshots/workload-detail.png"
-              alt="Tracepod workload detail page showing the coverage breakdown and the observed file manifest with the observation source of each path"
-              loading="lazy"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            />
-            <div class="screenshot-placeholder" style="display:none"><span>workload-detail.png</span></div>
-          </div>
+
+        <ProductShot
+          src="/screenshots/mock-pipeline-detail.png"
+          alt="Pipeline page for shop/checkout, blocked in the shadow stage: stage stepper from Build to Done, an auto-fix proposal with two missing paths, the gate conditions, and a table of two would-breaks with the pod that hit each one"
+          caption="Pipeline. Shadow found two files the workload opens that the hardened image lacks. The pipeline is blocked and auto-fix proposes the rebuild."
+          crop="16 / 9.5"
+        />
+
+        <div class="dash-grid">
+          <ProductShot
+            src="/screenshots/mock-workloads.png"
+            alt="Workloads page: eleven deployments across four namespaces with profiling status, file counts and coverage scores"
+            caption="Workloads. Everything the sensor has profiled, with file count and coverage score."
+          />
+          <ProductShot
+            src="/screenshots/mock-pipelines.png"
+            alt="Pipelines page: six active pipelines with their stage, state and rollout percentage; one is blocked, one is waiting for approval"
+            caption="Pipelines. One row per hardened image under test, with stage, state and rollout share."
+          />
+          <ProductShot
+            src="/screenshots/mock-build-detail.png"
+            alt="Build page: image size before and after, shadow verification status, provenance chain, image composition by observation source, CVE delta and SBOM downloads"
+            caption="Build. Size before and after, why each file is in the image, SBOMs, and the CVE delta."
+            crop="16 / 9"
+          />
+          <ProductShot
+            src="/screenshots/mock-pipeline-rollout.png"
+            alt="Pipeline page for shop/catalog in the rollout stage at 50 percent: four of eight pods hardened, step soak in progress, health check passing"
+            caption="Rollout. Half the pods run the hardened image; the step must stay healthy before the next one."
+            tier="Pro"
+          />
         </div>
-        )}
+        <p class="dash-footnote">
+          Screenshots of the dashboard (dark theme; a light theme is included). Data is illustrative:
+          the workloads, registries and people shown do not exist. Click an image for the full capture.
+        </p>
       </div>
 
       <div class="feature-divider"></div>
@@ -181,7 +191,7 @@ const showScreenshots = false;
       <div class="feature-divider"></div>
 
       <!-- Feature: CVE delta -->
-      <div class:list={['feature-block', 'feature-block--reversed', { 'feature-block--text-only': !showScreenshots }]}>
+      <div class="feature-block feature-block--reversed feature-block--text-only">
         <div class="feature-block-text">
           <div class="eyebrow">CVE delta reports<span class="tier-pill">Pro</span></div>
           <h2 class="heading-md">See exactly how many vulnerabilities you removed.</h2>
@@ -197,19 +207,6 @@ const showScreenshots = false;
             <li>OpenVEX export with reachability for false-positive suppression</li>
           </ul>
         </div>
-        {showScreenshots && (
-        <div class="feature-block-visual">
-          <div class="screenshot-slot" role="img" aria-label="CVE delta report">
-            <img
-              src="/screenshots/cve-delta.png"
-              alt="CVE delta report showing reduction in critical and high severity vulnerabilities after hardening"
-              loading="lazy"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            />
-            <div class="screenshot-placeholder" style="display:none"><span>cve-delta.png</span></div>
-          </div>
-        </div>
-        )}
       </div>
 
       <div class="feature-divider"></div>
@@ -370,9 +367,9 @@ const showScreenshots = false;
 .hero-text-link:hover { color: var(--accent); }
 .platform-headline { max-width: 800px; margin-top: var(--space-4); }
 .platform-sub { max-width: 640px; margin-top: var(--space-6); }
+.platform-doclinks { margin-top: var(--space-6); font-size: 0.9rem; color: var(--text-secondary); }
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 
-.screenshot-hero-section { padding-bottom: var(--space-8); }
 .screenshot-slot {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
@@ -445,6 +442,12 @@ const showScreenshots = false;
   height: 1px;
   background: var(--border-subtle);
 }
+
+/* Dashboard section with product screenshots */
+.dash-block { padding: var(--space-12) 0; display: flex; flex-direction: column; gap: var(--space-8); }
+.dash-head { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: end; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8) var(--space-6); }
+.dash-footnote { font-size: 0.8rem; color: var(--text-muted); }
 
 /* Mini terminal */
 .mini-terminal { width: 100%; }
@@ -569,6 +572,7 @@ const showScreenshots = false;
 .cta-band-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; flex-shrink: 0; }
 
 @media (max-width: 960px) {
+  .dash-head { grid-template-columns: 1fr; gap: var(--space-6); }
   .feature-block { grid-template-columns: 1fr; gap: var(--space-8); }
   .feature-block--reversed .feature-block-text { order: 1; }
   .feature-block--reversed .feature-block-visual { order: 2; }
@@ -577,6 +581,7 @@ const showScreenshots = false;
   .flow-arrow { transform: rotate(90deg); }
 }
 @media (max-width: 640px) {
+  .dash-grid { grid-template-columns: 1fr; }
   .remaining-grid { grid-template-columns: 1fr; }
   .cta-band-inner { flex-direction: column; text-align: center; }
   .cta-band-actions { justify-content: center; }

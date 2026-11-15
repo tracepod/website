@@ -84,7 +84,7 @@ const proFeatures = [
           <div class="pricing-card-head">
             <div class="eyebrow">Platform (Pro)</div>
             <h2 class="heading-lg">Pro</h2>
-            <p class="body-md">Private beta. Deploys into your cluster via Helm. Data is sent outside the cluster only to endpoints you configure, such as webhooks, and to the vulnerability-database feed used for CVE scanning.</p>
+            <p class="body-md">Private beta. Deploys into your cluster via Helm. Outside the cluster it connects to your registries, the vulnerability-database feed when a CVE scan runs, and a webhook URL if you set one (<a href="/docs/platform/architecture-and-security/#network-flows">network flows</a>).</p>
           </div>
           <p class="pricing-includes">Everything in Platform (Free), plus:</p>
           <ul class="pricing-features">
