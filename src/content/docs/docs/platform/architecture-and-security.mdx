@@ -1,0 +1,191 @@
+---
+title: Architecture and security
+description: What the Tracepod Platform runs in your cluster - data flow, Kubernetes permissions per component, network flows, stored data, pilot scoping, uninstall and vulnerability disclosure.
+---
+
+import DataFlowDiagram from '../../../../components/DataFlowDiagram.astro';
+
+This page is for the person who has to approve Tracepod in a cluster. It lists what runs, with which permissions, what it talks to, and what it stores. It describes the Helm chart as it ships today.
+
+:::danger[TO CONFIRM BEFORE PUBLISHING]
+This is a mockup. Some statements are deliberately left open and marked in place below: how the sensor authenticates to the controller, which role an unlisted cluster identity gets, how to limit the sensor to chosen namespaces, data retention, and the full list of outbound destinations. Do not publish until each note is replaced with the final wording.
+:::
+
+## Data flow
+
+<DataFlowDiagram />
+
+1. **The sensor observes workloads.** One sensor pod per node attaches eBPF programs and records which files each container opens, executes and maps. The profile it produces holds paths, access modes, counts and timestamps, the container ID and the image reference. It holds no file contents, environment variables or network data.
+2. **The sensor posts profiles to the controller**, inside the cluster, every 5 minutes by default and when a container stops.
+3. **The controller talks to your registry.** It pulls the source image to build the hardened one, pushes the hardened image to a staging tag, and after an Admin's approval copies it to a production tag. It never overwrites the source tag.
+4. **The admission webhook swaps images (Pro).** During canary and rollout, the webhook changes the image on new pods of the workload under test. It is only called for pods in namespaces you label `tracepod.io/pipeline=enabled`, and it does nothing while the webhook mode is `off`, which is the default. Free never changes a pod.
+5. **Your CD deploys the promoted tag.** Tracepod never edits a Deployment or StatefulSet. A rollback evicts the hardened pods, and their controller recreates them from the unchanged template.
+
+:::danger[TO CONFIRM BEFORE PUBLISHING]
+Step 2: state how the sensor authenticates to the controller and how that connection is protected. Owner to supply the final wording.
+:::
+
+## Components
+
+| Component | Runs as | Replicas | Open source |
+|---|---|---|---|
+| Sensor | DaemonSet, ServiceAccount `<release>-sensor` | One pod per node | Yes, [AGPL-3.0](https://github.com/tracepod/tracepod) |
+| Controller (dashboard, API, pipeline, webhook server) | Deployment, ServiceAccount `tracepod-controller`, one ReadWriteOnce volume | 1 | No |
+| Admission webhook | `MutatingWebhookConfiguration` named `tracepod-pipeline`, served by the controller | n/a | No |
+
+## Kubernetes permissions
+
+These tables are the chart's RBAC, rule for rule.
+
+### Sensor
+
+Cluster-wide (ClusterRole):
+
+| Resources | Verbs | Why |
+|---|---|---|
+| `pods` | `get` | Find the workload that owns a container |
+| `replicasets` (apps) | `get` | Follow a pod's owner to its Deployment |
+
+The sensor's Kubernetes permissions are small. Its node privileges are not:
+
+| Pod setting | Value | Why |
+|---|---|---|
+| `securityContext.privileged` | `true` | Load eBPF programs and attach them to kernel functions |
+| `hostPID` | `true` | Map kernel events to the container that caused them |
+| hostPath `/sys/kernel/btf` | read-only | Kernel type information for the eBPF programs (CO-RE) |
+| hostPath `/sys/fs/cgroup` | read-write mount | Identify containers by cgroup |
+| hostPath `/var/run/nri` | read-write mount | Learn about container starts and stops from containerd (NRI) |
+
+The sensor is the open-source part of Tracepod, so the code that runs with these privileges can be read and built from [source](https://github.com/tracepod/tracepod). It loads no kernel module.
+
+### Controller
+
+Cluster-wide (ClusterRole):
+
+| Resources | Verbs | Why |
+|---|---|---|
+| `namespaces` | `get list` | Resolve workloads; read the opt-in label |
+| `pods` | `get list watch` | Watch the pods of workloads in a pipeline |
+| `pods/log` | `get` | Save the logs of failing hardened pods at rollback |
+| `pods/eviction` | `create` | Replace one pod at a time in canary, rollout and rollback. Evictions respect PodDisruptionBudgets |
+| `secrets` | `get` | Read the registry credential Secrets you name, and check image pull Secrets before a canary |
+| `configmaps` | `get list watch` | Read the role list (`tracepod-rbac`) |
+| `serviceaccounts` | `get` | Check a workload's image pull Secrets before a canary |
+| `deployments`, `statefulsets` (apps) | `get list watch` | Read pod templates: owner lookup, drift, and the handoff check after promote |
+| `replicasets` (apps) | `get list watch` | Follow a pod's owner to its Deployment |
+| `poddisruptionbudgets` (policy) | `get list watch` | Evict with PodDisruptionBudgets in view |
+| `mutatingwebhookconfigurations` (admissionregistration.k8s.io), only the one named `tracepod-pipeline` | `get patch` | Keep the CA bundle of its own webhook current |
+| `tokenreviews` (authentication.k8s.io) | `create` | Validate the bearer token of a dashboard or API user |
+
+In the Tracepod namespace only (Role):
+
+| Resources | Verbs | Why |
+|---|---|---|
+| `secrets`, only the one named `tracepod-webhook-tls` | `get update` | The webhook's serving certificate |
+| `secrets` | `create` | Create that certificate Secret on first start. Kubernetes cannot restrict `create` by name |
+
+What the controller cannot do follows from the tables: it has no write access to Deployments, StatefulSets, ReplicaSets, pods, ConfigMaps or namespaces, no `exec`, and no Secret writes outside its own namespace. Its cluster-wide writes are pod evictions, TokenReviews, and the patch of its own webhook configuration.
+
+`secrets get` is cluster-wide and has no `list` or `watch`: the controller can read a Secret whose namespace and name it has been given, and cannot enumerate Secrets.
+
+### Admission webhook
+
+| Setting | Value |
+|---|---|
+| Called for | `CREATE` of pods |
+| Namespaces | Only those labelled `tracepod.io/pipeline=enabled`. A person applies the label; the controller cannot label namespaces |
+| Skipped pods | Any pod labelled `tracepod.io/pipeline-skip` |
+| Failure policy | `Ignore`: if the controller is down or slower than 2 seconds, the pod is created unchanged |
+| Side effects | `None` |
+| What it changes | The container image of pods that belong to a workload in canary, rollout or promote, and only in `enforce` mode (Pro). In `observe` mode it records what it would have changed |
+| Certificate | Self-managed, in the Secret `tracepod-webhook-tls` in the Tracepod namespace. Rotated before expiry |
+
+Do not label `kube-system` or the Tracepod namespace.
+
+## Network flows
+
+**Inbound from outside the cluster: none by default.** The chart creates a ClusterIP Service and no Ingress. For a pilot you reach the dashboard with `kubectl port-forward`. The chart has an optional Ingress, off by default.
+
+| From | To | Port | When |
+|---|---|---|---|
+| Sensor pods | Controller Service | 8080 | Always: profile snapshots |
+| Kubernetes API server | Controller Service | 443 (pod port 9443, TLS) | Admission requests for pods in labelled namespaces |
+| Your browser or CLI | Controller Service | 8080 | Through a port-forward, or an Ingress if you enable it |
+| Controller | Kubernetes API server | 443 | Always |
+| Controller | **Your registries** | 443 | Builds (pull the source image), publish and promote (push), staging cleanup |
+| Controller | **Vulnerability-database feed** | 443 | Only when grype scans an image: the CVE delta on each build (Pro), and a reachability report when you ask for a server-side scan. grype downloads its vulnerability database; the scan itself runs in the controller pod |
+| Controller | **A webhook URL you set** | yours | Pro only, and only if you set one: build, pipeline and auto-fix events as JSON |
+
+With the default settings, the last three rows are the only destinations outside the cluster, and the webhook URL is empty until you set one. Tracepod has no telemetry and no licence server, and nothing is sent to us.
+
+:::danger[TO CONFIRM BEFORE PUBLISHING]
+Complete this list before publishing. To check: whether signing SBOMs with a cosign key contacts the public Sigstore transparency log, and the cloud endpoints used for ECR authentication with an IAM role. Owner to confirm.
+:::
+
+## Stored data
+
+Everything is stored on the controller's volume, a PersistentVolumeClaim in the Tracepod namespace in your cluster. Nothing is stored outside it.
+
+| Data | Detail |
+|---|---|
+| File paths per workload | Every path a profiled container opened, executed, mapped or stat'ed, with counts and first and last seen times. Paths can reveal what software a workload runs and how it is laid out. Treat read access to the dashboard accordingly |
+| Workload identity | Namespace, workload name, pod name, container ID, node name |
+| Image references | Source and hardened image names and digests; the file inventory of each source image |
+| Build output | The hardened image layout and its SBOMs, until you delete the build |
+| Pipeline history | Stage changes, approvals, would-breaks, evictions. **After a rollback, the last 500 log lines of each hardened pod's containers (up to 64 KiB)**, so you can see why it failed. Application logs can contain sensitive data |
+| Registry configuration | Host, repository path, and the *name* of the credential Secret. Not the Secret's contents |
+| Audit log | Who did what and when, append-only, exportable |
+| Settings | Pipeline timers and modes, the optional webhook URL |
+
+Dashboard sign-in uses Kubernetes bearer tokens, which the controller validates with the Kubernetes API (a TokenReview). There is no separate user database.
+
+:::danger[TO CONFIRM BEFORE PUBLISHING]
+Retention: state how long profiles, pipeline history and audit entries are kept, and how to delete them. Owner to supply.
+:::
+
+## Who can see what
+
+The dashboard and API have three roles, Viewer, Operator and Admin, described on [Roles and sign-in](/docs/platform/roles-and-sign-in/). A Viewer can read every workload's file list.
+
+:::danger[TO CONFIRM BEFORE PUBLISHING]
+State which role a cluster identity gets when its token is valid but it is not in the role list. Owner to supply the final behaviour and wording.
+:::
+
+## Scoping a pilot
+
+A first pilot can be kept small in these ways, all of which the chart supports today:
+
+- **Start on Free.** Free never changes a pod. It profiles, builds, pushes to a staging tag, watches, and publishes a tag only after an Admin approves.
+- **Limit the sensor to one node pool** with the chart's sensor node selector. Workloads are only profiled on nodes that run a sensor pod.
+- **Use a dedicated repository path** in your registry for hardened images, and a credential that can only push there.
+- **Pick one workload.** Nothing is built and no pipeline starts until a person starts it for a specific workload.
+- **For Pro, label one namespace** and set the webhook mode to `observe` first. In `observe` the webhook records what it would change and changes nothing.
+- **Give most people Viewer**, a few Operator, and one or two Admin.
+
+:::danger[TO CONFIRM BEFORE PUBLISHING]
+Namespace scope of the sensor: state whether, and how, profiling can be limited to chosen namespaces. Owner to supply.
+:::
+
+## Uninstall
+
+```bash
+helm uninstall <release> -n <namespace>
+kubectl label namespace <workload-namespace> tracepod.io/pipeline-
+```
+
+`helm uninstall` removes the sensor, the controller, the RBAC objects and the webhook configuration. Running workloads are not touched; pods that were swapped to a hardened image keep running until they are next replaced, and then come back from their own template.
+
+By default the controller's volume is kept, so a reinstall finds its data. To remove the data too:
+
+```bash
+kubectl -n <namespace> delete pvc <release>-controller
+kubectl delete namespace <namespace>
+```
+
+Deleting the namespace also removes the Secrets in it, including the webhook certificate. What is left is in your registry: the hardened images and any staging tags, which you delete there.
+
+The sensor installs no kernel module, and its eBPF programs are unloaded when its pod stops.
+
+## Reporting a vulnerability
+
+Report security issues privately through the [security policy](https://github.com/tracepod/tracepod/security/policy) of the open-source repository. Please do not open a public issue for a vulnerability.

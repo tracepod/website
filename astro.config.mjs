@@ -41,6 +41,19 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Platform',
+          items: [
+            { label: 'Overview', slug: 'docs/platform/overview' },
+            { label: 'Architecture and security', slug: 'docs/platform/architecture-and-security' },
+            { label: 'Install on EKS', slug: 'docs/platform/install-eks' },
+            { label: 'Install on AKS', slug: 'docs/platform/install-aks' },
+            { label: 'Registries', slug: 'docs/platform/registries' },
+            { label: 'The validation pipeline', slug: 'docs/platform/pipeline' },
+            { label: 'Roles and sign-in', slug: 'docs/platform/roles-and-sign-in' },
+            { label: 'Troubleshooting', slug: 'docs/platform/troubleshooting' },
+          ],
+        },
+        {
           label: 'Reference',
           items: [
             { label: 'CLI reference', slug: 'docs/reference/cli' },

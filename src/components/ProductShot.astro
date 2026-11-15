@@ -1,0 +1,44 @@
+---
+// A captioned product screenshot. Uses the global .screenshot-slot frame.
+// `crop` (a CSS aspect-ratio such as "16 / 10") shows the top of a tall capture;
+// the image links to the full capture.
+interface Props {
+  src: string;
+  alt: string;
+  caption: string;
+  crop?: string;
+  tier?: string;
+  footnote?: boolean;
+}
+const { src, alt, caption, crop, tier, footnote = false } = Astro.props;
+---
+
+<figure class="shot">
+  <a class="screenshot-slot shot-frame" href={src} target="_blank" rel="noopener" style={crop ? `aspect-ratio: ${crop};` : undefined}>
+    <img src={src} alt={alt} loading="lazy" decoding="async" class:list={[{ 'shot-img--crop': !!crop }]} />
+  </a>
+  <figcaption class="shot-caption">
+    <span>{caption}{tier && <span class="tier-pill">{tier}</span>}</span>
+    {footnote && <span class="shot-footnote">Screenshot of the dashboard. Data is illustrative.</span>}
+  </figcaption>
+</figure>
+
+<style>
+.shot { margin: 0; min-width: 0; }
+/* Two-class selectors: Astro scopes with :where(), so a single class would tie
+   with the global .screenshot-slot rules and lose on source order. */
+.shot .shot-frame { display: block; }
+.shot .shot-frame img { display: block; width: 100%; border-radius: 0; }
+.shot .shot-frame img.shot-img--crop { height: 100%; object-fit: cover; object-position: top left; }
+.shot-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.shot-footnote { color: var(--text-muted); font-size: 0.8rem; }
+</style>
