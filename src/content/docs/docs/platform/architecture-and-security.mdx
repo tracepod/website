@@ -145,6 +145,16 @@ The sensor's uploads are authenticated separately, as described in the data flow
 
 A first pilot can be kept small in these ways, all of which the chart supports today:
 
+- **Limit the sensor to chosen namespaces.** By default the sensor skips `kube-system`, `kube-public`, `kube-node-lease` and the Tracepod namespace. To keep a pilot to a few namespaces, list them in your values file:
+
+  ```yaml
+  sensor:
+    namespaces:
+      include: [shop, payments]          # empty = every namespace
+      exclude: [kube-system, kube-public, kube-node-lease]
+  ```
+
+  Entries are exact names or globs (`team-*`), and exclude wins over include. A list you set replaces the default list, so keep `kube-system` in `exclude`. Out-of-scope containers are never traced and nothing is sent for them; the controller also drops any profile from outside the scope. Changing the scope does not delete profiles already stored; an Admin deletes them from the workload page.
 - **Start on Free.** Free never changes a pod. It profiles, builds, pushes to a staging tag, watches, and publishes a tag only after an Admin approves.
 - **Limit the sensor to one node pool** with the chart's sensor node selector. Workloads are only profiled on nodes that run a sensor pod.
 - **Use a dedicated repository path** in your registry for hardened images, and a credential that can only push there.
