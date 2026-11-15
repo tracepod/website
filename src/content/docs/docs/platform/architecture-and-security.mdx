@@ -12,7 +12,7 @@ This page is for the person who has to approve Tracepod in a cluster. It lists w
 <DataFlowDiagram />
 
 1. **The sensor observes workloads.** One sensor pod per node attaches eBPF programs and records which files each container opens, executes and maps. The profile it produces holds paths, access modes, counts and timestamps, the container ID and the image reference. It holds no file contents, environment variables or network data.
-2. **The sensor posts profiles to the controller**, inside the cluster, every 5 minutes by default and when a container stops.
+2. **The sensor posts profiles to the controller**, inside the cluster, every 5 minutes by default and when a container stops. Each upload carries a short-lived token for the sensor's own ServiceAccount, with the audience `tracepod-ingest`. The controller checks it with a TokenReview and accepts profiles only from that ServiceAccount. Other tokens get `401` or `403`, and if the controller cannot check a token it refuses the upload (`503`).
 3. **The controller talks to your registry.** It pulls the source image to build the hardened one, pushes the hardened image to a staging tag, and after an Admin's approval copies it to a production tag. It never overwrites the source tag.
 4. **The admission webhook swaps images (Pro).** During canary and rollout, the webhook changes the image on new pods of the workload under test. It is only called for pods in namespaces you label `tracepod.io/pipeline=enabled`, and it does nothing while the webhook mode is `off`, which is the default. Free never changes a pod.
 5. **Your CD deploys the promoted tag.** Tracepod never edits a Deployment or StatefulSet. A rollback evicts the hardened pods, and their controller recreates them from the unchanged template.
@@ -100,7 +100,7 @@ Do not label `kube-system` or the Tracepod namespace.
 
 | From | To | Port | When |
 |---|---|---|---|
-| Sensor pods | Controller Service | 8080 | Always: profile snapshots |
+| Sensor pods | Controller Service | 8080 | Always: profile snapshots, authenticated with the sensor's ServiceAccount token |
 | Kubernetes API server | Controller Service | 443 (pod port 9443, TLS) | Admission requests for pods in labelled namespaces |
 | Your browser or CLI | Controller Service | 8080 | Through a port-forward, or an Ingress if you enable it |
 | Controller | Kubernetes API server | 443 | Always |
@@ -136,6 +136,10 @@ Dashboard sign-in uses Kubernetes bearer tokens, which the controller validates 
 ## Who can see what
 
 The dashboard and API have three roles, Viewer, Operator and Admin, described on [Roles and sign-in](/docs/platform/roles-and-sign-in/). A Viewer can read every workload's file list.
+
+Access is deny-by-default. An identity that is not listed in the `tracepod-rbac` ConfigMap is refused (`403`), even with a valid cluster token. Adding the line `*=viewer` lets every signed-in identity read; a wildcard never grants more than Viewer. Tokens are validated with TokenReview for the audience `tracepod` (`kubectl create token <sa> -n <ns> --audience tracepod`). By default tokens for the API server's own audience are accepted as well; `controller.auth.strictAudience=true` requires the Tracepod audience. Successful logins are cached for 30 seconds, so a role change applies within 30 seconds.
+
+The sensor's uploads are authenticated separately, as described in the data flow above. The Helm value `controller.ingestAuth` defaults to `required`.
 
 ## Scoping a pilot
 

@@ -32,8 +32,9 @@ See [Roles and sign-in](/docs/platform/roles-and-sign-in/).
 | Symptom | Cause | Fix |
 |---|---|---|
 | `401 missing authorization header` | No token sent | Dashboard: sign in on the **Sign in** page. curl: add `-H "$AUTH"` |
-| Sent back to **Sign in** with "Your token was refused or has expired", or `401 invalid token` | The token expired or is not a Kubernetes token for this cluster | `TOKEN=$(kubectl -n "$NS" create token tracepod-admin --duration=24h)` and sign in again |
-| Signed in, but `403 insufficient permissions` | Your role does not allow the action | `curl -s -H "$AUTH" "$API/auth/me"` shows your user name and role. Add or change your line in the ConfigMap `tracepod-rbac`, key `roles`, in the release namespace |
+| Sent back to **Sign in** with "Your token was refused or has expired", or `401 invalid token` | The token expired, is not a Kubernetes token for this cluster, or was created for another audience (with `controller.auth.strictAudience=true`, a token without `--audience tracepod` too) | `TOKEN=$(kubectl -n "$NS" create token tracepod-admin --audience tracepod --duration=24h)` and sign in again |
+| **Sign in** says "this identity has no Tracepod role", or `403` with `"code": "not_listed"`, on every route | Access is deny-by-default: your user is not listed in `tracepod-rbac`, or the ConfigMap does not exist. The message names both | Add `<user>=admin` (the user name from the message, for example `system:serviceaccount:<ns>:<name>`) to the key `roles` of the ConfigMap in the release namespace. It applies within 30 seconds. `*=viewer` lets every signed-in identity read |
+| Signed in, but `403 insufficient permissions` | Your role does not allow the action | `curl -s -H "$AUTH" "$API/auth/me"` shows your user name and role. Add or change your line in the ConfigMap `tracepod-rbac`, key `roles`, in the release namespace. It applies within 30 seconds |
 | Port 9090 refused | The port-forward stopped. It ends when the controller pod is replaced | Run `kubectl -n "$NS" port-forward svc/tracepod-controller 9090:8080` again |
 
 ## No workloads appear
@@ -42,6 +43,7 @@ See [Roles and sign-in](/docs/platform/roles-and-sign-in/).
 |---|---|
 | A sensor runs on the workload's node | `kubectl -n "$NS" get pods -o wide`; compare with `kubectl -n "$APP_NS" get pods -o wide` |
 | The sensor reaches the controller | The sensor log has no `connection refused` or POST errors to `<release>-controller.<namespace>.svc:8080` |
+| The sensor is allowed to post | The sensor log shows `controller returned 401` or `403`, or the controller log shows `ingest auth: rejected`. `401`: the sensor sent no token or one for the wrong audience (a sensor older than v0.2.12, or `sensor.controllerToken.audience` changed without restarting the sensors). `403`: the token belongs to a ServiceAccount other than `<release>-sensor`. `503`: the controller cannot reach the Kubernetes TokenReview API |
 | The workload started after the sensor | `kubectl -n "$APP_NS" rollout restart deploy/<name>` |
 | It is a Deployment or StatefulSet | Bare pods, Jobs and DaemonSets are not profiled as workloads |
 | Enough time has passed | A running container is posted every `sensor.snapshotInterval` (5 minutes by default), and when it stops |

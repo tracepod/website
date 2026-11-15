@@ -3,7 +3,7 @@ title: Roles and sign-in
 description: How the Tracepod dashboard and API authenticate users with Kubernetes tokens, how to assign the Viewer, Operator and Admin roles, and how to sign in.
 ---
 
-The Platform has no user database. It reuses your cluster's identities: you sign in with a Kubernetes bearer token, the controller asks the Kubernetes API whether the token is valid (a TokenReview), and it looks up the user name it gets back in a role list that you maintain.
+The Platform has no user database. It reuses your cluster's identities: you sign in with a Kubernetes bearer token, the controller asks the Kubernetes API whether the token is valid (a TokenReview), and it looks up the user name it gets back in a role list that you maintain. Access is deny-by-default: a user who is not in that list is refused.
 
 ## Roles
 
@@ -31,7 +31,15 @@ data:
     system:serviceaccount:tracepod:tracepod-operator=operator
 ```
 
-The controller reads the ConfigMap on every request, so a change takes effect without a restart.
+A user who is not listed gets `403` on every route, with a message that names the ConfigMap and the user. The same happens if the ConfigMap does not exist. To let every signed-in identity read, add the line `*=viewer`. A wildcard line grants `viewer` at most, and a line for a specific user always wins over it. A listed user with a misspelt role is refused.
+
+```yaml
+  roles: |
+    *=viewer
+    system:serviceaccount:tracepod:tracepod-admin=admin
+```
+
+A change to the ConfigMap takes effect within 30 seconds, without a restart. The controller caches each successful token check for 30 seconds, using a hash of the token and never the token itself.
 
 ## Signing in with a ServiceAccount
 
@@ -54,12 +62,14 @@ The simplest identity is a Kubernetes ServiceAccount, because its user name is p
    EOF
    ```
 
-2. Create a token, valid for 24 hours here:
+2. Create a token for the `tracepod` audience, valid for 24 hours here:
 
    ```bash
-   TOKEN=$(kubectl -n "$NS" create token tracepod-admin --duration=24h)
+   TOKEN=$(kubectl -n "$NS" create token tracepod-admin --audience tracepod --duration=24h)
    echo "$TOKEN"
    ```
+
+   A token for the `tracepod` audience is accepted only by Tracepod. The Kubernetes API server refuses it, so a leaked dashboard token cannot be used against the cluster.
 
 3. Reach the dashboard through a port-forward. The Service is named `<release>-controller`:
 
@@ -70,6 +80,10 @@ The simplest identity is a Kubernetes ServiceAccount, because its user name is p
 4. Open <http://localhost:9090>. You land on **Sign in**. Paste the token into **Token** and click **Sign in**. The sidebar then shows your user and role. **Sign out** is in the user menu in the sidebar.
 
 When the token expires, the dashboard returns to the sign-in page with "Your token was refused or has expired". Create a new token and sign in again.
+
+## Token audience
+
+The controller validates tokens for the audience `tracepod` (Helm value `controller.auth.audience`). By default it also accepts tokens for the API server's own audience, so a plain `kubectl create token` without `--audience`, and the user tokens of EKS and AKS, keep working. A token for any other audience is refused. To accept only the `tracepod` audience, set `controller.auth.strictAudience=true`.
 
 ## Other identities
 
