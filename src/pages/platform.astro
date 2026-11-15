@@ -18,8 +18,8 @@ import ProductShot from '../components/ProductShot.astro';
       <p class="body-lg platform-sub">
         The Tracepod platform puts a dashboard, automated validation, and compliance tooling
         on top of the open-source hardening engine. It deploys into your cluster via Helm.
-        Data is sent outside your cluster only to endpoints you configure, such as
-        webhooks, and to the vulnerability-database feed used for CVE scanning. You see
+        Outside your cluster it connects to your registries, the vulnerability-database feed
+        when a CVE scan runs, and a webhook URL if you set one (<a href="/docs/platform/architecture-and-security/#network-flows">network flows</a>). You see
         exactly what every workload has been hardened to, and whether the running workload
         touched anything the hardened image dropped.
       </p>

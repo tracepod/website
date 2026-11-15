@@ -402,9 +402,9 @@ import { OSS_VERSION } from '../version';
             <div class="compare-col-badge compare-col-badge--pro">Free + Pro</div>
           </div>
           <p class="compare-col-intro">
-            Runs in your cluster alongside the sensor. Data is sent outside the cluster
-            only to endpoints you configure, such as webhooks, and to the
-            vulnerability-database feed used for CVE scanning. Includes the
+            Runs in your cluster alongside the sensor. Outside the cluster it connects to your
+            registries, the vulnerability-database feed when a CVE scan runs, and a webhook URL
+            if you set one (<a href="/docs/platform/architecture-and-security/#network-flows">network flows</a>). Includes the
             <code>tracepod</code> CLI and everything in open source, plus:
           </p>
           <ul class="feature-list">
