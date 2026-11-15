@@ -10,7 +10,7 @@ The Tracepod Platform is a dashboard and an API that run in your own cluster, ne
 The open-source tools already do the hardening itself: the sensor records what a container uses, and the `harden` CLI builds the minimised image. The Platform is for the two things a CLI cannot do well: keeping track of many workloads at once, and answering "will the workload still run on this image?" with evidence from the running pods.
 
 :::note[Private beta]
-The Platform is in private beta. The sensor is public; the controller image and the Helm chart are not. When you [request access](/contact?plan=free), we send you a registry token and a Helm chart. Everything else you need is on these pages, so you can read how it works before you ask.
+The Platform is in private beta. The sensor is public; the controller image and the Helm chart are not. When you [request access](/contact?plan=free), we send you a registry token and the chart location. Everything else you need is on these pages, including the install guides for [EKS](/docs/platform/install-eks/) and [AKS](/docs/platform/install-aks/), so you can read how it works before you ask.
 :::
 
 ## What gets installed

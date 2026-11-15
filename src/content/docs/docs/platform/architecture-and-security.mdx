@@ -7,10 +7,6 @@ import DataFlowDiagram from '../../../../components/DataFlowDiagram.astro';
 
 This page is for the person who has to approve Tracepod in a cluster. It lists what runs, with which permissions, what it talks to, and what it stores. It describes the Helm chart as it ships today.
 
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-This is a mockup. Some statements are deliberately left open and marked in place below: how the sensor authenticates to the controller, which role an unlisted cluster identity gets, how to limit the sensor to chosen namespaces, data retention, and the full list of outbound destinations. Do not publish until each note is replaced with the final wording.
-:::
-
 ## Data flow
 
 <DataFlowDiagram />
@@ -20,10 +16,6 @@ This is a mockup. Some statements are deliberately left open and marked in place
 3. **The controller talks to your registry.** It pulls the source image to build the hardened one, pushes the hardened image to a staging tag, and after an Admin's approval copies it to a production tag. It never overwrites the source tag.
 4. **The admission webhook swaps images (Pro).** During canary and rollout, the webhook changes the image on new pods of the workload under test. It is only called for pods in namespaces you label `tracepod.io/pipeline=enabled`, and it does nothing while the webhook mode is `off`, which is the default. Free never changes a pod.
 5. **Your CD deploys the promoted tag.** Tracepod never edits a Deployment or StatefulSet. A rollback evicts the hardened pods, and their controller recreates them from the unchanged template.
-
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-Step 2: state how the sensor authenticates to the controller and how that connection is protected. Owner to supply the final wording.
-:::
 
 ## Components
 
@@ -46,7 +38,7 @@ Cluster-wide (ClusterRole):
 | `pods` | `get` | Find the workload that owns a container |
 | `replicasets` (apps) | `get` | Follow a pod's owner to its Deployment |
 
-The sensor's Kubernetes permissions are small. Its node privileges are not:
+On the node, the sensor runs with these settings:
 
 | Pod setting | Value | Why |
 |---|---|---|
@@ -112,44 +104,38 @@ Do not label `kube-system` or the Tracepod namespace.
 | Kubernetes API server | Controller Service | 443 (pod port 9443, TLS) | Admission requests for pods in labelled namespaces |
 | Your browser or CLI | Controller Service | 8080 | Through a port-forward, or an Ingress if you enable it |
 | Controller | Kubernetes API server | 443 | Always |
-| Controller | **Your registries** | 443 | Builds (pull the source image), publish and promote (push), staging cleanup |
-| Controller | **Vulnerability-database feed** | 443 | Only when grype scans an image: the CVE delta on each build (Pro), and a reachability report when you ask for a server-side scan. grype downloads its vulnerability database; the scan itself runs in the controller pod |
-| Controller | **A webhook URL you set** | yours | Pro only, and only if you set one: build, pipeline and auto-fix events as JSON |
 
-With the default settings, the last three rows are the only destinations outside the cluster, and the webhook URL is empty until you set one. Tracepod has no telemetry and no licence server, and nothing is sent to us.
+Destinations outside the cluster that the controller connects to:
 
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-Complete this list before publishing. To check: whether signing SBOMs with a cosign key contacts the public Sigstore transparency log, and the cloud endpoints used for ECR authentication with an IAM role. Owner to confirm.
-:::
+| Destination | Port | When |
+|---|---|---|
+| **Your registries** | 443, or the port of the registry host you configure | Builds (pull the source image), publish and promote (push), staging cleanup |
+| **The vulnerability-database feed** | 443 | When a CVE scan runs. The scanner (grype) downloads its vulnerability database; the scan itself runs in the controller pod |
+| **A webhook URL you set** | yours | Pro, and only if you set one: build, pipeline and auto-fix events as JSON. The setting is empty by default |
+| **AWS STS and Amazon ECR API endpoints** | 443 | Only when a registry uses ECR authentication with an IAM role: the controller exchanges its AWS identity for a short-lived ECR token |
+
+The licence tier is a Helm value. There is no licence server to contact.
 
 ## Stored data
 
-Everything is stored on the controller's volume, a PersistentVolumeClaim in the Tracepod namespace in your cluster. Nothing is stored outside it.
+The controller keeps its database and build output on its volume, a PersistentVolumeClaim in the Tracepod namespace in your cluster. Hardened images are also pushed to the registry you configure.
 
 | Data | Detail |
 |---|---|
-| File paths per workload | Every path a profiled container opened, executed, mapped or stat'ed, with counts and first and last seen times. Paths can reveal what software a workload runs and how it is laid out. Treat read access to the dashboard accordingly |
-| Workload identity | Namespace, workload name, pod name, container ID, node name |
+| File paths per workload | Every path a profiled container opened, executed, mapped or stat'ed, with counts and first and last seen times. |
+| Workload identity | Namespace, workload name, pod name, container ID |
 | Image references | Source and hardened image names and digests; the file inventory of each source image |
-| Build output | The hardened image layout and its SBOMs, until you delete the build |
-| Pipeline history | Stage changes, approvals, would-breaks, evictions. **After a rollback, the last 500 log lines of each hardened pod's containers (up to 64 KiB)**, so you can see why it failed. Application logs can contain sensitive data |
+| Build output | The hardened image layout and its SBOMs for each build |
+| Pipeline history | Stage changes, approvals, would-breaks, evictions. **After a rollback, the last 500 log lines of each hardened pod's containers (up to 64 KiB)**, so you can see why it failed. |
 | Registry configuration | Host, repository path, and the *name* of the credential Secret. Not the Secret's contents |
-| Audit log | Who did what and when, append-only, exportable |
+| Audit log | Who did what and when. Exportable from the dashboard |
 | Settings | Pipeline timers and modes, the optional webhook URL |
 
 Dashboard sign-in uses Kubernetes bearer tokens, which the controller validates with the Kubernetes API (a TokenReview). There is no separate user database.
 
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-Retention: state how long profiles, pipeline history and audit entries are kept, and how to delete them. Owner to supply.
-:::
-
 ## Who can see what
 
 The dashboard and API have three roles, Viewer, Operator and Admin, described on [Roles and sign-in](/docs/platform/roles-and-sign-in/). A Viewer can read every workload's file list.
-
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-State which role a cluster identity gets when its token is valid but it is not in the role list. Owner to supply the final behaviour and wording.
-:::
 
 ## Scoping a pilot
 
@@ -161,10 +147,6 @@ A first pilot can be kept small in these ways, all of which the chart supports t
 - **Pick one workload.** Nothing is built and no pipeline starts until a person starts it for a specific workload.
 - **For Pro, label one namespace** and set the webhook mode to `observe` first. In `observe` the webhook records what it would change and changes nothing.
 - **Give most people Viewer**, a few Operator, and one or two Admin.
-
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-Namespace scope of the sensor: state whether, and how, profiling can be limited to chosen namespaces. Owner to supply.
-:::
 
 ## Uninstall
 

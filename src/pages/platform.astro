@@ -1,10 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductShot from '../components/ProductShot.astro';
-
-// The older screenshots (CVE delta) are hidden until they are retaken from the current UI.
-// The "Web dashboard" section below uses new captures and does not depend on this flag.
-const showScreenshots = false;
 ---
 
 <BaseLayout
@@ -40,30 +36,11 @@ const showScreenshots = false;
     </div>
   </section>
 
-  <!-- Dashboard screenshot -->
-  {showScreenshots && (
-  <section class="screenshot-hero-section">
-    <div class="container">
-      <div class="screenshot-slot" role="img" aria-label="Tracepod dashboard overview">
-        <img
-          src="/screenshots/dashboard.png"
-          alt="Tracepod dashboard overview with profiling, hardening, coverage and image-size totals, items needing attention, and recent activity"
-          loading="lazy"
-          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-        />
-        <div class="screenshot-placeholder" style="display:none">
-          <span>dashboard.png</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  )}
-
   <!-- Feature sections -->
   <section class="section">
     <div class="container">
 
-      <!-- Feature: Dashboard (mockup: W-2 product visuals) -->
+      <!-- Feature: Dashboard -->
       <div class="dash-block">
         <div class="dash-head">
           <div class="feature-block-text">
@@ -214,7 +191,7 @@ const showScreenshots = false;
       <div class="feature-divider"></div>
 
       <!-- Feature: CVE delta -->
-      <div class:list={['feature-block', 'feature-block--reversed', { 'feature-block--text-only': !showScreenshots }]}>
+      <div class="feature-block feature-block--reversed feature-block--text-only">
         <div class="feature-block-text">
           <div class="eyebrow">CVE delta reports<span class="tier-pill">Pro</span></div>
           <h2 class="heading-md">See exactly how many vulnerabilities you removed.</h2>
@@ -230,19 +207,6 @@ const showScreenshots = false;
             <li>OpenVEX export with reachability for false-positive suppression</li>
           </ul>
         </div>
-        {showScreenshots && (
-        <div class="feature-block-visual">
-          <div class="screenshot-slot" role="img" aria-label="CVE delta report">
-            <img
-              src="/screenshots/cve-delta.png"
-              alt="CVE delta report showing reduction in critical and high severity vulnerabilities after hardening"
-              loading="lazy"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-            />
-            <div class="screenshot-placeholder" style="display:none"><span>cve-delta.png</span></div>
-          </div>
-        </div>
-        )}
       </div>
 
       <div class="feature-divider"></div>
@@ -406,7 +370,6 @@ const showScreenshots = false;
 .platform-doclinks { margin-top: var(--space-6); font-size: 0.9rem; color: var(--text-secondary); }
 .btn-lg { padding: 0.8rem 1.75rem; font-size: 1rem; }
 
-.screenshot-hero-section { padding-bottom: var(--space-8); }
 .screenshot-slot {
   background: var(--bg-elevated);
   border: 1px solid var(--border);

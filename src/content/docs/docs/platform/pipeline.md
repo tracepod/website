@@ -140,7 +140,7 @@ Staging tags of finished pipelines are deleted after 24 hours. A digest that is 
 
 ## If the controller restarts
 
-Pipeline state is in the controller's database, so a pipeline continues from where it was when the controller comes back. While the controller is down the webhook fails open: new pods are created on the image in their template, unchanged.
+Pipeline state is stored in the controller's database, on its volume. While the controller is down the webhook fails open: new pods are created on the image in their template, unchanged.
 
 ## Settings
 

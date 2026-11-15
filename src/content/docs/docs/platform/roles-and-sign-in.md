@@ -1,11 +1,7 @@
 ---
 title: Roles and sign-in
-description: Draft outline - how the Tracepod dashboard authenticates users with Kubernetes tokens, and what Viewer, Operator and Admin can do.
+description: How the Tracepod dashboard and API authenticate users with Kubernetes tokens, how to assign the Viewer, Operator and Admin roles, and how to sign in.
 ---
-
-:::caution[Draft outline]
-This page is an outline. The headings are the final structure; the full commands will be filled in before publishing.
-:::
 
 The Platform has no user database. It reuses your cluster's identities: you sign in with a Kubernetes bearer token, the controller asks the Kubernetes API whether the token is valid (a TokenReview), and it looks up the user name it gets back in a role list that you maintain.
 
@@ -13,32 +9,94 @@ The Platform has no user database. It reuses your cluster's identities: you sign
 
 | Role | Can |
 |---|---|
-| **Viewer** | Read everything: workloads, builds, pipelines, would-breaks, the audit log |
-| **Operator** | Everything a Viewer can, plus create builds, start, pause, resume, roll back and cancel pipelines, and run auto-fix |
-| **Admin** | Everything an Operator can, plus approve canary and promote, change settings, manage registries and fleet policies, and create test builds |
+| `viewer` | Read everything: workloads, builds, pipelines, would-breaks, the audit log |
+| `operator` | Everything a Viewer can, plus profile actions, create builds, start, pause, resume, roll back and cancel pipelines, and run auto-fix |
+| `admin` | Everything an Operator can, plus approve canary and promote, change settings, manage registries, and create test builds |
 
-Every action that changes something is written to the audit log with the user, the time and the target. Refused attempts to change something are recorded too.
+Actions that change something are written to the audit log with the user, the action and the target. Refused attempts to change something are recorded too.
 
 ## Assigning roles
 
-Roles live in a ConfigMap named `tracepod-rbac` in the Tracepod namespace: one line per identity, `<user name>=<role>`. The chart does not create it; you do. The controller reads it on every request, so a change takes effect without a restart.
+Roles live in a ConfigMap named `tracepod-rbac` in the Tracepod release namespace, under the key `roles`. Each line is `<user name>=<role>`. The chart does not create the ConfigMap; you do. Add a line for every identity that should have a role.
 
-:::danger[TO CONFIRM BEFORE PUBLISHING]
-State here which role an identity gets when the cluster accepts its token but it is not listed in `tracepod-rbac`. Owner to supply the final behaviour and wording.
-:::
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tracepod-rbac
+  namespace: tracepod
+data:
+  roles: |
+    system:serviceaccount:tracepod:tracepod-admin=admin
+    system:serviceaccount:tracepod:tracepod-operator=operator
+```
 
-## Signing in for a pilot
+The controller reads the ConfigMap on every request, so a change takes effect without a restart.
 
-The simplest identity is a ServiceAccount, because its user name is predictable: `system:serviceaccount:<namespace>:<name>`. This section will carry the four steps: create the ServiceAccount, add it to `tracepod-rbac`, create a short-lived token with `kubectl create token`, and paste it on the **Sign in** page. When the token expires, the dashboard returns to the sign-in page.
+## Signing in with a ServiceAccount
 
-## Signing in with your identity provider
+The simplest identity is a Kubernetes ServiceAccount, because its user name is predictable: `system:serviceaccount:<namespace>:<name>`. The commands use `NS` for the release namespace.
 
-Any token your cluster's API server accepts is checked the same way; the user name in the role list is whatever the cluster reports for that user. This section will list the token types that have been tested (for example EKS IAM, Microsoft Entra ID and OIDC) and show how to find the user name.
+1. Create a ServiceAccount and give it the `admin` role:
+
+   ```bash
+   kubectl -n "$NS" create serviceaccount tracepod-admin
+
+   kubectl apply -f - <<EOF
+   apiVersion: v1
+   kind: ConfigMap
+   metadata:
+     name: tracepod-rbac
+     namespace: $NS
+   data:
+     roles: |
+       system:serviceaccount:$NS:tracepod-admin=admin
+   EOF
+   ```
+
+2. Create a token, valid for 24 hours here:
+
+   ```bash
+   TOKEN=$(kubectl -n "$NS" create token tracepod-admin --duration=24h)
+   echo "$TOKEN"
+   ```
+
+3. Reach the dashboard through a port-forward. The Service is named `<release>-controller`:
+
+   ```bash
+   kubectl -n "$NS" port-forward svc/tracepod-controller 9090:8080
+   ```
+
+4. Open <http://localhost:9090>. You land on **Sign in**. Paste the token into **Token** and click **Sign in**. The sidebar then shows your user and role. **Sign out** is in the user menu in the sidebar.
+
+When the token expires, the dashboard returns to the sign-in page with "Your token was refused or has expired". Create a new token and sign in again.
+
+## Other identities
+
+The controller checks every token the same way, through the cluster's TokenReview API, and the user name in the role list is the one the cluster reports for that token. After you sign in, the sidebar shows that user name, and so does the API:
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:9090/api/v1/auth/me | jq
+```
 
 ## Reaching the dashboard
 
-The chart creates a ClusterIP Service and no Ingress, so by default the dashboard is only reachable through `kubectl port-forward`. The chart has an optional Ingress; this section will say what to put in front of it.
+The chart creates a ClusterIP Service and no Ingress, so by default the dashboard is only reachable through `kubectl port-forward`. The port-forward ends when the controller pod is replaced; run it again.
+
+The chart has an optional Ingress (`controller.ingress.enabled`, off by default) with a class name, a host, annotations and a TLS section.
 
 ## API access
 
-The API uses the same token, as `Authorization: Bearer <token>`, and the same roles. Every `/api/v1` route except the health check needs a token.
+The API uses the same token and the same roles. Every `/api/v1` route except `/api/v1/health` needs the header `Authorization: Bearer <token>`.
+
+```bash
+API=http://localhost:9090/api/v1
+AUTH="Authorization: Bearer $TOKEN"
+curl -s -H "$AUTH" "$API/auth/me" | jq
+```
+
+For the admin ServiceAccount above, the response shows `"role": "admin"`.
+
+:::caution[Do not disable authentication on a shared cluster]
+The Helm value `controller.authDisabled=true` skips the token check and makes every request an Admin. It is for a local kind cluster only. Do not set it on a cluster that anyone else can reach.
+:::
