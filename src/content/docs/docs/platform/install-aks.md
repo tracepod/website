@@ -132,7 +132,7 @@ kubectl -n "$NS" logs ds/tracepod-sensor --tail=50
 
 ## 5. Sign in to the dashboard
 
-[Roles and sign-in](/docs/platform/roles-and-sign-in/) explains how this works. In short: create a ServiceAccount, give it the `admin` role in the `tracepod-rbac` ConfigMap, create a token, and port-forward the controller Service.
+[Roles and sign-in](/docs/platform/roles-and-sign-in/) explains how this works. In short: create a ServiceAccount, add it to the `tracepod-rbac` ConfigMap with the `admin` role, create a token for the `tracepod` audience, and port-forward the controller Service. Add yourself to `tracepod-rbac` before you sign in: a user who is not listed in it is refused.
 
 ```bash
 kubectl -n "$NS" create serviceaccount tracepod-admin
@@ -146,7 +146,7 @@ data:
   roles: |
     system:serviceaccount:$NS:tracepod-admin=admin
 EOF
-TOKEN=$(kubectl -n "$NS" create token tracepod-admin --duration=24h)
+TOKEN=$(kubectl -n "$NS" create token tracepod-admin --audience tracepod --duration=24h)
 echo "$TOKEN"
 kubectl -n "$NS" port-forward svc/tracepod-controller 9090:8080
 ```
